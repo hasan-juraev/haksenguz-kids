@@ -130,3 +130,46 @@ bolalar-ertaklari/
 
 ---
 *Document prepared for handover to Claude AI Engineer.*
+
+---
+
+## 7. Update: Real-Book Paging, Longer Folk Tales, Per-Page Illustrations
+
+### What changed
+* **3D paging now behaves like a real book** (`js/book.js`, `css/book.css`). Resolves Issues A, B and E.
+  * The book is a sequence of spreads: closed cover → endpaper | title page → story pages (picture | text) → "Tamom!" | moral + quiz.
+  * Turning forward lifts the right-hand sheet: its front is the current right page, its back is the next left page. The next right page appears **underneath** as soon as the sheet lifts, and the old left page is covered only when the sheet lands. Turning back is the exact mirror. The cover opens and closes the same way, and the book slides to centre when closed.
+  * Static pages and both faces of the turning sheet are built from the **same templates**, so nothing jumps or flickers when a turn completes.
+  * Turns are driven frame by frame (`requestAnimationFrame`). The same code handles buttons, ← → keys, page-corner taps and **dragging a page by its edge**. A drag past the middle (or a quick flick) completes the turn; otherwise the page falls back. Only one turn runs at a time (animation lock).
+  * Paper realism: shading on the sheet as it tilts, a shadow cast on the page beneath, spine gutter shadows, and page-stack edges whose thickness follows reading progress.
+  * Below 768px there is no spread: picture and text stack vertically, and a page change is a short slide (swipe left or right).
+  * Text that would overflow a page is shrunk step by step until it fits.
+* **Illustration engine** (`js/art/*.js`, `css/art.css`) replaces the four fixed SVGs and the icon fallback. Every page of every book has its own composed scene: Uzbek-dressed characters (atlas, chapan, do'ppi, salla, ro'mol), animals, places (mud-brick hovli, forest kulba, palace portal, bazaar, steppe, mountains) and props (sandiq, tarvuz, dasturxon, qozon, arava, flying gilam). Scenes carry gentle ambient motion (breathing characters, drifting clouds, twinkling stars, flickering fire). Tapping a picture makes the characters hop.
+  * Rendering is deterministic and animations follow a shared clock, so the copy of a page on the turning sheet matches the page underneath exactly.
+  * A page scene is a short spec, for example `{ bg: 'forest', time: 'night', items: [['hut', 290, 260, { lit: true }], ['zumrad', 150, 300, { mood: 'scared' }]] }`.
+* **Content** (`js/stories-folk.js`, `js/stories-classic.js`):
+  * Folk tales now run 8–12 pages each, retold in full: *Zumrad va Qimmat* (12), *Uch og'a-ini botirlar*, *Nasriddin Afandi latifalari*, *Donishmand qiz* (10 each), plus six 8-page tales.
+  * Three new folk tales: *Oltin tarvuz*, *Susambil*, *Ur, to'qmoq!* (10 pages each).
+  * Pages can carry a question (`question: { q, a, ok }`, +10 points, gentle retry on a wrong answer) and a "Yangi so'z" vocabulary card (`word: [term, meaning]`). Each book has its own `moral`, final `quiz`, cover colour (`hue`) and cover scene.
+  * The classic, Navoiy and modern books keep their 5-page texts and now have a picture for every page. *Sariq devni minib* is now credited to Xudoyberdi To'xtaboyev.
+
+### Current file structure
+```text
+index.html              # shell: header, library, story view, quiz, modal
+css/book.css            # book, covers, pages, turning sheet, phone layout
+css/art.css             # illustration animations
+js/art/core.js          # Art.render(scene): registry, seeded RNG, shared animation clock
+js/art/people.js        # parametric Uzbek characters + cast presets, dev, star child
+js/art/animals.js       # fox/wolf/dog, donkey/horse, ram, goat, birds, stork, fish...
+js/art/world.js         # skies, landscapes, interiors, buildings, props
+js/art/fx.js            # sparkles, bubbles, notes, snow/leaves/confetti
+js/stories-folk.js      # O'zbek xalq ertaklari
+js/stories-classic.js   # classic, Navoiy and modern books
+js/book.js              # BookEngine (paging, drag, cover, mobile slide)
+js/app.js               # AppController (library, controls, points, sound, quiz)
+```
+
+### Still open
+* Issue C: dual-mode `page.imageUrl` artwork with SVG fallback is not implemented. Scenes are procedural only.
+* Issue D (AI voice narration) is unchanged.
+* The Lotin/Кирилл toggle still only shows a message and does not transliterate the text.

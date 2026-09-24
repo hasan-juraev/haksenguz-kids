@@ -1,0 +1,84 @@
+/* Ambient motion for the procedural illustrations (js/art/*.js).
+   Durations and phases are set inline per element so every copy of a page
+   (static page and turning leaf) animates in lockstep. */
+
+.story-art-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.story-art-svg [class^="sv-"],
+.story-art-svg [class*=" sv-"] {
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+    transform-box: fill-box;
+}
+
+.sv-breathe { animation-name: svBreathe; transform-origin: 50% 100%; }
+.sv-bob { animation-name: svBob; }
+.sv-float { animation-name: svFloat; }
+.sv-sway { animation-name: svSway; transform-origin: 50% 100%; }
+.sv-drift { animation-name: svDrift; animation-direction: alternate; }
+.sv-twinkle { animation-name: svTwinkle; transform-origin: 50% 50%; }
+.sv-blink { animation-name: svBlink; transform-origin: 50% 50%; }
+.sv-flap { animation-name: svFlap; transform-origin: 50% 100%; }
+.sv-flap-soft { animation-name: svFlapSoft; transform-origin: 50% 100%; }
+.sv-flicker { animation-name: svFlicker; transform-origin: 50% 100%; }
+.sv-rise { animation-name: svRise; animation-timing-function: linear; }
+.sv-fall { animation-name: svFall; animation-timing-function: linear; }
+.sv-sway-x { animation-name: svSwayX; }
+.sv-spin { animation-name: svSpin; animation-timing-function: linear; transform-origin: 50% 50%; }
+.sv-shimmer { animation-name: svShimmer; }
+.sv-wiggle { animation-name: svWiggle; transform-origin: 50% 100%; }
+.sv-wag { animation-name: svWag; transform-origin: 100% 100%; }
+.sv-buzz { animation-name: svBuzz; }
+.sv-bonk { animation-name: svBonk; transform-origin: 50% 100%; }
+.sv-pulse { animation-name: svPulse; transform-origin: 50% 50%; }
+.sv-drip { animation-name: svDrip; animation-timing-function: ease-in; }
+.sv-swing { animation-name: svSwing; transform-origin: 50% 0%; }
+.sv-firefly { animation-name: svFirefly; }
+
+@keyframes svBreathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.012, 1.03); } }
+@keyframes svBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes svFloat { 0%, 100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-9px) rotate(1deg); } }
+@keyframes svSway { 0%, 100% { transform: rotate(-1.6deg); } 50% { transform: rotate(1.6deg); } }
+@keyframes svDrift { from { transform: translateX(-22px); } to { transform: translateX(22px); } }
+@keyframes svTwinkle { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .3; transform: scale(.55); } }
+@keyframes svBlink { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.08); } }
+@keyframes svFlap { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(-.55); } }
+@keyframes svFlapSoft { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(.86); } }
+@keyframes svFlicker { 0%, 100% { transform: scale(1, 1); } 33% { transform: scale(.9, 1.1); } 66% { transform: scale(1.07, .93); } }
+@keyframes svRise { 0% { transform: translateY(0); opacity: 0; } 15% { opacity: 1; } 100% { transform: translateY(-56px); opacity: 0; } }
+@keyframes svFall { from { transform: translateY(-30px); } to { transform: translateY(350px); } }
+@keyframes svSwayX { 0%, 100% { transform: translateX(-8px) rotate(-20deg); } 50% { transform: translateX(8px) rotate(20deg); } }
+@keyframes svSpin { to { transform: rotate(360deg); } }
+@keyframes svShimmer { 0%, 100% { transform: translateX(0); opacity: .9; } 50% { transform: translateX(7px); opacity: .35; } }
+@keyframes svWiggle { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
+@keyframes svWag { 0%, 100% { transform: rotate(-12deg); } 50% { transform: rotate(12deg); } }
+@keyframes svBuzz { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(3px, -3px); } 50% { transform: translate(-2px, -5px); } 75% { transform: translate(-4px, 1px); } }
+@keyframes svBonk { 0%, 100% { transform: rotate(-38deg); } 45% { transform: rotate(22deg); } }
+@keyframes svPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+@keyframes svDrip { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(12px); opacity: 0; } }
+@keyframes svSwing { 0%, 100% { transform: rotate(-16deg); } 50% { transform: rotate(16deg); } }
+@keyframes svFirefly { 0%, 100% { transform: translate(0, 0); opacity: .3; } 30% { transform: translate(10px, -8px); opacity: 1; } 60% { transform: translate(-6px, -14px); opacity: .6; } }
+
+/* Tapping a picture makes its characters hop. */
+.art-poke .art-actor {
+    animation: svHop .6s cubic-bezier(.3, 1.6, .5, 1);
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+}
+
+@keyframes svHop {
+    0%, 100% { transform: translateY(0) scale(1, 1); }
+    20% { transform: translateY(0) scale(1.06, .92); }
+    50% { transform: translateY(-14px) scale(.96, 1.05); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .story-art-svg *,
+    .art-poke .art-actor {
+        animation: none !important;
+    }
+}
