@@ -173,3 +173,43 @@ js/app.js               # AppController (library, controls, points, sound, quiz)
 * Issue C: dual-mode `page.imageUrl` artwork with SVG fallback is not implemented. Scenes are procedural only.
 * Issue D (AI voice narration) is unchanged.
 * The Lotin/Кирилл toggle still only shows a message and does not transliterate the text.
+
+---
+
+## 8. Update: Saved Progress, Child Profiles, Real Cyrillic (Roadmap Phase 0)
+
+The audience is Uzbek children growing up in Korea; `ROADMAP.md` has the plan built around that and the decisions made so far.
+
+### What changed
+* **Lotin / Кирилл now converts every piece of Uzbek text** (`js/translit.js`). Content stays written in Latin only. With Cyrillic on, a display layer converts text nodes (and `title`, `aria-label`, `placeholder`, `alt`) as they appear and keeps the Latin originals, so switching back restores them exactly. A MutationObserver catches whatever the app draws later; the book calls the converter directly before fitting page text, so both copies of a turning page match.
+  * Spelling is rule-based: `yo'l → йўл`, `eshik → эшик`, `poyezd → поезд`, `ma'no → маъно`, `ketsa → кетса` (t+s is never ц). A few loanwords (months, `kompyuter`) are listed as exceptions. Checks: `node tests/translit.test.js`.
+  * `translate="no"` keeps text out of it (the toggle's own labels, the sleeping "Zzz"); words with digits (`3D`) are left alone.
+  * App code must not read Uzbek text back from the DOM, which may be showing Cyrillic. The category counts, for example, live in their own `<span data-count>`.
+  * Fredoka has no Cyrillic letters, so every font stack now falls back to Nunito (which has ў қ ғ ҳ).
+* **Progress is saved on the device, one profile per child** (`js/store.js`, localStorage). A profile has a name, an animal avatar, points and, per book, the last page, the answers to page questions, `finished` and `quiz`.
+  * New profiles start at 0 points (the old hard-coded 150 is gone). A book's final quiz pays its 50 points only once.
+  * The library cards show a progress bar for half-read books and stars for finished ones. The hero button turns into "Davom ettirish" and jumps straight back to the page, and the title page of a half-read book offers the same.
+  * The header button (avatar and name) opens "Kim o'qiyapti?" to switch, add, rename or delete a child.
+  * `BookEngine.load(key, story, record)` now takes the reading record instead of keeping answers in memory; `BookEngine.score()` gives the stars for both the finale page and the library.
+* **The "AI Ovoz" button is removed.** It showed a message about reading aloud, but played nothing. Narration by a native speaker is Phase 1 of the roadmap.
+
+### Current file structure
+```text
+index.html              # shell: header, library, story view, quiz, modals
+css/book.css            # book, covers, pages, turning sheet, phone layout
+css/art.css             # illustration animations
+js/art/*.js             # illustration engine (see section 7)
+js/stories-folk.js      # O'zbek xalq ertaklari
+js/stories-classic.js   # classic, Navoiy and modern books
+js/translit.js          # Uzbek Latin -> Cyrillic + page-wide script switch
+js/store.js             # profiles, points and reading progress (localStorage)
+js/book.js              # BookEngine (paging, drag, cover, mobile slide)
+js/app.js               # AppController (library, profiles, controls, sound, quiz)
+tests/translit.test.js  # spelling checks: node tests/translit.test.js
+ROADMAP.md              # plan for Uzbek kids in Korea
+```
+
+### Still open
+* Issue C: dual-mode `page.imageUrl` artwork with SVG fallback.
+* Issue D: narration, now planned as recordings by a native speaker (ROADMAP Phase 1).
+* The page still loads Tailwind, Google Fonts and Font Awesome from CDNs; they must be bundled before the app can work offline.

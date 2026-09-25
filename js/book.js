@@ -21,6 +21,10 @@
  *
  * Below 768px there is no spread: the two halves of a view stack vertically
  * and a page change is a short slide (swipe to turn).
+ *
+ * Reading state lives in a record passed to load(): { page, answers }. The
+ * engine fills in answers as questions are answered and offers to continue
+ * from record.page on the title page; saving it is the caller's business.
  */
 (function (root) {
     'use strict';
@@ -44,7 +48,7 @@
             this.view = -1;
             this.turn = null;
             this.raf = 0;
-            this.answers = {};
+            this.record = { page: 0, answers: {} };
             this.spread = this.isSpread();
             this.reduced = root.matchMedia ? root.matchMedia('(prefers-reduced-motion: reduce)').matches : false;
 
@@ -81,11 +85,12 @@
 
         // ---------- public API ----------
 
-        load(key, story) {
+        load(key, story, record) {
             this.stopTurn();
             this.key = key;
             this.story = story;
-            this.answers[key] = this.answers[key] || {};
+            this.record = record || { page: 0, answers: {} };
+            this.record.answers = this.record.answers || {};
             this.spread = this.isSpread();
             this.view = this.spread ? -1 : 0;
             this.el.style.setProperty('--cover', story.hue || '#7c2d12');
@@ -189,7 +194,7 @@
 
         questionHTML(view, p) {
             if (!p.question) return '';
-            const state = this.answers[this.key][view] || {};
+            const state = this.record.answers[view] || {};
             const buttons = p.question.a.map((txt, i) => {
                 let cls = 'choice';
                 if (state.done && (i === p.question.ok || p.question.ok < 0) && i === state.pick) cls += ' choice--right';
@@ -217,10 +222,17 @@
             </div></div>`;
         }
 
+        // Story page to offer "continue" from (page 1 is just the next turn).
+        resumePage() {
+            const page = this.record.page || 0;
+            return page >= 2 && page <= this.story.pages.length ? page : 0;
+        }
+
         titleHTML() {
             const st = this.story;
             const mins = Math.max(2, Math.round(st.pages.reduce((n, p) => n + p.text.split(/\s+/).length, 0) / 90));
             const scene = st.cover || st.pages[0].scene;
+            const resume = this.resumePage();
             return `<div class="sheet sheet--right sheet--title"><div class="page-pad title-page">
                 <div class="title-ornament">❦</div>
                 <h1 class="title-name">${esc(st.title)}</h1>
@@ -228,15 +240,15 @@
                 <div class="title-medallion" data-action="poke">${this.art(scene, false, 'title')}</div>
                 <p class="title-meta">📄 ${st.pages.length} sahifa · ⏱ ~${mins} daqiqa</p>
                 <p class="title-opening">«Bir bor ekan, bir yo'q ekan...»</p>
-                <p class="title-hint">Sahifa chetidan torting yoki ➜ tugmasini bosing</p>
+                ${resume
+                    ? `<button type="button" class="btn-resume" data-action="resume">▶ Davom ettirish · ${resume}-sahifa</button>`
+                    : `<p class="title-hint">Sahifa chetidan torting yoki ➜ tugmasini bosing</p>`}
             </div></div>`;
         }
 
         endHTML() {
             const st = this.story;
-            const asked = st.pages.filter((p) => p.question).length;
-            const right = Object.values(this.answers[this.key]).filter((a) => a.done).length;
-            const stars = asked ? Math.max(1, Math.round((right / asked) * 3)) : 3;
+            const { asked, right, stars } = BookEngine.score(st, this.record.answers);
             return `<div class="sheet sheet--right sheet--finale"><div class="page-pad finale">
                 <div class="title-ornament">❦</div>
                 <h2 class="finale-title">Ertak tugadi!</h2>
@@ -279,6 +291,8 @@
         put(host, html) {
             const box = host.querySelector('.page-content, .face-content');
             box.innerHTML = html;
+            // e.g. switch the text to Cyrillic — before it is measured for fitting
+            if (this.opts.decorate) this.opts.decorate(box);
             this.fit(box);
         }
 
@@ -488,7 +502,8 @@
         answer(view, idx) {
             const p = this.story.pages[view - 1];
             if (!p || !p.question) return;
-            const st = this.answers[this.key][view] || (this.answers[this.key][view] = { wrong: [] });
+            const answers = this.record.answers;
+            const st = answers[view] || (answers[view] = { wrong: [] });
             if (st.done) return;
             const right = p.question.ok < 0 || idx === p.question.ok;
             if (right) {
@@ -592,6 +607,14 @@
             }, 150);
         }
     }
+
+    // Questions answered right out of those asked, as 1–3 stars (3 when a book asks none).
+    BookEngine.score = function (story, answers = {}) {
+        const asked = story.pages.filter((p) => p.question).length;
+        const right = Object.values(answers).filter((a) => a && a.done).length;
+        const stars = asked ? Math.max(1, Math.round((right / asked) * 3)) : 3;
+        return { asked, right, stars };
+    };
 
     root.BookEngine = BookEngine;
 })(window);

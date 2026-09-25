@@ -439,7 +439,7 @@ h1, h2, h3, h4, .font-heading {
 }
 
 .page-num {
-    font-family: 'Fredoka', sans-serif;
+    font-family: 'Fredoka', 'Nunito', sans-serif;
     font-size: 14px;
     color: #b45309;
 }
@@ -499,7 +499,7 @@ h1, h2, h3, h4, .font-heading {
 }
 
 .word-term {
-    font-family: 'Fredoka', sans-serif;
+    font-family: 'Fredoka', 'Nunito', sans-serif;
     font-size: 18px;
     font-weight: 700;
     color: #1f6f45;
@@ -539,7 +539,7 @@ h1, h2, h3, h4, .font-heading {
 
 .page-text::first-letter {
     float: left;
-    font-family: 'Fredoka', sans-serif;
+    font-family: 'Fredoka', 'Nunito', sans-serif;
     font-size: calc(var(--fs) * 3.1);
     line-height: .9;
     font-weight: 700;
@@ -677,7 +677,7 @@ h1, h2, h3, h4, .font-heading {
 }
 
 .exlibris-title {
-    font-family: 'Fredoka', sans-serif;
+    font-family: 'Fredoka', 'Nunito', sans-serif;
     font-size: 26px;
     font-weight: 700;
     color: #7c2d12;
@@ -737,7 +737,7 @@ h1, h2, h3, h4, .font-heading {
 
 .title-opening {
     margin: 0;
-    font-family: 'Fredoka', sans-serif;
+    font-family: 'Fredoka', 'Nunito', sans-serif;
     font-size: 18px;
     color: #9a3412;
 }
@@ -760,7 +760,7 @@ h1, h2, h3, h4, .font-heading {
     transform: translateX(-50%) rotate(-3deg);
     padding: 6px 22px;
     border-radius: 999px;
-    font-family: 'Fredoka', sans-serif;
+    font-family: 'Fredoka', 'Nunito', sans-serif;
     font-size: 28px;
     font-weight: 700;
     color: #fff;
@@ -830,6 +830,27 @@ h1, h2, h3, h4, .font-heading {
     color: #7c3f0b;
     background: #fff1cf;
     box-shadow: 0 4px 0 #e2b85a;
+}
+
+/* title page: pick up where this child stopped */
+.btn-resume {
+    min-height: 48px;
+    padding: 10px 22px;
+    border-radius: 14px;
+    border: 0;
+    font-weight: 800;
+    font-size: 15px;
+    color: #fff;
+    background: linear-gradient(135deg, #10b981, #047857);
+    box-shadow: 0 4px 0 #065f46;
+    cursor: pointer;
+}
+
+.btn-quiz:focus-visible,
+.btn-reread:focus-visible,
+.btn-resume:focus-visible {
+    outline: 3px solid #f59e0b;
+    outline-offset: 3px;
 }
 
 /* ---------- covers ---------- */

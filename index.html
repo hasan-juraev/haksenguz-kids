@@ -15,7 +15,7 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        heading: ['Fredoka', 'sans-serif'],
+                        heading: ['Fredoka', 'Nunito', 'sans-serif'],
                         body: ['Nunito', 'sans-serif'],
                     },
                     colors: {
@@ -45,25 +45,31 @@
 <body class="h-full bg-gradient-to-br from-brand-50 via-amber-50 to-orange-100 text-gray-800 flex flex-col antialiased">
 
     <header class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50 px-4 py-3 border-b border-orange-100">
-        <div class="max-w-6xl mx-auto flex items-center justify-between">
-            <div class="flex items-center space-x-3 cursor-pointer" onclick="app.goHome()">
-                <div class="w-12 h-12 bg-gradient-to-tr from-brand-500 to-amber-400 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-brand-500/30 transform hover:rotate-6 transition">
-                    <i class="fa-solid fa-book-bookmark text-2xl"></i>
+        <div class="max-w-6xl mx-auto flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 sm:gap-3 cursor-pointer min-w-0" onclick="app.goHome()">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 bg-gradient-to-tr from-brand-500 to-amber-400 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-brand-500/30 transform hover:rotate-6 transition">
+                    <i class="fa-solid fa-book-bookmark text-xl sm:text-2xl"></i>
                 </div>
-                <div>
-                    <h1 class="text-2xl font-bold bg-gradient-to-r from-brand-600 to-orange-500 bg-clip-text text-transparent">Ertaklar Olami</h1>
-                    <p class="text-xs text-gray-500 font-medium">Interaktiv 3D Kitoblar Platformasi</p>
+                <div class="min-w-0">
+                    <h1 class="text-lg sm:text-2xl font-bold bg-gradient-to-r from-brand-600 to-orange-500 bg-clip-text text-transparent truncate">Ertaklar Olami</h1>
+                    <p class="hidden sm:block text-xs text-gray-500 font-medium">Interaktiv 3D Kitoblar Platformasi</p>
                 </div>
             </div>
 
-            <div class="flex items-center space-x-3">
-                <button onclick="app.toggleScript()" id="scriptToggleBtn" class="px-3 py-1.5 bg-brand-100 text-brand-700 text-xs font-bold rounded-xl border border-brand-200 hover:bg-brand-200 transition shadow-sm">
-                    🇺🇿 Lotin / Кирилл
-                </button>
+            <div class="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
+                <!-- Uzbek text is written in Latin; js/translit.js shows it in Cyrillic on request. -->
+                <div id="scriptToggle" role="group" aria-label="Yozuv" translate="no" class="flex items-center p-1 bg-brand-100 rounded-xl border border-brand-200 shadow-sm">
+                    <button type="button" data-script="lat" onclick="app.setScript('lat')" class="min-h-[40px] px-2 rounded-lg text-xs font-bold text-brand-700"><span class="sm:hidden">Lot</span><span class="hidden sm:inline">Lotin</span></button>
+                    <button type="button" data-script="cyr" onclick="app.setScript('cyr')" class="min-h-[40px] px-2 rounded-lg text-xs font-bold text-brand-700"><span class="sm:hidden">Кир</span><span class="hidden sm:inline">Кирилл</span></button>
+                </div>
                 <div class="hidden sm:flex items-center space-x-2 bg-orange-100/70 px-3 py-1.5 rounded-2xl text-brand-700 font-bold text-sm">
                     <i class="fa-solid fa-star text-amber-500 animate-pulse"></i>
-                    <span id="userPoints">150 ball</span>
+                    <span id="userPoints">0 ball</span>
                 </div>
+                <button type="button" id="profileBtn" onclick="app.openProfiles()" aria-label="Kim o'qiyapti?" class="flex items-center gap-1.5 min-h-[48px] pl-2 pr-2 sm:pr-3 bg-white border border-orange-200 rounded-2xl shadow-sm hover:bg-orange-50 transition">
+                    <span id="profileAvatar" class="text-2xl leading-none" aria-hidden="true">🦊</span>
+                    <span id="profileName" class="hidden sm:inline text-sm font-bold text-gray-700 max-w-[7rem] truncate"></span>
+                </button>
             </div>
         </div>
     </header>
@@ -78,11 +84,12 @@
                     <span class="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider backdrop-blur-md">📚 Haqiqiy kitobdek varaqlanadi</span>
                     <h2 class="text-3xl md:text-4xl font-bold leading-tight">O'zbek xalq ertaklari, Navoiy dostonlari va sehrli sarguzashtlar</h2>
                     <p class="text-orange-100 text-sm md:text-base">Kitobni oching, sahifani chetidan tortib varaqlang, rasmlarga bosib qahramonlarni jonlantiring va savollarga javob bering!</p>
-                    <div class="pt-2">
-                        <button onclick="app.startStory('zumrad')" class="px-6 py-3 bg-white text-brand-700 font-bold rounded-2xl shadow-lg hover:bg-orange-50 transform hover:scale-105 transition flex items-center justify-center space-x-2 mx-auto md:mx-0">
+                    <div class="pt-2 space-y-2">
+                        <button onclick="app.openHeroBook()" class="px-6 py-3 bg-white text-brand-700 font-bold rounded-2xl shadow-lg hover:bg-orange-50 transform hover:scale-105 transition flex items-center justify-center space-x-2 mx-auto md:mx-0">
                             <i class="fa-solid fa-book-open text-brand-500"></i>
-                            <span>Kitobni Ochish</span>
+                            <span id="heroBtnLabel">Kitobni Ochish</span>
                         </button>
+                        <p id="heroResume" class="hidden text-sm font-bold text-white/90"></p>
                     </div>
                 </div>
                 <div class="mt-6 md:mt-0 z-10">
@@ -92,11 +99,11 @@
 
             <!-- Category Filters -->
             <div class="flex items-center space-x-2 overflow-x-auto pb-2">
-                <button onclick="app.filterCategory('all')" id="cat-all" class="px-4 py-2 bg-brand-500 text-white text-sm font-bold rounded-xl shadow-sm whitespace-nowrap transition">Barchasi</button>
-                <button onclick="app.filterCategory('folk')" id="cat-folk" class="px-4 py-2 bg-white text-gray-600 hover:bg-brand-50 text-sm font-bold rounded-xl border border-orange-100 whitespace-nowrap transition">Xalq Ertaklari</button>
-                <button onclick="app.filterCategory('classic')" id="cat-classic" class="px-4 py-2 bg-white text-gray-600 hover:bg-brand-50 text-sm font-bold rounded-xl border border-orange-100 whitespace-nowrap transition">Klassik Asarlar</button>
-                <button onclick="app.filterCategory('navoiy')" id="cat-navoiy" class="px-4 py-2 bg-white text-gray-600 hover:bg-brand-50 text-sm font-bold rounded-xl border border-orange-100 whitespace-nowrap transition">Alisher Navoiy</button>
-                <button onclick="app.filterCategory('modern')" id="cat-modern" class="px-4 py-2 bg-white text-gray-600 hover:bg-brand-50 text-sm font-bold rounded-xl border border-orange-100 whitespace-nowrap transition">Zamonaviy Sirlar</button>
+                <button onclick="app.filterCategory('all')" id="cat-all" class="px-4 py-2 bg-brand-500 text-white text-sm font-bold rounded-xl shadow-sm whitespace-nowrap transition">Barchasi <span data-count></span></button>
+                <button onclick="app.filterCategory('folk')" id="cat-folk" class="px-4 py-2 bg-white text-gray-600 hover:bg-brand-50 text-sm font-bold rounded-xl border border-orange-100 whitespace-nowrap transition">Xalq Ertaklari <span data-count></span></button>
+                <button onclick="app.filterCategory('classic')" id="cat-classic" class="px-4 py-2 bg-white text-gray-600 hover:bg-brand-50 text-sm font-bold rounded-xl border border-orange-100 whitespace-nowrap transition">Klassik Asarlar <span data-count></span></button>
+                <button onclick="app.filterCategory('navoiy')" id="cat-navoiy" class="px-4 py-2 bg-white text-gray-600 hover:bg-brand-50 text-sm font-bold rounded-xl border border-orange-100 whitespace-nowrap transition">Alisher Navoiy <span data-count></span></button>
+                <button onclick="app.filterCategory('modern')" id="cat-modern" class="px-4 py-2 bg-white text-gray-600 hover:bg-brand-50 text-sm font-bold rounded-xl border border-orange-100 whitespace-nowrap transition">Zamonaviy Sirlar <span data-count></span></button>
             </div>
 
             <!-- Library Grid -->
@@ -128,10 +135,6 @@
                     <button onclick="app.toggleSoundEffects()" id="soundToggleBtn" class="px-3 py-2 bg-amber-100 text-amber-800 hover:bg-amber-200 rounded-xl font-bold text-xs transition flex items-center space-x-1.5" aria-pressed="true">
                         <i class="fa-solid fa-volume-high"></i>
                         <span class="hidden md:inline">Varaqlash Ovozi</span>
-                    </button>
-                    <button onclick="app.triggerAiVoice()" class="px-3.5 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-xl transition flex items-center space-x-1.5 font-bold text-xs shadow-md">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i>
-                        <span>AI Ovoz</span>
                     </button>
                 </div>
             </div>
@@ -193,6 +196,36 @@
         </div>
     </div>
 
+    <!-- Who is reading: one profile per child, each with their own points and progress. -->
+    <div id="profileModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
+        <div class="bg-white rounded-3xl p-5 sm:p-6 max-w-md w-full max-h-full overflow-y-auto shadow-2xl space-y-4">
+            <div class="flex items-center justify-between gap-3">
+                <h4 id="profileTitle" class="text-xl font-bold text-gray-900">Kim o'qiyapti?</h4>
+                <button type="button" onclick="app.closeProfiles()" class="w-11 h-11 flex-shrink-0 flex items-center justify-center rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 transition" aria-label="Yopish">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div id="profileList" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+            <form id="profileForm" class="hidden space-y-4" onsubmit="app.saveProfile(event)">
+                <label class="block space-y-1.5">
+                    <span class="text-sm font-bold text-gray-700">Ism</span>
+                    <input id="profileNameInput" type="text" maxlength="20" autocomplete="off" required placeholder="Masalan: Asal" class="w-full px-4 py-3 rounded-2xl border-2 border-orange-100 focus:border-brand-500 outline-none text-lg font-bold text-gray-800">
+                </label>
+                <div class="space-y-1.5">
+                    <span class="text-sm font-bold text-gray-700">Rasm tanlang</span>
+                    <div id="avatarPicker" class="grid grid-cols-4 gap-2"></div>
+                </div>
+                <div class="flex gap-2 pt-1">
+                    <button type="submit" class="flex-1 min-h-[48px] px-4 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-2xl shadow-md transition">Saqlash</button>
+                    <button type="button" onclick="app.showProfileList()" class="min-h-[48px] px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-2xl transition">Bekor qilish</button>
+                </div>
+                <button type="button" id="profileDeleteBtn" onclick="app.deleteProfile()" class="hidden w-full min-h-[40px] text-sm font-bold text-rose-600 hover:underline">
+                    <i class="fa-solid fa-trash-can"></i> Kitobxonni o'chirish
+                </button>
+            </form>
+        </div>
+    </div>
+
     <script src="js/art/core.js"></script>
     <script src="js/art/people.js"></script>
     <script src="js/art/animals.js"></script>
@@ -200,6 +233,8 @@
     <script src="js/art/fx.js"></script>
     <script src="js/stories-folk.js"></script>
     <script src="js/stories-classic.js"></script>
+    <script src="js/translit.js"></script>
+    <script src="js/store.js"></script>
     <script src="js/book.js"></script>
     <script src="js/app.js"></script>
 </body>
