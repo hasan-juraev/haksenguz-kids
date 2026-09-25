@@ -1,6 +1,7 @@
 /*
- * Play corner: a colouring studio built from any page's picture, and a
+ * Play corner: a colouring page made from any page's picture, and a
  * "put the pictures in story order" game for the end of a book.
+ * Styles live in css/play.css.
  */
 (function (root) {
     'use strict';
@@ -196,22 +197,43 @@
         img.src = url;
     }
 
+    // Prints the page on its own (blank for a class, or as coloured so far).
+    function printPage(svg, heading) {
+        const frame = document.createElement('iframe');
+        frame.setAttribute('aria-hidden', 'true');
+        frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0';
+        document.body.appendChild(frame);
+        const doc = frame.contentDocument;
+        doc.open();
+        doc.write(`<!doctype html><meta charset="utf-8"><title>${esc(heading)}</title>` +
+            '<style>@page{margin:12mm}body{margin:0;font:700 18pt Nunito,sans-serif;text-align:center;color:#4b2e1a}' +
+            'h1{font-size:18pt;margin:0 0 6mm}svg{display:block;width:100%;height:auto;max-height:230mm}</style>' +
+            `<h1>${esc(heading)}</h1>${new XMLSerializer().serializeToString(svg)}`);
+        doc.close();
+        const done = () => frame.remove();
+        frame.contentWindow.addEventListener('afterprint', done);
+        setTimeout(done, 60000);
+        frame.contentWindow.focus();
+        frame.contentWindow.print();
+    }
+
     function color({ scene, title, seed, onPaint }) {
         const daytime = Object.assign({}, scene, { time: 'day', fx: [], rainbow: false });
         const art = root.Art.render(daytime, { still: true, coloring: true, seed: `${seed}:color` });
         const swatches = PALETTE.map((c, i) => `<button type="button" class="swatch${i === 3 ? ' is-on' : ''}${c === '#ffffff' ? ' swatch--eraser' : ''}" data-color="${c}" style="--c:${c}" aria-label="${c === '#ffffff' ? "O'chirg'ich" : `Rang ${i + 1}`}"></button>`).join('');
         const card = openModal(`
-            <div class="studio">
+            <div class="paint">
                 <div class="play-head"><h3>🎨 Bo'yash — ${esc(title)}</h3><button type="button" class="play-x" data-close aria-label="Yopish">✕</button></div>
                 <p class="play-sub">Rangni tanlang va rasmning istalgan joyiga bosing.</p>
-                <div class="studio-art">${art}</div>
-                <div class="studio-palette" role="radiogroup" aria-label="Ranglar">${swatches}</div>
-                <div class="studio-tools">
+                <div class="paint-art">${art}</div>
+                <div class="paint-palette" role="radiogroup" aria-label="Ranglar">${swatches}</div>
+                <div class="paint-tools">
                     <button type="button" data-tool="undo">↶ Orqaga</button>
                     <button type="button" data-tool="clear">🧹 Tozalash</button>
                     <button type="button" data-tool="save">💾 Rasmni saqlash</button>
+                    <button type="button" data-tool="print">🖨 Chop etish</button>
                 </div>
-            </div>`, 'play-card--studio');
+            </div>`, 'play-card--paint');
         const svg = card.querySelector('svg');
         toLineArt(svg);
         let current = PALETTE[3];
@@ -224,13 +246,13 @@
             group.forEach((x) => x.setAttribute(x.dataset.c, current));
             if (onPaint) onPaint();
         });
-        card.querySelector('.studio-palette').addEventListener('click', (e) => {
+        card.querySelector('.paint-palette').addEventListener('click', (e) => {
             const b = e.target.closest('[data-color]');
             if (!b) return;
             current = b.dataset.color;
             card.querySelectorAll('.swatch').forEach((s) => s.classList.toggle('is-on', s === b));
         });
-        card.querySelector('.studio-tools').addEventListener('click', (e) => {
+        card.querySelector('.paint-tools').addEventListener('click', (e) => {
             const t = e.target.closest('[data-tool]');
             if (!t) return;
             if (t.dataset.tool === 'undo') {
@@ -241,6 +263,9 @@
                 svg.querySelectorAll('[data-c]').forEach((x) => x.setAttribute(x.dataset.c, '#ffffff'));
             } else if (t.dataset.tool === 'save') {
                 savePng(svg, `ertaklar-olami-${String(title).toLowerCase().replace(/[^a-z0-9]+/gi, '-')}`);
+            } else if (t.dataset.tool === 'print') {
+                // The heading as shown, so it prints in Cyrillic when that is on.
+                printPage(svg, card.querySelector('.play-head h3').textContent.replace(/^🎨\s*/, ''));
             }
         });
         return card;
@@ -258,7 +283,7 @@
         return a;
     }
 
-    function order({ story, seed, onRight, onWrong, onWin, say }) {
+    function order({ story, seed, onRight, onWrong, onWin }) {
         const n = story.pages.length;
         const picks = [...new Set([0, Math.round((n - 1) / 3), Math.round((2 * (n - 1)) / 3), n - 1])];
         const cards = shuffle(picks.map((idx, i) => ({ idx, order: i })));
@@ -272,7 +297,7 @@
         const card = openModal(`
             <div class="order-game">
                 <div class="play-head"><h3>🧩 Voqealar tartibi</h3><button type="button" class="play-x" data-close aria-label="Yopish">✕</button></div>
-                <p class="play-sub">${instructions} <button type="button" class="play-say" data-say aria-label="Tinglash">🔊</button></p>
+                <p class="play-sub">${instructions}</p>
                 <div class="order-grid">${html}</div>
                 <div class="order-steps">${picks.map((_, i) => `<span data-step="${i}">${i + 1}</span>`).join('')}</div>
                 <p class="order-result" aria-live="polite"></p>
@@ -280,7 +305,6 @@
         let step = 0;
         let wrong = 0;
         const result = card.querySelector('.order-result');
-        card.querySelector('[data-say]').addEventListener('click', () => say && say(instructions));
         card.querySelector('.order-grid').addEventListener('click', (e) => {
             const b = e.target.closest('.order-card');
             if (!b || b.classList.contains('is-placed') || step >= picks.length) return;

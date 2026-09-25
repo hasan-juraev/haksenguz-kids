@@ -1,385 +1,510 @@
 /*
- * Narrator — reads pages aloud and reports what it is reading, word by word.
+ * Narrator: reading a book aloud, lighting up each sentence as it is read.
  *
- * A reading is a list of parts:
- *   { type: 'tts',   segs }                       speech synthesis, sentence by sentence
- *   { type: 'audio', segs, src, fine, durationMs, marks }
- *                                                 a recording or narration file
- * where segs = [{ s, q, kind, prefix?, words: [{ w, t }] }] (see Speech.markup).
+ * A recording covers one story page: its title, then its sentences (the
+ * "pieces" of BookEngine.segments). Nobody marks where each piece starts;
+ * Narrator.marks() finds it from the pauses in the recording.
  *
- * Speech synthesis picks the best voice for Uzbek (a natural uz-UZ voice such
- * as Microsoft Madina/Sardor when the browser has one; otherwise a related
- * language with respelled words). Sentences are spoken one at a time, which
- * sidesteps browser bugs with long utterances, gives accurate sentence
- * highlighting, and lets dialogue «...» use a slightly different voice.
- * Word highlighting follows the voice's boundary events, or an estimated
- * pace for voices that don't report them.
- *
- * Pausing cancels the current sentence and repeats it on resume (pause() of
- * speechSynthesis is unreliable across browsers).
+ *  - Player plays one clip and reports which piece is being read.
+ *  - ReadAlong drives the open book: plays the page on screen, lights up the
+ *    piece being read, turns the page when it ends, and at an unanswered
+ *    question waits for the child's answer before going on.
+ *  - Recorder records one page from the microphone.
  */
 (function (root) {
     'use strict';
 
-    const Speech = () => root.Speech;
-    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-    const BASE_RATE = 0.92;
-    const SPEEDS = { slow: 0.8, normal: 1, fast: 1.18 };
+    const FRAME = 0.02; // seconds per loudness frame
+    const MIN_GAP = 0.12; // shortest silence that counts as a pause
+    const DRIFT = 40; // how strongly a sentence break must stay near its expected place
 
-    class Narrator {
-        constructor(opts = {}) {
-            this.opts = opts;
-            this.synth = root.speechSynthesis || null;
-            this.voices = [];
-            this.voiceId = 'auto';
-            this.speed = 'normal';
-            this.characterVoices = true;
-            this.state = 'idle';
-            this.gen = 0;
-            this.paused = false;
-            this.waiters = [];
-            this.audio = null;
-            this.audioPart = null;
-            this.current = null;
-            if (this.synth && typeof root.SpeechSynthesisUtterance === 'function') {
-                const refresh = () => this.refreshVoices();
-                if (this.synth.addEventListener) this.synth.addEventListener('voiceschanged', refresh);
-                else this.synth.onvoiceschanged = refresh;
-                refresh();
-                // Some browsers never fire voiceschanged: look again for a few seconds.
-                let tries = 0;
-                const poll = setInterval(() => {
-                    refresh();
-                    if (this.voices.length || ++tries > 20) clearInterval(poll);
-                }, 250);
+    const round2 = (n) => Math.round(n * 100) / 100;
+
+    const Narrator = {
+        FRAME,
+
+        // Fingerprint of the text a clip was read from; highlighting is only
+        // trusted while the page text still matches.
+        sig(segments) {
+            const s = segments.join('\n');
+            let h = 2166136261;
+            for (let i = 0; i < s.length; i++) {
+                h ^= s.charCodeAt(i);
+                h = Math.imul(h, 16777619);
+            }
+            return (h >>> 0).toString(36);
+        },
+
+        // Loudness (dB) of each FRAME-long slice of a decoded recording.
+        energies(buffer) {
+            const size = Math.max(1, Math.floor(buffer.sampleRate * FRAME));
+            const n = Math.floor(buffer.length / size);
+            const chans = Array.from({ length: buffer.numberOfChannels }, (_, c) => buffer.getChannelData(c));
+            const out = new Float32Array(n);
+            for (let f = 0; f < n; f++) {
+                let sum = 0;
+                for (let i = f * size; i < (f + 1) * size; i++) {
+                    let v = 0;
+                    for (const ch of chans) v += ch[i];
+                    v /= chans.length;
+                    sum += v * v;
+                }
+                out[f] = 10 * Math.log10(sum / size + 1e-10);
+            }
+            return out;
+        },
+
+        // Start time (s) of each piece, given per-frame loudness and the text
+        // length of each piece. Breaks go at pauses: long ones near where an
+        // evenly paced reader would reach the next piece win.
+        marks(db, lengths, frame = FRAME) {
+            const n = lengths.length;
+            if (!n) return [];
+            const duration = db.length * frame;
+            const total = lengths.reduce((a, b) => a + b, 0) || 1;
+            const spread = (t0, t1) => {
+                let acc = 0;
+                return lengths.slice(0, -1).map((len) => t0 + (t1 - t0) * ((acc += len) / total));
+            };
+
+            const sorted = Array.from(db).sort((a, b) => a - b);
+            const at = (p) => sorted[Math.min(sorted.length - 1, Math.floor(p * sorted.length))];
+            const quiet = at(0.05);
+            const loud = at(0.95);
+            // Voice is well above the quietest moments and not far below the
+            // loudest: room noise that gets through before the phone's noise
+            // filter settles stays out.
+            const floor = Math.max(quiet + Math.max(6, (loud - quiet) * 0.3), loud - 22);
+            const voiced = Array.from(db, (v) => v > floor);
+            // Speech starts and ends with a real stretch of voice, not a tap on the screen.
+            const run = (i, step) => {
+                let n = 0;
+                for (let j = i; j >= 0 && j < voiced.length && voiced[j]; j += step) n++;
+                return n;
+            };
+            let first = -1;
+            let last = -1;
+            for (let i = 0; i < voiced.length && first < 0; i++) if (voiced[i] && run(i, 1) * frame >= 0.1) first = i;
+            for (let i = voiced.length - 1; i >= 0 && last < 0; i--) if (voiced[i] && run(i, -1) * frame >= 0.1) last = i;
+            if (first < 0 || loud - quiet < 6) return [0, ...spread(0, duration)].map(round2);
+
+            const t0 = first * frame;
+            const t1 = (last + 1) * frame;
+            const gaps = [];
+            for (let i = first; i <= last;) {
+                if (voiced[i]) {
+                    i++;
+                    continue;
+                }
+                let j = i;
+                while (j <= last && !voiced[j]) j++;
+                if ((j - i) * frame >= MIN_GAP) gaps.push({ from: i * frame, to: j * frame, len: (j - i) * frame });
+                i = j;
+            }
+
+            const expect = spread(t0, t1);
+            const chosen = align(gaps, expect, Math.max(t1 - t0, 1));
+            // The title lights up as soon as the page starts playing.
+            const marks = [0];
+            chosen.forEach((g, k) => marks.push(g ? Math.max(g.to - 0.12, (g.from + g.to) / 2) : expect[k]));
+            // Keep them in order and apart, whatever happened above.
+            for (let k = 1; k < n; k++) marks[k] = Math.min(Math.max(marks[k], marks[k - 1] + 0.3), duration);
+            return marks.map(round2);
+        },
+
+        // Index of the piece being read at time t.
+        segAt(marks, t) {
+            let i = 0;
+            while (i + 1 < marks.length && marks[i + 1] <= t + 0.05) i++;
+            return i;
+        },
+    };
+
+    // Picks, for each expected break (in order), a later pause than the one
+    // before, or none; maximises pause length minus distance from expectation.
+    function align(gaps, expect, span) {
+        const m = expect.length;
+        const G = gaps.length;
+        if (!m) return [];
+        const score = (k, j) => {
+            const g = gaps[j];
+            const off = ((g.from + g.to) / 2 - expect[k]) / span;
+            return Math.log2(g.len / MIN_GAP) + 1 - DRIFT * off * off;
+        };
+        // state s = index of the last pause used + 1 (0: none yet)
+        let best = new Array(G + 1).fill(-Infinity);
+        best[0] = 0;
+        const back = [];
+        for (let k = 0; k < m; k++) {
+            const next = new Array(G + 1).fill(-Infinity);
+            const from = new Array(G + 1).fill(null);
+            for (let s = 0; s <= G; s++) {
+                if (best[s] === -Infinity) continue;
+                if (best[s] > next[s]) {
+                    next[s] = best[s];
+                    from[s] = { s, use: -1 };
+                }
+                for (let j = s; j < G; j++) {
+                    const v = best[s] + score(k, j);
+                    if (v > next[j + 1]) {
+                        next[j + 1] = v;
+                        from[j + 1] = { s, use: j };
+                    }
+                }
+            }
+            back.push(from);
+            best = next;
+        }
+        let s = best.indexOf(Math.max(...best));
+        const out = new Array(m);
+        for (let k = m - 1; k >= 0; k--) {
+            const f = back[k][s];
+            out[k] = f.use < 0 ? null : gaps[f.use];
+            s = f.s;
+        }
+        return out;
+    }
+
+    // A moment of silence, played on the first tap so phones allow the
+    // narration that starts a little later (after it is fetched) to play.
+    function silence() {
+        const n = 800;
+        const buf = new ArrayBuffer(44 + n * 2);
+        const v = new DataView(buf);
+        const str = (o, s) => [...s].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+        str(0, 'RIFF');
+        v.setUint32(4, 36 + n * 2, true);
+        str(8, 'WAVEfmt ');
+        v.setUint32(16, 16, true);
+        v.setUint16(20, 1, true);
+        v.setUint16(22, 1, true);
+        v.setUint32(24, 8000, true);
+        v.setUint32(28, 16000, true);
+        v.setUint16(32, 2, true);
+        v.setUint16(34, 16, true);
+        str(36, 'data');
+        v.setUint32(40, n * 2, true);
+        return URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
+    }
+
+    // ---------- Player ----------
+
+    class Player {
+        constructor() {
+            this.audio = new Audio();
+            this.audio.preload = 'auto';
+            this.url = null;
+            this.raf = 0;
+            this.clip = null;
+            this.unlocked = false;
+            this.audio.addEventListener('ended', () => this.finish());
+            this.audio.addEventListener('timeupdate', () => this.check());
+        }
+
+        get playing() {
+            return !!this.clip;
+        }
+
+        unlock() {
+            if (this.unlocked) return;
+            this.unlocked = true;
+            const a = this.audio;
+            const src = silence();
+            a.src = src;
+            a.play().then(() => {
+                if (a.src === src) a.pause();
+            }).catch(() => {});
+        }
+
+        // Plays a clip, or just from..to seconds of it. onSeg(i) is called on
+        // every frame with the piece being read; onEnd(error?) once at the end.
+        play(clip, { from = 0, to = null, onSeg = null, onEnd = null } = {}) {
+            this.stop();
+            this.clip = clip;
+            this.to = to;
+            this.onSeg = onSeg;
+            this.onEnd = onEnd;
+            if (clip.blob) {
+                this.url = URL.createObjectURL(clip.blob);
+                this.audio.src = this.url;
             } else {
-                this.synth = null;
+                this.audio.src = clip.src;
             }
+            if (from > 0) this.audio.currentTime = from;
+            const tick = () => {
+                this.check();
+                if (this.clip) this.raf = requestAnimationFrame(tick);
+            };
+            this.raf = requestAnimationFrame(tick);
+            return this.audio.play().catch((e) => this.finish(e));
         }
 
-        // ---------- voices ----------
-
-        refreshVoices() {
-            const list = (this.synth && this.synth.getVoices()) || [];
-            const infos = list.map((v) => Speech().voiceInfo(v)).filter(Boolean).sort((a, b) => b.score - a.score);
-            const same = infos.length === this.voices.length && infos.every((x, i) => x.id === this.voices[i].id);
-            this.voices = infos;
-            if (!same && this.opts.onVoices) this.opts.onVoices(infos);
+        check() {
+            if (!this.clip) return;
+            const t = this.audio.currentTime;
+            if (this.onSeg) this.onSeg(Narrator.segAt(this.clip.marks || [0], t));
+            if (this.to !== null && t >= this.to) this.finish();
         }
 
-        get voice() {
-            if (!this.voices.length) return null;
-            if (this.voiceId !== 'auto') {
-                const chosen = this.voices.find((x) => x.id === this.voiceId);
-                if (chosen) return chosen;
-            }
-            return this.voices[0];
+        seek(t) {
+            if (this.clip) this.audio.currentTime = Math.max(0, t);
         }
 
-        canSpeak() {
-            return !!(this.synth && this.voice);
-        }
-
-        rate(dialogue) {
-            return Math.min(2, Math.max(0.5, BASE_RATE * (SPEEDS[this.speed] || 1) * (dialogue ? 1.05 : 1)));
-        }
-
-        // ---------- state ----------
-
-        setState(s) {
-            if (this.state === s) return;
-            this.state = s;
-            if (this.opts.onState) this.opts.onState(s);
-        }
-
-        highlight(h) {
-            if (this.opts.onHighlight) this.opts.onHighlight(h);
+        finish(err) {
+            if (!this.clip) return;
+            const done = this.onEnd;
+            this.stop();
+            if (done) done(err);
         }
 
         stop() {
-            this.gen++;
-            this.paused = false;
-            this.waiters.splice(0).forEach((r) => r());
-            if (this.synth && (this.synth.speaking || this.synth.pending)) {
-                this.interrupted = false;
-                this.synth.cancel();
+            cancelAnimationFrame(this.raf);
+            if (!this.audio.paused) this.audio.pause();
+            this.clip = null;
+            this.onSeg = this.onEnd = null;
+            if (this.url) {
+                URL.revokeObjectURL(this.url);
+                this.url = null;
             }
-            if (this.audioPart) this.audioPart.done('stopped');
-            if (this.audio) this.audio.pause();
-            this.setState('idle');
-            this.highlight(null);
-        }
-
-        pause() {
-            if (this.state !== 'playing') return;
-            this.paused = true;
-            this.setState('paused');
-            if (this.audioPart) {
-                this.audio.pause();
-            } else if (this.current && this.synth) {
-                this.interrupted = true;
-                this.synth.cancel();
-            }
-        }
-
-        resume() {
-            if (this.state !== 'paused') return;
-            this.paused = false;
-            this.setState('playing');
-            if (this.audioPart) {
-                const p = this.audio.play();
-                if (p && p.catch) p.catch(() => this.audioPart && this.audioPart.done('blocked'));
-            }
-            this.waiters.splice(0).forEach((r) => r());
-        }
-
-        untilResumed() {
-            if (!this.paused) return Promise.resolve();
-            return new Promise((r) => this.waiters.push(r));
-        }
-
-        // ---------- reading ----------
-
-        // Resolves 'done' | 'stopped' | 'blocked' | 'error'.
-        async play(parts) {
-            const wasBusy = this.synth && (this.synth.speaking || this.synth.pending);
-            this.stop();
-            const gen = this.gen;
-            this.setState('playing');
-            // Chrome can drop an utterance queued right after cancel().
-            if (wasBusy) await sleep(60);
-            let errors = 0;
-            for (let p = 0; p < parts.length; p++) {
-                const part = parts[p];
-                if (part.type === 'audio') {
-                    await this.untilResumed();
-                    if (gen !== this.gen) return 'stopped';
-                    const r = await this.playAudio(part, gen);
-                    if (gen !== this.gen) return 'stopped';
-                    if (r === 'blocked') return this.fail('blocked');
-                    if (r === 'error' && part.fallback && this.canSpeak()) parts.splice(p + 1, 0, { type: 'tts', segs: part.segs });
-                } else {
-                    if (!this.canSpeak()) continue;
-                    for (let i = 0; i < part.segs.length; i++) {
-                        const seg = part.segs[i];
-                        let r;
-                        do {
-                            await this.untilResumed();
-                            if (gen !== this.gen) return 'stopped';
-                            r = await this.speakSeg(seg, gen);
-                            if (gen !== this.gen) return 'stopped';
-                        } while (r === 'paused');
-                        if (r === 'blocked') return this.fail('blocked');
-                        if (r === 'error') {
-                            if (++errors >= 2) return this.fail('error');
-                        } else {
-                            errors = 0;
-                        }
-                        await sleep(this.gap(seg, part.segs[i + 1] || (parts[p + 1] && parts[p + 1].segs[0])));
-                    }
-                }
-                if (gen !== this.gen) return 'stopped';
-            }
-            this.setState('idle');
-            this.highlight(null);
-            return 'done';
-        }
-
-        fail(reason) {
-            this.stop();
-            if (this.opts.onError) this.opts.onError(reason);
-            return reason;
-        }
-
-        // Pauses between sentences: longer after a title or before a question.
-        gap(seg, next) {
-            if (!next) return 0;
-            if (seg.kind !== next.kind) return seg.kind === 'title' ? 650 : 520;
-            if (seg.q !== next.q) return 220;
-            const last = seg.words[seg.words.length - 1];
-            return last && Speech().SENTENCE_END.test(last.t) ? 320 : 170;
-        }
-
-        speakSeg(seg, gen) {
-            const sp = Speech();
-            const info = this.voice;
-            const toks = seg.words.map((w) => sp.respell(w.t, info.lang));
-            let text = seg.prefix ? sp.respell(seg.prefix, info.lang) + ' ' : '';
-            const offsets = toks.map((t) => {
-                const at = text.length;
-                text += t + ' ';
-                return at;
-            });
-            text = text.trim();
-            if (!sp.hasSound(text)) return Promise.resolve('end');
-            const dialogue = !!seg.q && this.characterVoices;
-            const u = new root.SpeechSynthesisUtterance(text);
-            u.voice = info.voice;
-            u.lang = info.voice.lang;
-            u.rate = this.rate(dialogue);
-            u.pitch = dialogue ? 1.18 : 1;
-            u.volume = 1;
-            const est = sp.estimateMs(text, u.rate);
-            return new Promise((resolve) => {
-                let settled = false;
-                let boundary = false;
-                let pace = null;
-                const done = (r) => {
-                    if (settled) return;
-                    settled = true;
-                    clearTimeout(watchdog);
-                    clearTimeout(pace);
-                    if (this.current === u) this.current = null;
-                    resolve(r);
-                };
-                const mark = (i) => {
-                    if (!settled && gen === this.gen && seg.words[i]) this.highlight({ s: seg.s, w: seg.words[i].w });
-                };
-                // Voices without word boundaries: walk the words at an estimated pace.
-                const walk = () => {
-                    const weights = toks.map((t) => t.length + 1);
-                    const sum = weights.reduce((a, b) => a + b, 0) || 1;
-                    let i = 0;
-                    const step = () => {
-                        if (settled || boundary) return;
-                        mark(i);
-                        const d = (est - 400) * (weights[i] / sum);
-                        if (++i < toks.length) pace = setTimeout(step, d);
-                    };
-                    step();
-                };
-                u.onstart = () => {
-                    if (gen !== this.gen) return;
-                    this.highlight({ s: seg.s, w: seg.prefix ? null : seg.words[0] && seg.words[0].w });
-                    pace = setTimeout(() => { if (!boundary) walk(); }, seg.prefix ? 700 : 450);
-                };
-                u.onboundary = (e) => {
-                    if (gen !== this.gen || (e.name && e.name !== 'word')) return;
-                    boundary = true;
-                    clearTimeout(pace);
-                    if (e.charIndex < offsets[0]) return;
-                    let i = 0;
-                    while (i + 1 < offsets.length && offsets[i + 1] <= e.charIndex) i++;
-                    mark(i);
-                };
-                u.onend = () => done(this.interrupted ? 'paused' : 'end');
-                u.onerror = (e) => {
-                    if (this.interrupted) return done('paused');
-                    const err = e && e.error;
-                    done(err === 'interrupted' || err === 'canceled' ? 'stopped' : err === 'not-allowed' ? 'blocked' : 'error');
-                };
-                // Some engines never fire onend: move on after a generous delay.
-                const watchdog = setTimeout(() => {
-                    if (settled) return;
-                    if (this.synth.speaking) this.synth.cancel();
-                    done('end');
-                }, est * 2.5 + 4000);
-                this.interrupted = false;
-                this.current = u;
-                this.synth.speak(u);
-            });
-        }
-
-        // Recordings and narration files: highlight by position in the audio.
-        playAudio(part, gen) {
-            const a = this.audio || (this.audio = new root.Audio());
-            a.preload = 'auto';
-            a.src = part.src;
-            a.playbackRate = part.kind === 'recording' ? 1 : (SPEEDS[this.speed] || 1);
-            const segs = part.segs.map((sg) => {
-                let acc = 0;
-                const words = sg.words.map((w, wi) => {
-                    let weight = w.t.length + 1;
-                    if (/[.!?…]["»”]*[,]?$/.test(w.t)) weight += 6;
-                    else if (/[,;:—]$/.test(w.t)) weight += 3;
-                    if (wi === sg.words.length - 1 && sg.kind === 'title') weight += 9;
-                    const at = acc;
-                    acc += weight;
-                    return { w: w.w, at };
-                });
-                return { s: sg.s, words, total: acc || 1 };
-            });
-            // Files made by tools/generate-narration.mjs carry where each
-            // sentence starts and stops ([startMs, endMs] marks), so the
-            // highlight follows the voice sentence by sentence. Without marks
-            // the whole file is shared out by estimated word lengths.
-            const marks = Array.isArray(part.marks) && part.marks.length === segs.length ? part.marks : null;
-            const grand = segs.reduce((n, sg) => n + sg.total, 0) || 1;
-            const locate = (ms, dur) => {
-                let si = 0;
-                let frac;
-                if (marks) {
-                    while (si + 1 < segs.length && marks[si + 1][0] <= ms) si++;
-                    frac = (ms - marks[si][0]) / Math.max(1, marks[si][1] - marks[si][0]);
-                } else {
-                    let pos = Math.min(0.999, ms / dur) * grand;
-                    while (si + 1 < segs.length && pos >= segs[si].total) {
-                        pos -= segs[si].total;
-                        si++;
-                    }
-                    frac = pos / segs[si].total;
-                }
-                const sg = segs[si];
-                const target = Math.min(0.999, Math.max(0, frac)) * sg.total;
-                let wi = 0;
-                while (wi + 1 < sg.words.length && sg.words[wi + 1].at <= target) wi++;
-                return { s: sg.s, w: sg.words.length ? sg.words[wi].w : null };
-            };
-            return new Promise((resolve) => {
-                let settled = false;
-                let raf = 0;
-                const done = (r) => {
-                    if (settled) return;
-                    settled = true;
-                    cancelAnimationFrame(raf);
-                    a.onended = null;
-                    a.onerror = null;
-                    this.audioPart = null;
-                    if (part.onDone) part.onDone();
-                    resolve(r);
-                };
-                const tick = () => {
-                    if (settled || gen !== this.gen) return;
-                    const dur = isFinite(a.duration) && a.duration > 0 ? a.duration * 1000 : part.durationMs || 0;
-                    if (!a.paused && segs.length && (marks || dur > 0)) {
-                        const x = locate(a.currentTime * 1000, dur);
-                        this.highlight(part.fine ? x : { s: x.s, w: null });
-                    }
-                    raf = requestAnimationFrame(tick);
-                };
-                a.onended = () => done('end');
-                a.onerror = () => done('error');
-                this.audioPart = { done };
-                raf = requestAnimationFrame(tick);
-                if (this.paused) return;
-                const p = a.play();
-                if (p && p.catch) p.catch((err) => done(err && err.name === 'NotAllowedError' ? 'blocked' : 'error'));
-            });
-        }
-
-        // Short phrases outside a reading (a tapped word, praise, instructions).
-        say(text, opts = {}) {
-            if (!this.canSpeak() || this.state !== 'idle') return false;
-            const info = this.voice;
-            const phrase = Speech().norm(text).split(/\s+/).map((t) => Speech().respell(t, info.lang)).join(' ');
-            if (!Speech().hasSound(phrase)) return false;
-            this.synth.cancel();
-            const u = new root.SpeechSynthesisUtterance(phrase);
-            u.voice = info.voice;
-            u.lang = info.voice.lang;
-            u.rate = this.rate(false) * (opts.slow ? 0.85 : 1);
-            u.pitch = opts.pitch || 1;
-            this.synth.speak(u);
-            return true;
-        }
-
-        // A plain text reading (instructions), without page highlighting.
-        readText(text) {
-            const segs = Speech().segment(text).map((sg) => ({ s: -1, q: sg.q, kind: 'text', words: sg.toks.map((t) => ({ w: -1, t })) }));
-            return this.play([{ type: 'tts', segs }]);
         }
     }
 
-    Narrator.SPEEDS = SPEEDS;
+    // ---------- ReadAlong ----------
+
+    class ReadAlong {
+        // book: the BookEngine; opts.onState({ on, waiting }), opts.toast(text)
+        constructor(book, opts = {}) {
+            this.book = book;
+            this.opts = opts;
+            this.player = new Player();
+            this.on = false;
+            this.waiting = 0; // the page waiting for its question to be answered (0: none)
+            this.view = null; // the page being read
+            this.token = 0;
+            this.timer = 0;
+            this.voice = null;
+            this.key = null;
+        }
+
+        // A new book or voice: stop whatever was playing.
+        use(key, voiceId) {
+            if (key !== this.key || voiceId !== this.voice) this.stop();
+            this.key = key;
+            this.voice = voiceId;
+        }
+
+        toggle() {
+            if (this.on) this.stop();
+            else this.start();
+        }
+
+        start() {
+            if (!this.voice) return;
+            this.player.unlock();
+            this.on = true;
+            this.waiting = 0;
+            this.emit();
+            const s = this.book.state();
+            if (s.busy) return; // the turn in progress reports back through onChange
+            if (s.view >= 1 && s.view <= s.pages) this.playView(s.view);
+            else if (s.end) this.book.goTo(1);
+            else this.book.next();
+        }
+
+        stop() {
+            this.on = false;
+            this.waiting = 0;
+            this.view = null;
+            this.token++;
+            clearTimeout(this.timer);
+            this.player.stop();
+            this.highlight(-1);
+            this.emit();
+        }
+
+        // The book moved (or was redrawn).
+        onChange(s) {
+            if (!this.on || s.busy) return;
+            // the same page redrawn (script switch, answer): carry on as we were
+            if (s.view === this.view && (this.player.playing || (this.waiting && this.waiting === s.view))) return;
+            clearTimeout(this.timer);
+            this.waiting = 0;
+            if (s.view >= 1 && s.view <= s.pages) this.playView(s.view);
+            else if (s.view <= 0) this.later(500);
+            else this.stop(); // the end
+            this.emit();
+        }
+
+        onAnswer(ok) {
+            if (this.on && ok && this.waiting) {
+                this.waiting = 0;
+                this.emit();
+                this.later(1300);
+            }
+        }
+
+        // Tap on a sentence: read just that one (or jump to it while reading).
+        async say(seg) {
+            const view = this.book.view;
+            if (!this.voice || view < 1) return;
+            if (this.on) {
+                if (this.player.playing && this.view === view && this.player.clip.marks[seg] !== undefined) this.player.seek(this.player.clip.marks[seg]);
+                return;
+            }
+            this.player.unlock();
+            const token = ++this.token;
+            const clip = await root.Voices.clip(this.voice, this.key, view);
+            if (token !== this.token || !clip || !this.fits(clip, view) || clip.marks[seg] === undefined) return;
+            this.player.play(clip, {
+                from: clip.marks[seg],
+                to: clip.marks[seg + 1] !== undefined ? clip.marks[seg + 1] : null,
+                onSeg: () => this.highlight(seg),
+                onEnd: () => this.highlight(-1),
+            });
+        }
+
+        async playView(view) {
+            const token = ++this.token;
+            this.player.stop();
+            this.highlight(-1);
+            this.view = view;
+            const clip = await root.Voices.clip(this.voice, this.key, view);
+            if (token !== this.token || !this.on) return;
+            if (!clip) {
+                this.stop();
+                if (this.opts.toast) this.opts.toast("🎙️ Bu sahifa hali o'qib berilmagan");
+                return;
+            }
+            const fits = this.fits(clip, view);
+            this.player.play(clip, {
+                onSeg: (i) => fits && this.highlight(i),
+                onEnd: (err) => this.pageDone(view, token, err),
+            });
+        }
+
+        pageDone(view, token, err) {
+            if (token !== this.token || !this.on) return;
+            this.highlight(-1);
+            if (err) {
+                this.stop();
+                return;
+            }
+            const p = this.book.story.pages[view - 1];
+            const answered = !p.question || (this.book.record.answers[view] || {}).done;
+            if (!answered) {
+                this.waiting = view;
+                this.emit();
+                if (this.opts.toast) this.opts.toast('💡 Endi savolga javob bering!');
+                return;
+            }
+            this.later(900);
+        }
+
+        later(ms) {
+            clearTimeout(this.timer);
+            this.timer = setTimeout(() => {
+                if (this.on && !this.book.isBusy()) this.book.next();
+            }, ms);
+        }
+
+        // The clip was read from the text now on the page (else no highlighting).
+        fits(clip, view) {
+            const segs = root.BookEngine.segments(this.book.story.pages[view - 1]);
+            return (clip.marks || []).length === segs.length && (!clip.sig || clip.sig === Narrator.sig(segs));
+        }
+
+        // Lights up piece i on the page (-1: none). Cheap enough to call every frame.
+        highlight(i) {
+            const page = this.book.right;
+            const cur = page.querySelector('.is-reading');
+            const want = i >= 0 ? page.querySelector(`[data-seg="${i}"]`) : null;
+            if (cur === want) return;
+            if (cur) cur.classList.remove('is-reading');
+            if (want) want.classList.add('is-reading');
+        }
+
+        emit() {
+            if (this.opts.onState) this.opts.onState({ on: this.on, waiting: this.waiting });
+        }
+    }
+
+    // ---------- Recorder ----------
+
+    class Recorder {
+        static supported() {
+            return !!(root.navigator.mediaDevices && root.navigator.mediaDevices.getUserMedia && root.MediaRecorder);
+        }
+
+        // AAC in MP4 plays on every phone; otherwise Opus, best supported in WebM
+        // (a plain "audio/mp4" recording may hold Opus too).
+        static mime() {
+            const types = ['audio/mp4;codecs=mp4a.40.2', 'audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus'];
+            return types.find((t) => root.MediaRecorder.isTypeSupported(t)) || '';
+        }
+
+        // onLevel(0..1, seconds) is called on every frame while recording.
+        async start(onLevel) {
+            this.stream = await root.navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+            try {
+                const mime = Recorder.mime();
+                this.rec = new root.MediaRecorder(this.stream, mime ? { mimeType: mime, audioBitsPerSecond: 48000 } : undefined);
+                this.chunks = [];
+                this.rec.ondataavailable = (e) => {
+                    if (e.data && e.data.size) this.chunks.push(e.data);
+                };
+                this.stopped = new Promise((resolve) => { this.rec.onstop = resolve; });
+                this.rec.start(250);
+            } catch (e) {
+                this.stream.getTracks().forEach((t) => t.stop()); // don't leave the microphone on
+                throw e;
+            }
+            const t0 = performance.now();
+            try {
+                this.ctx = new (root.AudioContext || root.webkitAudioContext)();
+                const analyser = this.ctx.createAnalyser();
+                analyser.fftSize = 1024;
+                this.ctx.createMediaStreamSource(this.stream).connect(analyser);
+                const data = new Float32Array(analyser.fftSize);
+                const loop = () => {
+                    analyser.getFloatTimeDomainData(data);
+                    let sum = 0;
+                    for (let i = 0; i < data.length; i++) sum += data[i] * data[i];
+                    if (onLevel) onLevel(Math.min(1, Math.sqrt(sum / data.length) * 5), (performance.now() - t0) / 1000);
+                    this.raf = requestAnimationFrame(loop);
+                };
+                loop();
+            } catch (e) {
+                /* the level meter is optional */
+            }
+        }
+
+        // Ends the recording; resolves with { blob, mime, duration, energies }.
+        async stop() {
+            cancelAnimationFrame(this.raf);
+            if (this.rec.state !== 'inactive') this.rec.stop();
+            await this.stopped;
+            this.stream.getTracks().forEach((t) => t.stop());
+            const mime = this.rec.mimeType || Recorder.mime() || 'audio/webm';
+            const blob = new Blob(this.chunks, { type: mime });
+            const ctx = this.ctx || new (root.AudioContext || root.webkitAudioContext)();
+            try {
+                const buffer = await ctx.decodeAudioData(await blob.arrayBuffer());
+                return { blob, mime, duration: buffer.duration, energies: Narrator.energies(buffer) };
+            } finally {
+                ctx.close().catch(() => {});
+                this.ctx = null;
+            }
+        }
+
+        cancel() {
+            cancelAnimationFrame(this.raf);
+            if (this.rec && this.rec.state !== 'inactive') this.rec.stop();
+            if (this.stream) this.stream.getTracks().forEach((t) => t.stop());
+            if (this.ctx) this.ctx.close().catch(() => {});
+            this.ctx = null;
+        }
+    }
+
+    Object.assign(Narrator, { Player, ReadAlong, Recorder, align });
     root.Narrator = Narrator;
-})(window);
+})(typeof window !== 'undefined' ? window : globalThis);

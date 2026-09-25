@@ -1,12 +1,12 @@
 # haksenguz-kids
 
-**Ertaklar Olami** is an interactive 3D picture book of Uzbek folk tales for children. You open the cover, turn pages by dragging their edge (or with the buttons or ← → keys), tap pictures to make the characters move, and answer questions as you read.
+**Ertaklar Olami** is an interactive 3D picture book of Uzbek folk tales for children, made for Uzbek kids growing up in Korea. You open the cover, turn pages by dragging their edge (or with the buttons or ← → keys), tap pictures to make the characters move, and answer questions as you read. Each child in the family has a profile that remembers their points and where they stopped reading, and all text can be shown in Uzbek Latin or Cyrillic.
 
-* **Read-aloud in Uzbek:** ▶ reads the page aloud and highlights each word as it is spoken. It uses a family member's recording of the page, a generated neural narration file, or the browser's voice. Microsoft Edge has natural Uzbek voices (Madina and Sardor). Tap any word to hear it, and turn on 🔁 to have pages turn by themselves.
-* **Family voice:** parents can record each page in their own voice. Recordings stay on the device.
-* **Play corner:** turn any picture into a colouring page (🎨), or put the story's pictures in order (🧩).
-* **Saved progress:** points, answers and the last page read are remembered, so a book can be continued later.
+Books can be read aloud with each sentence lit up as it is read. A grown-up records the reading in the app's recording studio ("Ovoz yozish"). A grandparent can record a book on their phone and send it to the family on Telegram as one file.
 
-Open `index.html` in a browser; no build step is needed. To generate natural narration audio for every page with Azure AI Speech, run `node tools/generate-narration.mjs --help`.
+Any picture can become a colouring page (🎨) to colour on screen, save or print, and each book ends with a game of putting the story's pictures in order (🧩).
 
-See `uzbek_kids_platform_claude_guide.md` for the architecture, how stories and their illustrations are described, and how narration works (sections 7 and 8).
+Open `index.html` in a browser; no build step is needed (recording needs `https://` or `localhost`). See `uzbek_kids_platform_claude_guide.md` for the architecture and how stories, illustrations and narration work, and `ROADMAP.md` for what comes next.
+
+- Tests: `node tests/translit.test.js` (Latin → Cyrillic spelling) and `node tests/narration.test.js` (sentences and read-along timing).
+- Add a narrator's recordings to the app: `node tools/import-narration.js <voice-pack.json>`.
