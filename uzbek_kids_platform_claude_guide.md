@@ -271,5 +271,5 @@ tests/narration.test.js    # node tests/narration.test.js
 
 ### Still open
 * The narrator's recordings: record in the studio (ideally on an iPhone), send the `.json`, then run the import tool.
-* Hosting (GitHub Pages), so grandparents can open the link; offline/PWA; bundling the CDN styles and fonts.
+* Offline/PWA and bundling the CDN styles and fonts. (Hosting is done: Netlify publishes `main` and builds a preview for every pull request.)
 * Issue C (`page.imageUrl` artwork) as before.

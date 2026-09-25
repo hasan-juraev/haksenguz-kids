@@ -52,7 +52,8 @@ reading it.
    - **Record on an iPhone if possible.** Its recordings (AAC) play on every
      phone. Android and computer recordings are WebM/Opus, which older iPhones
      may not play.
-   - **Needs hosting (item 3)** before a grandparent can open the link.
+   - **Works on the Netlify site** (https, which phones require for the
+     microphone), so a grandparent only needs the link.
 2. **Korean helper.**
    - Tap a word to see its Korean meaning (extends the "Yangi so'z" card).
    - A 🇰🇷 button shows a sentence's Korean translation, only when asked.
@@ -65,8 +66,8 @@ reading it.
    - Needs a rounded Korean font such as Jua, because Fredoka and Nunito have no
      Hangul.
 3. **Online and offline.**
-   - Host on GitHub Pages so there is a link to share (the grandma recorder
-     needs this too).
+   - ✅ Hosted on Netlify: `main` is the live site, and every pull request
+     gets its own preview link.
    - Make it installable on the home screen and usable offline.
    - Stop loading styles from CDNs: `cdn.tailwindcss.com` is development-only,
      and fonts and icons should ship with the app.
