@@ -173,3 +173,62 @@ js/app.js               # AppController (library, controls, points, sound, quiz)
 * Issue C: dual-mode `page.imageUrl` artwork with SVG fallback is not implemented. Scenes are procedural only.
 * Issue D (AI voice narration) is unchanged.
 * The Lotin/Кирилл toggle still only shows a message and does not transliterate the text.
+
+## 8. Update: Uzbek Read-Aloud, Family Voice, Play Corner, Saved Progress
+
+### Read-aloud (Issue D)
+* **▶ O'qib ber** in the story bar reads the open page aloud and highlights the sentence and the word being read. On the title page it carries on into the story. **🔁 Avto** turns the page after reading and waits while a question is unanswered. Space toggles reading. On phones the page scrolls with the reading, and a floating ▶/⏸ button appears once the story bar is out of view.
+* Tap any word to hear it; the page's "Yangi so'z" is underlined in the text and has its own 🔊 button. Answers get spoken praise ("Juda to'g'ri!") or a gentle retry.
+* For each page, read-aloud uses the best voice source it has:
+  1. a **family recording** of that page (see below);
+  2. a **narration file** listed in `audio/manifest.js` (for example generated with Azure, see below);
+  3. the browser's own speech synthesis. A natural `uz-UZ` voice is preferred: Microsoft Edge offers the online natural voices **Madina** and **Sardor**. Without an Uzbek voice, a Kazakh, Azerbaijani, Kyrgyz, Turkish or Russian voice reads the text respelled in that language's alphabet (`Speech.respell`), and the reader shows a note suggesting Edge. With no voice at all, a friendly message appears instead.
+* Browser voices are read sentence by sentence. Dialogue in «…» can use a livelier "character voice". Word highlighting follows the engine's word-boundary events, or an estimated pace when the engine sends none. Pause and resume are reliable because a paused sentence is restarted, and a watchdog covers engines that never fire `onend`. iOS speech is unlocked inside the tap.
+* **⚙️ Ovoz** opens the settings: voice choice (ranked for Uzbek), speed (slow, normal, fast), character voices, auto-turn, spoken praise, a voice test, and the family-voice recorder. Settings are saved.
+* The Issue D interface maps as follows: `ReadAloud.readCurrent()` plays a page, `Narrator.pause()` and `resume()`, `Narrator.speed` sets the rate, and `Narrator.play(parts)` accepts TTS text or audio files with highlight timing.
+
+### Family voice (real human narration)
+* In ⚙️ Ovoz, **🎙 N-sahifani yozish** records the current page in a parent's or grandparent's voice (up to 3 minutes per page). Recordings stay on the device in IndexedDB (`ertaklar-olami` / `recordings`, key `<story>:<view>`). They are never uploaded.
+* Recorded pages play the recording instead of a synthetic voice, with sentence highlighting, and the read button shows 👵. A recording can be played, re-recorded or deleted from the panel.
+
+### Neural narration files: `tools/generate-narration.mjs`
+* This script synthesises every title page, story page, question and ending with Azure AI Speech's Uzbek neural voices (`uz-UZ-MadinaNeural`, default, or `uz-UZ-SardorNeural`). It writes `audio/<story>/vNN.mp3` and `vNNq.mp3`, plus `audio/manifest.js`. The site then plays these files on every browser, so no Uzbek voice is needed on the device.
+  ```bash
+  AZURE_SPEECH_KEY=<key> AZURE_SPEECH_REGION=<region> node tools/generate-narration.mjs
+  node tools/generate-narration.mjs --dry-run            # what would be made; no key needed
+  node tools/generate-narration.mjs --story zumrad --voice uz-UZ-SardorNeural
+  ```
+  * Options: `--rpm` (requests per minute; the default of 18 suits the free F0 tier's limit of about 20), `--rate` (default `-8%`), `--force`, `--out`, and `--ascii` (keep plain `'`; by default oʻ, gʻ and ʼ are sent).
+* Each sentence is a separate request. The MP3 frames are then joined, and the manifest records every sentence's `[start, end]` in ms. The player uses these marks, so the highlight stays in step with the recorded voice.
+* The whole library is 23 books: 260 files, about 1,030 sentences and 37,000 characters. That takes about an hour at the free tier's rate and produces roughly 15–20 MB of MP3. It is small next to the free tier's monthly character allowance (check current Azure pricing).
+* Re-runs only synthesise pages whose text or voice settings changed. The manifest is saved after every page, so an interrupted run resumes where it stopped.
+* To add your own studio recordings, put a plain path in the manifest (for example `"zumrad:3": "audio/studio/zumrad-3.mp3"`). The generator keeps such hand-made entries.
+* No audio has been generated yet: this needs the project's own Azure key.
+
+### Play corner
+* **🎨** on every picture opens a **colouring page** made from that scene. The scene is drawn as line art: outlines stay, and areas become white and fillable. A tap fills an area, and tree crowns, clouds and wool fill as one piece. There are 13 colours and an eraser, plus undo, clear, and **save as PNG**.
+* **🧩 Voqealar tartibi** on the last spread shows four pictures from the story to tap in the order they happened. Two wrong taps bring a hint, and completing it earns +30 points once per book.
+
+### Saved progress
+* `js/progress.js` stores points, and for each book the last page, finished state, stars, answers and games, plus the reader settings. They live in `localStorage` (`ertaklar-olami:v1`). The library shows badges ("📖 4 / 12 sahifa o'qildi", "✅ O'qildi ★★★"). Reopening a book offers **↪ N-sahifadan davom etish**, and points are never earned twice.
+
+### New files
+```text
+css/reader.css               # read-aloud controls, highlights, panel, recorder, play corner
+js/speech.js                 # sentence/word markup, Latin→Cyrillic, respelling, voice ranking
+js/narrator.js               # speech/audio playback engine with highlight timing
+js/reader.js                 # ReadAloud: page reading, auto mode, settings panel, recording UI
+js/recorder.js               # FamilyVoice: microphone recording in IndexedDB
+js/progress.js               # saved progress
+js/games.js                  # colouring studio and story-order game
+audio/manifest.js            # narration files (empty until generated)
+tools/generate-narration.mjs # Azure neural narration generator (Node 18+, no dependencies)
+```
+
+### Testing notes
+* Headless Chromium has no speech voices. Read-aloud was therefore tested with a scripted `speechSynthesis` stand-in: fake Madina, Sardor, Turkish and English voices with word-boundary events, plus "Turkish only" and "no voices" cases. Recording was tested with Chromium's fake microphone. The generator was tested against a local fake of the Azure endpoint, including throttling (429), resumed runs and changed pages, and its MP3 output was played back in Chromium with marks-driven highlighting.
+* Real voices still need a check on devices: Edge on Windows, macOS or Android for Madina and Sardor, Chrome, and Safari on iOS.
+
+### Still open
+* Issue C: `page.imageUrl` artwork with SVG fallback is not implemented.
+* The Lotin/Кирилл toggle still shows only a message. `Speech.toCyrillic` now exists and could be used to transliterate the pages.

@@ -31,6 +31,8 @@
     const PRAISE = ['Barakalla!', 'Ofarin!', "Juda to'g'ri!", 'Qoyil!', 'Zo\'r!'];
 
     const esc = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+    // Readable text is wrapped in sentence/word spans so read-aloud can highlight it.
+    const say = (text, ctx, opts) => (root.Speech ? root.Speech.markup(text, ctx, opts) : esc(text));
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
     const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
     const easeOut = (t) => 1 - Math.pow(1 - t, 3);
@@ -153,18 +155,19 @@
                 const scene = Object.assign({}, last, { fx: [...(last.fx || []).filter((f) => f !== 'confetti'), 'confetti'] });
                 return `<div class="sheet sheet--left sheet--end"><div class="page-pad">
                     <div class="page-head"><span></span><span class="running-head">${esc(st.title)}</span></div>
-                    <figure class="page-art page-art--end" data-action="poke">${this.art(scene, true, 'end')}<figcaption class="tamom-banner">Tamom!</figcaption></figure>
+                    <figure class="page-art page-art--end" data-action="poke">${this.art(scene, true, 'end')}<figcaption class="tamom-banner">Tamom!</figcaption>${this.colorButton(view)}</figure>
                     <p class="art-hint">✨ Ertak shu yerda tugadi ✨</p>
                     <div class="page-foot"><span class="page-num"></span><span>Ertaklar Olami</span></div>
                 </div></div>`;
             }
             const p = st.pages[view - 1];
+            const ctx = { s: 500, w: 5000 };
             const note = p.word
-                ? `<div class="word-card"><span class="word-label">📖 Yangi so'z</span><span class="word-term">${esc(p.word[0])}</span><span class="word-mean">${esc(p.word[1])}</span></div>`
+                ? `<div class="word-card"><span class="word-label">📖 Yangi so'z <button type="button" class="word-say" data-action="say-card" aria-label="So'zni tinglash">🔊</button></span><span class="word-term" data-prefix="Yangi so'z:">${say(p.word[0], ctx)}</span><span class="word-mean">${say(p.word[1], ctx)}</span></div>`
                 : `<p class="art-hint">👆 Rasmga bosing — qahramonlar jonlanadi!</p>`;
             return `<div class="sheet sheet--left"><div class="page-pad">
                 <div class="page-head"><span class="chapter-chip">${view}-sahifa</span><span class="running-head">${esc(st.title)}</span></div>
-                <figure class="page-art" data-action="poke" title="Rasmga bosing">${this.art(p.scene, true, view)}</figure>
+                <figure class="page-art" data-action="poke" title="Rasmga bosing">${this.art(p.scene, true, view)}${this.colorButton(view)}</figure>
                 ${note}
                 <div class="page-foot"><span class="page-num">${this.pageNo(view, 'left')}</span><span>Ertaklar Olami</span></div>
             </div></div>`;
@@ -175,33 +178,34 @@
             if (view <= 0) return this.titleHTML();
             if (view > st.pages.length) return this.endHTML();
             const p = st.pages[view - 1];
+            const ctx = { s: 0, w: 0 };
             return `<div class="sheet sheet--right"><div class="page-pad">
                 <div class="page-head"><span class="running-head">${esc(st.tag.split('•')[0].trim())}</span><span class="chapter-chip">${view} / ${st.pages.length}</span></div>
                 <div class="page-body" data-fit="21">
-                    <h2 class="page-title">${esc(p.title)}</h2>
-                    <p class="page-text">${esc(p.text)}</p>
+                    <h2 class="page-title">${say(p.title, ctx)}</h2>
+                    <p class="page-text">${say(p.text, ctx, { vocab: p.word && p.word[0] })}</p>
                     <p class="page-flourish" aria-hidden="true">❦ ❦ ❦</p>
-                    ${this.questionHTML(view, p)}
+                    ${this.questionHTML(view, p, ctx)}
                 </div>
                 <div class="page-foot"><span class="turn-hint">${view < st.pages.length ? 'Varaqlang' : 'Yakun'} <b>➜</b></span><span class="page-num">${this.pageNo(view, 'right')}</span></div>
             </div></div>`;
         }
 
-        questionHTML(view, p) {
+        questionHTML(view, p, ctx = { s: 300, w: 3000 }) {
             if (!p.question) return '';
             const state = this.answers[this.key][view] || {};
             const buttons = p.question.a.map((txt, i) => {
                 let cls = 'choice';
                 if (state.done && (i === p.question.ok || p.question.ok < 0) && i === state.pick) cls += ' choice--right';
                 if (state.wrong && state.wrong.includes(i)) cls += ' choice--wrong';
-                return `<button type="button" class="${cls}" data-action="answer" data-view="${view}" data-idx="${i}"${state.done ? ' disabled' : ''}>${esc(txt)}</button>`;
+                return `<button type="button" class="${cls}" data-action="answer" data-view="${view}" data-idx="${i}"${state.done ? ' disabled' : ''}>${say(txt, ctx)}</button>`;
             }).join('');
             const feedback = state.done
                 ? `<p class="quiz-feedback quiz-feedback--ok">⭐ ${esc(state.praise || 'Barakalla!')} +10 ball</p>`
                 : state.wrong && state.wrong.length ? `<p class="quiz-feedback">🤔 Yana bir o'ylab ko'ring!</p>` : '';
             return `<div class="page-question">
                 <div class="question-label">💡 Bolajonlar uchun savol</div>
-                <p class="question-text">${esc(p.question.q)}</p>
+                <p class="question-text" data-prefix="Savol:">${say(p.question.q, ctx)}</p>
                 <div class="choices">${buttons}</div>${feedback}
             </div>`;
         }
@@ -221,14 +225,18 @@
             const st = this.story;
             const mins = Math.max(2, Math.round(st.pages.reduce((n, p) => n + p.text.split(/\s+/).length, 0) / 90));
             const scene = st.cover || st.pages[0].scene;
+            const ctx = { s: 0, w: 0 };
+            const resume = this.resumeAt > 1 && this.resumeAt <= st.pages.length
+                ? `<button type="button" class="btn-resume" data-action="resume">↪ ${this.resumeAt}-sahifadan davom etish</button>`
+                : `<p class="title-hint">Sahifa chetidan torting yoki ➜ tugmasini bosing</p>`;
             return `<div class="sheet sheet--right sheet--title"><div class="page-pad title-page">
                 <div class="title-ornament">❦</div>
-                <h1 class="title-name">${esc(st.title)}</h1>
-                <p class="title-tag">${esc(st.tag)}</p>
+                <h1 class="title-name">${say(st.title, ctx)}</h1>
+                <p class="title-tag">${say(st.tag, ctx)}</p>
                 <div class="title-medallion" data-action="poke">${this.art(scene, false, 'title')}</div>
                 <p class="title-meta">📄 ${st.pages.length} sahifa · ⏱ ~${mins} daqiqa</p>
-                <p class="title-opening">«Bir bor ekan, bir yo'q ekan...»</p>
-                <p class="title-hint">Sahifa chetidan torting yoki ➜ tugmasini bosing</p>
+                <p class="title-opening">${say("«Bir bor ekan, bir yo'q ekan...»", ctx)}</p>
+                ${resume}
             </div></div>`;
         }
 
@@ -237,14 +245,16 @@
             const asked = st.pages.filter((p) => p.question).length;
             const right = Object.values(this.answers[this.key]).filter((a) => a.done).length;
             const stars = asked ? Math.max(1, Math.round((right / asked) * 3)) : 3;
+            const ctx = { s: 0, w: 0 };
             return `<div class="sheet sheet--right sheet--finale"><div class="page-pad finale">
                 <div class="title-ornament">❦</div>
-                <h2 class="finale-title">Ertak tugadi!</h2>
+                <h2 class="finale-title">${say('Ertak tugadi!', ctx)}</h2>
                 <div class="finale-stars" aria-label="${stars} yulduz">${'★'.repeat(stars)}<span>${'★'.repeat(3 - stars)}</span></div>
                 <p class="finale-score">${asked ? `Savollarga javoblar: ${right} / ${asked}` : 'Ajoyib o\'qidingiz!'}</p>
-                <div class="finale-moral"><b>Ertakdan saboq:</b> ${esc(st.moral || "Yaxshilik va ezgulik har doim g'alaba qiladi.")}</div>
+                <div class="finale-moral" data-prefix="Ertakdan saboq:"><b>Ertakdan saboq:</b> ${say(st.moral || "Yaxshilik va ezgulik har doim g'alaba qiladi.", ctx)}</div>
                 <div class="finale-actions">
                     <button type="button" class="btn-quiz" data-action="quiz">🏆 Bilimdon testi</button>
+                    <button type="button" class="btn-game" data-action="order">🧩 Voqealar tartibi</button>
                     <button type="button" class="btn-reread" data-action="restart">↺ Boshidan o'qish</button>
                 </div>
             </div></div>`;
@@ -268,6 +278,10 @@
 
         coverInsideHTML() {
             return `<div class="cover-inside"><div class="cover-inside-page">${this.endpaperHTML()}</div></div>`;
+        }
+
+        colorButton(view) {
+            return `<button type="button" class="art-btn" data-action="color" data-view="${view}" aria-label="Rasmni bo'yash" title="Rasmni bo'yash">🎨</button>`;
         }
 
         // ---------- rendering ----------
@@ -457,6 +471,7 @@
             this.el.classList.add(cls);
             this.el.addEventListener('animationend', () => this.el.classList.remove(cls), { once: true });
             if (this.opts.onTurnStart) this.opts.onTurnStart({ dir: delta > 0 ? 'fwd' : 'bwd', cover: false });
+            if (this.opts.onTurnEnd) setTimeout(() => this.opts.onTurnEnd(true), 0);
             return true;
         }
 
@@ -468,13 +483,20 @@
                 this.suppressClick = false;
                 return;
             }
-            if (!a || this.turn) return;
+            if (this.turn) return;
+            // Tapping a word in the story reads it aloud.
+            const word = e.target.closest('.w');
+            if (word && !e.target.closest('button') && this.opts.onWord) {
+                this.opts.onWord(word);
+                return;
+            }
+            if (!a) return;
             const act = a.dataset.action;
             if (act === 'next') this.next();
             else if (act === 'prev') this.prev();
             else if (act === 'answer') this.answer(+a.dataset.view, +a.dataset.idx);
             else if (act === 'poke') this.poke(a);
-            else if (this.opts.onAction) this.opts.onAction(act);
+            else if (this.opts.onAction) this.opts.onAction(act, a);
         }
 
         poke(fig) {

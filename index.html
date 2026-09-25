@@ -41,6 +41,7 @@
     </script>
     <link rel="stylesheet" href="css/book.css">
     <link rel="stylesheet" href="css/art.css">
+    <link rel="stylesheet" href="css/reader.css">
 </head>
 <body class="h-full bg-gradient-to-br from-brand-50 via-amber-50 to-orange-100 text-gray-800 flex flex-col antialiased">
 
@@ -113,27 +114,28 @@
 
         <div id="storyView" class="hidden space-y-3 max-w-6xl mx-auto w-full">
             <!-- Book Top Control Bar -->
-            <div class="bg-white/90 backdrop-blur-md p-3 rounded-2xl shadow-sm border border-orange-100 flex items-center justify-between gap-2">
-                <button onclick="app.goHome()" class="px-3.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-sm transition flex items-center space-x-2">
+            <div class="story-bar relative bg-white/90 backdrop-blur-md p-3 rounded-2xl shadow-sm border border-orange-100 flex items-center justify-between gap-2">
+                <button onclick="app.goHome()" class="px-3.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-sm transition flex items-center space-x-2" aria-label="Kutubxona">
                     <i class="fa-solid fa-arrow-left"></i>
                     <span class="hidden sm:inline">Kutubxona</span>
                 </button>
-                <div class="flex items-center space-x-3 min-w-0">
-                    <div class="w-24 sm:w-48 bg-gray-200 h-3 rounded-full overflow-hidden shadow-inner">
+                <div class="story-progress flex items-center space-x-3 min-w-0">
+                    <div class="w-24 sm:w-40 bg-gray-200 h-3 rounded-full overflow-hidden shadow-inner">
                         <div id="storyProgressBar" class="bg-gradient-to-r from-amber-500 to-brand-500 h-full w-0 transition-all duration-500 rounded-full"></div>
                     </div>
                     <span id="storyProgressText" class="text-xs font-bold text-brand-700 bg-amber-100 px-2.5 py-1 rounded-lg whitespace-nowrap">Muqova</span>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <button onclick="app.toggleSoundEffects()" id="soundToggleBtn" class="px-3 py-2 bg-amber-100 text-amber-800 hover:bg-amber-200 rounded-xl font-bold text-xs transition flex items-center space-x-1.5" aria-pressed="true">
-                        <i class="fa-solid fa-volume-high"></i>
-                        <span class="hidden md:inline">Varaqlash Ovozi</span>
+                <div class="flex items-center gap-2">
+                    <button id="readBtn" type="button" class="read-btn" onclick="app.reader.toggle()" aria-pressed="false" title="Ertakni ovoz chiqarib o'qib berish (Probel)">
+                        <span class="read-icon" aria-hidden="true">▶</span><span class="read-label">O'qib ber</span><span class="read-eq" aria-hidden="true"><i></i><i></i><i></i></span><span class="read-family" title="Oila ovozi">👵</span>
                     </button>
-                    <button onclick="app.triggerAiVoice()" class="px-3.5 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-xl transition flex items-center space-x-1.5 font-bold text-xs shadow-md">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i>
-                        <span>AI Ovoz</span>
+                    <button id="autoBtn" type="button" class="chip-btn" onclick="app.reader.toggleAuto()" aria-pressed="false" title="O'qib bo'lgach, sahifani o'zi varaqlasin">🔁<span class="hidden lg:inline">Avto</span></button>
+                    <button id="readerSettingsBtn" type="button" class="chip-btn" onclick="app.reader.openPanel()" aria-haspopup="dialog" aria-expanded="false" aria-controls="readerPanel" title="Ovoz sozlamalari">⚙️<span class="hidden lg:inline">Ovoz</span></button>
+                    <button onclick="app.toggleSoundEffects()" id="soundToggleBtn" type="button" class="chip-btn" aria-pressed="true" title="Varaqlash ovozi">
+                        <i class="fa-solid fa-volume-high"></i><span class="hidden lg:inline">Varaqlash ovozi</span>
                     </button>
                 </div>
+                <div id="readerPanel" class="reader-panel" role="dialog" aria-label="Ovozli o'qish sozlamalari" hidden></div>
             </div>
 
             <!-- 3D Book: pages, turning sheet and covers are built by js/book.js -->
@@ -165,7 +167,7 @@
                 </div>
                 <div class="space-y-2">
                     <span class="bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Bilimdon Testi</span>
-                    <h3 id="gameQuestion" class="text-2xl font-bold text-gray-900">Kitobdan olgan xulosangiz qanday?</h3>
+                    <h3 class="text-2xl font-bold text-gray-900"><span id="gameQuestion">Kitobdan olgan xulosangiz qanday?</span> <button type="button" onclick="app.sayQuiz()" class="align-middle text-lg px-2 py-1 rounded-xl bg-amber-100 hover:bg-amber-200" aria-label="Savolni tinglash">🔊</button></h3>
                     <p class="text-gray-500 text-sm">To'g'ri javobni tanlab 50 ball qo'lga kiriting!</p>
                 </div>
 
@@ -177,6 +179,13 @@
         </div>
 
     </main>
+
+    <div id="recPill" class="rec-pill" role="status" aria-live="polite" hidden></div>
+    <button id="readFab" type="button" class="read-fab" onclick="app.reader.toggle()" aria-label="O'qib ber" hidden><span aria-hidden="true">▶</span></button>
+
+    <div id="playModal" class="play-modal hidden" role="dialog" aria-modal="true" aria-label="O'yin">
+        <div class="play-card"></div>
+    </div>
 
     <div id="toast" class="fixed left-1/2 bottom-6 -translate-x-1/2 z-50 pointer-events-none px-5 py-3 rounded-2xl bg-white shadow-xl border border-amber-200 font-bold text-amber-800 opacity-0 transition-opacity duration-300" role="status" aria-live="polite"></div>
 
@@ -200,7 +209,14 @@
     <script src="js/art/fx.js"></script>
     <script src="js/stories-folk.js"></script>
     <script src="js/stories-classic.js"></script>
+    <script src="audio/manifest.js"></script>
+    <script src="js/speech.js"></script>
+    <script src="js/progress.js"></script>
+    <script src="js/narrator.js"></script>
+    <script src="js/recorder.js"></script>
     <script src="js/book.js"></script>
+    <script src="js/reader.js"></script>
+    <script src="js/games.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

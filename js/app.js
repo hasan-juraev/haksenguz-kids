@@ -1,6 +1,7 @@
 /*
  * AppController: library, story view, points, sounds and the final quiz.
- * The book itself (pages, turning, covers) lives in js/book.js.
+ * The book itself (pages, turning, covers) lives in js/book.js, read-aloud in
+ * js/narrator.js + js/reader.js, and the play corner in js/games.js.
  */
 (function (root) {
     'use strict';
@@ -17,9 +18,10 @@
     class AppController {
         constructor() {
             this.db = root.storiesDatabase || {};
+            this.progress = root.Progress;
             this.currentStoryKey = null;
             this.currentStoryObj = null;
-            this.points = 150;
+            this.points = this.progress.data.points;
             this.isCyrillic = false;
             this.activeCategory = 'all';
             this.soundEnabled = true;
@@ -27,12 +29,41 @@
 
             this.book = new root.BookEngine(document.getElementById('book'), {
                 onChange: (s) => this.updateControls(s),
-                onTurnStart: (t) => this.playPageTurnSound(t.cover ? 'cover' : 'page'),
+                onTurnStart: (t) => {
+                    this.playPageTurnSound(t.cover ? 'cover' : 'page');
+                    this.reader.onTurnStart(t);
+                },
+                onTurnEnd: (done) => this.reader.onTurnEnd(done),
                 onAnswer: (ok, praise) => this.onAnswer(ok, praise),
-                onAction: (act) => this.onBookAction(act),
+                onAction: (act, el) => this.onBookAction(act, el),
                 onPoke: () => this.playChime(),
+                onWord: (el) => this.reader.onWord(el),
             });
 
+            // The narrator can report voices before the reader exists.
+            this.narrator = new root.Narrator({
+                onHighlight: (h) => this.reader && this.reader.applyHighlight(h),
+                onState: () => this.reader && this.reader.update(),
+                onVoices: () => this.reader && this.reader.renderPanel(),
+                onError: (r) => this.reader && this.reader.onNarratorError(r),
+            });
+
+            this.reader = new root.ReadAloud({
+                book: this.book,
+                narrator: this.narrator,
+                family: root.FamilyVoice,
+                settings: this.progress.settings().reader,
+                ui: {
+                    toast: (m) => this.toast(m),
+                    notice: (t, d) => this.showModal(t, d),
+                    saveSettings: (s) => {
+                        this.progress.settings().reader = s;
+                        this.progress.save();
+                    },
+                },
+            });
+
+            document.getElementById('userPoints').innerText = `${this.points} ball`;
             document.addEventListener('keydown', (e) => this.onKey(e));
             this.renderHero();
             this.updateCategoryLabels();
@@ -58,6 +89,18 @@
             });
         }
 
+        progressBadge(key, item) {
+            const b = this.progress.data.books[key];
+            if (!b) return `<p class="text-xs text-gray-500">📄 ${item.pages.length} sahifali rasmli kitob</p>`;
+            if (b.done) {
+                return `<p class="text-xs font-bold text-emerald-700">✅ O'qildi <span class="text-amber-500">${'★'.repeat(b.stars || 0)}<span class="text-gray-300">${'★'.repeat(3 - (b.stars || 0))}</span></span></p>`;
+            }
+            const last = Math.min(b.last || 0, item.pages.length);
+            if (last < 1) return `<p class="text-xs text-gray-500">📄 ${item.pages.length} sahifali rasmli kitob</p>`;
+            return `<p class="text-xs font-bold text-brand-700">📖 ${last} / ${item.pages.length} sahifa o'qildi</p>
+                <div class="h-1.5 bg-orange-100 rounded-full mt-1 overflow-hidden"><div class="h-full bg-amber-400 rounded-full" style="width:${Math.round((last / item.pages.length) * 100)}%"></div></div>`;
+        }
+
         initLibrary() {
             const grid = document.getElementById('libraryGrid');
             grid.innerHTML = '';
@@ -72,13 +115,13 @@
                 const art = root.Art ? root.Art.render(scene, { still: true, seed: key + ':thumb' }) : '';
                 card.innerHTML = `
                     <div class="thumb-art w-24 h-24 rounded-2xl flex-shrink-0 shadow-md group-hover:scale-105 transition" style="box-shadow:0 0 0 3px ${item.hue || '#f59e0b'}">${art}</div>
-                    <div class="overflow-hidden space-y-1">
+                    <div class="overflow-hidden space-y-1 flex-1">
                         <div class="flex items-center gap-1.5 flex-wrap">
                             <span class="text-[11px] font-bold text-brand-700 bg-orange-100 px-2 py-0.5 rounded-lg">${esc(item.tag.split('•')[0].trim())}</span>
                             ${item.isNew ? '<span class="text-[11px] font-bold text-white bg-emerald-500 px-2 py-0.5 rounded-lg">Yangi</span>' : ''}
                         </div>
                         <h4 class="font-bold text-gray-800 text-base leading-snug">${esc(item.title)}</h4>
-                        <p class="text-xs text-gray-500">📄 ${item.pages.length} sahifali rasmli kitob</p>
+                        ${this.progressBadge(key, item)}
                     </div>`;
                 grid.appendChild(card);
             });
@@ -104,16 +147,34 @@
         }
 
         goHome() {
+            this.reader.onLeave();
             this.book.stopTurn();
+            this.initLibrary();
             this.show('homeView');
         }
 
         startStory(storyKey) {
             if (!this.db[storyKey]) return;
+            this.reader.onLeave();
             this.currentStoryKey = storyKey;
             this.currentStoryObj = this.db[storyKey];
+            const saved = this.progress.book(storyKey);
+            // Answers are shared with the saved progress, so points aren't earned twice.
+            this.book.answers[storyKey] = saved.answers;
+            this.book.resumeAt = saved.done ? 0 : saved.last;
             this.show('storyView');
             this.book.load(storyKey, this.currentStoryObj);
+            this.reader.refreshFamilyBadge();
+            const s = this.progress.settings();
+            if (!s.readHint) {
+                s.readHint = true;
+                this.progress.save();
+                const b = document.getElementById('readBtn');
+                if (b) {
+                    b.classList.add('is-hinting');
+                    setTimeout(() => b.classList.remove('is-hinting'), 6000);
+                }
+            }
         }
 
         backToBook() {
@@ -142,6 +203,9 @@
                 if (e.key === 'Escape' || e.key === 'Enter') this.closeModal();
                 return;
             }
+            const modal = document.getElementById('playModal');
+            if (modal && !modal.classList.contains('hidden')) return;
+            if (e.target && /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(e.target.tagName) && e.key === ' ') return;
             if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
             if (e.key === 'ArrowRight' || e.key === 'PageDown') {
                 e.preventDefault();
@@ -149,7 +213,17 @@
             } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
                 e.preventDefault();
                 this.prevPage();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                this.reader.toggle();
             }
+        }
+
+        stars(key) {
+            const st = this.db[key];
+            const asked = st.pages.filter((p) => p.question).length;
+            const right = Object.values(this.progress.book(key).answers).filter((a) => a.done).length;
+            return asked ? Math.max(1, Math.round((right / asked) * 3)) : 3;
         }
 
         updateControls(s) {
@@ -168,17 +242,65 @@
             if (s.closed) next.innerHTML = `<span>Kitobni ochish</span> <i class="fa-solid fa-book-open"></i>`;
             else if (s.end) next.innerHTML = `<span>Bilimdon Testi</span> <i class="fa-solid fa-award"></i>`;
             else next.innerHTML = `<span>Keyingi</span> <i class="fa-solid fa-chevron-right"></i>`;
+
+            const key = this.currentStoryKey;
+            if (!key) return;
+            const saved = this.progress.book(key);
+            if (s.view >= 1 && s.view <= total) saved.last = s.view;
+            if (s.end) {
+                saved.done = true;
+                saved.stars = Math.max(saved.stars || 0, this.stars(key));
+            }
+            this.progress.save();
         }
 
-        onBookAction(act) {
+        onBookAction(act, el) {
+            const key = this.currentStoryKey;
+            const st = this.currentStoryObj;
             if (act === 'quiz') this.startMiniGame();
-            else if (act === 'restart') this.book.goTo(this.book.spread ? 0 : 1);
+            else if (act === 'restart') {
+                this.book.goTo(this.book.spread ? 0 : 1);
+                this.reader.onJump();
+            } else if (act === 'resume') {
+                this.book.goTo(this.book.resumeAt);
+                this.reader.onJump();
+            } else if (act === 'say-card') {
+                this.reader.onSayCard();
+            } else if (act === 'color') {
+                const view = +el.dataset.view;
+                const page = st.pages[Math.min(view, st.pages.length) - 1];
+                this.reader.stop();
+                root.Games.color({ scene: page.scene, title: view > st.pages.length ? st.title : page.title, seed: `${key}:${view}`, onPaint: () => this.playChime() });
+            } else if (act === 'order') {
+                this.reader.stop();
+                root.Games.order({
+                    story: st,
+                    seed: key,
+                    say: (t) => this.narrator.say(t),
+                    onRight: () => this.playChime(true),
+                    onWrong: () => this.toast("🤔 Yana o'ylab ko'ring!"),
+                    onWin: () => {
+                        this.playChime(true);
+                        const games = this.progress.book(key).games;
+                        if (!games.order) {
+                            games.order = true;
+                            this.addPoints(30);
+                            this.toast('🧩 Barakalla! +30 ball');
+                        } else {
+                            this.toast('🧩 Barakalla!');
+                        }
+                        this.narrator.say("Barakalla! Hammasi to'g'ri!");
+                    },
+                });
+            }
         }
 
         // ---------- points & feedback ----------
 
         addPoints(n) {
             this.points += n;
+            this.progress.data.points = this.points;
+            this.progress.save();
             document.getElementById('userPoints').innerText = `${this.points} ball`;
         }
 
@@ -190,6 +312,8 @@
             } else {
                 this.toast("🤔 Yana bir o'ylab ko'ring!");
             }
+            this.progress.save();
+            this.reader.onAnswer(ok, praise);
         }
 
         toast(msg) {
@@ -197,7 +321,7 @@
             t.textContent = msg;
             t.style.opacity = '1';
             clearTimeout(this.toastTimer);
-            this.toastTimer = setTimeout(() => { t.style.opacity = '0'; }, 1800);
+            this.toastTimer = setTimeout(() => { t.style.opacity = '0'; }, Math.max(1800, msg.length * 55));
         }
 
         // ---------- sound ----------
@@ -271,20 +395,15 @@
             const btn = document.getElementById('soundToggleBtn');
             btn.setAttribute('aria-pressed', String(this.soundEnabled));
             btn.innerHTML = this.soundEnabled
-                ? `<i class="fa-solid fa-volume-high"></i> <span class="hidden md:inline">Varaqlash Ovozi: Yoqilgan</span>`
-                : `<i class="fa-solid fa-volume-xmark"></i> <span class="hidden md:inline">Varaqlash Ovozi: O'chiq</span>`;
-            btn.className = this.soundEnabled
-                ? 'px-3 py-2 bg-amber-100 text-amber-800 rounded-xl font-bold text-xs transition flex items-center space-x-1.5'
-                : 'px-3 py-2 bg-gray-100 text-gray-600 rounded-xl font-bold text-xs transition flex items-center space-x-1.5';
-        }
-
-        triggerAiVoice() {
-            this.showModal("🤖 AI Natural Voice", "Sun'iy intellekt orqali mazkur sahifa bolajonlar uchun tabiiy ohangda o'qib berilmoqda...");
+                ? `<i class="fa-solid fa-volume-high"></i> <span class="hidden lg:inline">Varaqlash ovozi</span>`
+                : `<i class="fa-solid fa-volume-xmark"></i> <span class="hidden lg:inline">Ovoz o'chiq</span>`;
+            btn.classList.toggle('is-off', !this.soundEnabled);
         }
 
         // ---------- final quiz ----------
 
         startMiniGame() {
+            this.reader.onLeave();
             const quiz = (this.currentStoryObj && this.currentStoryObj.quiz) || DEFAULT_QUIZ;
             this.show('gameView');
             document.getElementById('gameQuestion').textContent = quiz.q;
@@ -292,26 +411,46 @@
             container.innerHTML = '';
             const options = quiz.a.map((text, i) => ({ text, correct: i === quiz.ok }));
             options.sort(() => Math.random() - 0.5);
+            this.quizOptions = options;
             options.forEach((opt) => {
                 const btn = document.createElement('button');
                 btn.type = 'button';
                 btn.className = 'w-full min-h-[48px] p-4 rounded-2xl bg-white hover:bg-emerald-50 border-2 border-orange-100 hover:border-emerald-400 text-gray-800 font-bold transition text-left flex items-center justify-between shadow-sm';
                 btn.innerHTML = `<span>${esc(opt.text)}</span> <i class="fa-solid fa-circle-question text-gray-400"></i>`;
                 btn.onclick = () => {
+                    this.narrator.stop();
                     if (opt.correct) {
-                        this.addPoints(50);
+                        const games = this.progress.book(this.currentStoryKey).games;
+                        const first = !games.quiz;
+                        games.quiz = true;
+                        if (first) this.addPoints(50);
+                        this.progress.save();
                         this.playChime(true);
-                        this.showModal('Tabriklaymiz! 🎉', "Siz to'g'ri xulosa topdingiz va 50 ball qo'shildi!");
+                        this.narrator.say("Tabriklaymiz! To'g'ri javob!");
+                        this.showModal('Tabriklaymiz! 🎉', first ? "Siz to'g'ri xulosa topdingiz va 50 ball qo'shildi!" : "Siz to'g'ri xulosa topdingiz!");
                         setTimeout(() => {
                             this.closeModal();
                             this.goHome();
                         }, 2200);
                     } else {
+                        this.narrator.say("Boshqatdan urinib ko'ring!");
                         this.showModal("Boshqatdan urinib ko'ring! 💪", "Bu xulosa asar g'oyasiga mos kelmaydi.");
                     }
                 };
                 container.appendChild(btn);
             });
+        }
+
+        // Reads the final quiz question and its answers aloud.
+        sayQuiz() {
+            const quiz = (this.currentStoryObj && this.currentStoryObj.quiz) || DEFAULT_QUIZ;
+            const ords = ['Birinchi javob', 'Ikkinchi javob', 'Uchinchi javob', "To'rtinchi javob"];
+            const text = `${quiz.q} ${(this.quizOptions || []).map((o, i) => `${ords[i]}: ${o.text.replace(/[^\p{L}\p{N}\s',.!?-]/gu, '')}.`).join(' ')}`;
+            if (!this.narrator.canSpeak()) {
+                this.toast("🔇 Bu qurilmada o'zbekcha ovoz topilmadi (⚙️)");
+                return;
+            }
+            this.narrator.readText(text);
         }
 
         toggleScript() {
