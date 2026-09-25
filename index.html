@@ -41,6 +41,7 @@
     </script>
     <link rel="stylesheet" href="css/book.css">
     <link rel="stylesheet" href="css/art.css">
+    <link rel="stylesheet" href="css/studio.css">
 </head>
 <body class="h-full bg-gradient-to-br from-brand-50 via-amber-50 to-orange-100 text-gray-800 flex flex-col antialiased">
 
@@ -132,6 +133,11 @@
                     <span id="storyProgressText" class="text-xs font-bold text-brand-700 bg-amber-100 px-2.5 py-1 rounded-lg whitespace-nowrap">Muqova</span>
                 </div>
                 <div class="flex items-center space-x-2">
+                    <!-- For grown-ups: read this book aloud for the children (js/studio.js) -->
+                    <button onclick="app.openStudio()" id="studioBtn" class="px-3 py-2 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-xl font-bold text-xs transition flex items-center space-x-1.5" aria-label="Ovoz yozish (kattalar uchun)">
+                        <i class="fa-solid fa-microphone"></i>
+                        <span class="hidden md:inline">Ovoz yozish</span>
+                    </button>
                     <button onclick="app.toggleSoundEffects()" id="soundToggleBtn" class="px-3 py-2 bg-amber-100 text-amber-800 hover:bg-amber-200 rounded-xl font-bold text-xs transition flex items-center space-x-1.5" aria-pressed="true">
                         <i class="fa-solid fa-volume-high"></i>
                         <span class="hidden md:inline">Varaqlash Ovozi</span>
@@ -150,9 +156,14 @@
                     <i class="fa-solid fa-chevron-left"></i>
                     <span>Oldingi</span>
                 </button>
-                <div class="text-center">
-                    <span id="bookPageIndicator" class="text-xs sm:text-sm font-bold text-amber-900 bg-amber-100 px-3 sm:px-4 py-1.5 rounded-xl whitespace-nowrap">Muqova</span>
-                    <p class="text-[11px] text-gray-500 mt-1 hidden sm:block">Sahifani chetidan torting, burchagiga bosing yoki ← → tugmalarini ishlating</p>
+                <div class="flex items-center justify-center gap-2 sm:gap-3 min-w-0">
+                    <!-- Read-along (js/narrator.js): shown when someone has read this book aloud -->
+                    <button onclick="app.toggleListen()" id="listenBtn" class="hidden" aria-pressed="false"></button>
+                    <button onclick="app.nextVoice()" id="voiceChip" class="hidden w-12 h-12 flex-shrink-0 rounded-2xl bg-white border-2 border-emerald-200 hover:bg-emerald-50 text-2xl leading-none transition"></button>
+                    <div class="hidden sm:block text-center">
+                        <span id="bookPageIndicator" class="text-xs sm:text-sm font-bold text-amber-900 bg-amber-100 px-3 sm:px-4 py-1.5 rounded-xl whitespace-nowrap">Muqova</span>
+                        <p class="text-[11px] text-gray-500 mt-1 hidden md:block">Sahifani chetidan torting, burchagiga bosing yoki ← → tugmalarini ishlating</p>
+                    </div>
                 </div>
                 <button onclick="app.nextPage()" id="nextPageBtn" class="min-h-[48px] px-5 md:px-6 py-2.5 bg-gradient-to-r from-amber-500 to-brand-500 hover:from-amber-600 hover:to-brand-600 text-white font-bold rounded-xl shadow-md transition flex items-center space-x-2 text-sm">
                     <span>Kitobni ochish</span>
@@ -176,6 +187,61 @@
                     <!-- Options populated via JS -->
                 </div>
                 <button onclick="app.backToBook()" class="text-sm font-bold text-brand-700 hover:underline">← Kitobga qaytish</button>
+            </div>
+        </div>
+
+        <!-- Recording studio (js/studio.js): a grown-up reads the book aloud, page by page -->
+        <div id="studioView" class="hidden space-y-3 max-w-3xl mx-auto w-full">
+            <div class="bg-white/90 backdrop-blur-md p-3 rounded-2xl shadow-sm border border-orange-100 flex items-center justify-between gap-2">
+                <button onclick="app.closeStudio()" class="min-h-[48px] px-3.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span class="hidden sm:inline">Kitobga qaytish</span>
+                </button>
+                <div class="min-w-0 text-center">
+                    <p class="text-[11px] font-bold text-rose-600 uppercase tracking-wider">🎙️ Ovoz yozish</p>
+                    <h3 id="studioBook" class="font-bold text-gray-800 truncate"></h3>
+                </div>
+                <button onclick="app.studio.openVoices()" class="flex items-center gap-1.5 min-h-[48px] pl-2 pr-2 sm:pr-3 bg-white border border-rose-200 rounded-2xl shadow-sm hover:bg-rose-50 transition" aria-label="Kimning ovozi?">
+                    <span id="studioVoiceAvatar" class="text-2xl leading-none" aria-hidden="true">🎙️</span>
+                    <span id="studioVoiceName" class="hidden sm:inline text-sm font-bold text-gray-700 max-w-[8rem] truncate"></span>
+                </button>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-md border border-orange-100 p-4 sm:p-6 space-y-4">
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <div id="studioArt" class="thumb-art w-20 h-20 sm:w-24 sm:h-24 rounded-2xl flex-shrink-0 shadow-md"></div>
+                    <div class="min-w-0 space-y-1">
+                        <p id="studioPageNo" class="text-sm font-bold text-amber-700"></p>
+                        <p class="text-sm text-gray-500">Sarlavhadan boshlab o'qing. Har gapdan keyin biroz to'xtang — bolalar o'qiyotgan gapni ko'rib boradi.</p>
+                    </div>
+                </div>
+                <ol id="studioText" class="studio-text"></ol>
+                <div class="flex flex-col items-center gap-3 pt-2">
+                    <button type="button" id="recBtn" onclick="app.studio.toggleRecord()" class="rec-btn" aria-label="Yozishni boshlash">
+                        <span id="recRing" class="rec-ring" aria-hidden="true"></span>
+                        <i id="recIcon" class="fa-solid fa-microphone"></i>
+                    </button>
+                    <p id="recStatus" class="min-h-[1.5rem] text-sm font-bold text-gray-600 text-center" aria-live="polite"></p>
+                    <div id="recTools" class="hidden flex flex-wrap justify-center gap-2">
+                        <button type="button" id="recPlay" onclick="app.studio.preview()" class="min-h-[44px] px-4 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold rounded-xl text-sm transition"></button>
+                        <button type="button" onclick="app.studio.remove()" class="min-h-[44px] px-4 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold rounded-xl text-sm transition"><i class="fa-solid fa-trash-can"></i> O'chirish</button>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between gap-2 border-t border-dashed border-orange-100 pt-4">
+                    <button type="button" id="studioPrev" onclick="app.studio.go(-1)" class="min-h-[48px] px-4 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold rounded-xl text-sm transition disabled:opacity-40"><i class="fa-solid fa-chevron-left"></i> <span class="hidden sm:inline">Oldingi</span></button>
+                    <div id="studioDots" class="flex flex-wrap justify-center gap-1.5"></div>
+                    <button type="button" id="studioNext" onclick="app.studio.go(1)" class="min-h-[48px] px-4 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold rounded-xl text-sm transition disabled:opacity-40"><span class="hidden sm:inline">Keyingi</span> <i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+            </div>
+
+            <div class="bg-white/95 rounded-2xl p-4 shadow-sm border border-orange-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="text-center sm:text-left">
+                    <p id="studioCount" class="text-sm font-bold text-gray-700"></p>
+                    <p class="text-xs text-gray-500">Tayyor bo'lgach, bitta fayl qilib Telegram orqali yuboring.</p>
+                </div>
+                <button type="button" id="studioSend" onclick="app.studio.send()" class="min-h-[48px] px-5 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-2xl shadow-md transition disabled:opacity-40 flex items-center gap-2">
+                    <i class="fa-solid fa-share-nodes"></i> Yuborish
+                </button>
             </div>
         </div>
 
@@ -226,6 +292,60 @@
         </div>
     </div>
 
+    <!-- Whose voice is recording (js/studio.js): create, switch, receive from Telegram, send, delete. -->
+    <div id="voiceModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="voiceTitle">
+        <div class="bg-white rounded-3xl p-5 sm:p-6 max-w-md w-full max-h-full overflow-y-auto shadow-2xl space-y-4">
+            <div class="flex items-center justify-between gap-3">
+                <h4 id="voiceTitle" class="text-xl font-bold text-gray-900">Kimning ovozi?</h4>
+                <button type="button" onclick="app.studio.closeVoices()" class="w-11 h-11 flex-shrink-0 flex items-center justify-center rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 transition" aria-label="Yopish">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div id="voicePick" class="space-y-4">
+                <div id="voiceList" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+                <div class="rounded-2xl bg-sky-50 border border-sky-100 p-3 space-y-2">
+                    <label class="min-h-[48px] w-full px-4 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-2xl shadow-md transition flex items-center justify-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-file-import"></i> Fayldan qo'shish
+                        <input id="voiceImport" type="file" accept=".json,application/json" class="sr-only">
+                    </label>
+                    <p class="text-xs text-sky-900">Buvijon yoki bobojon Telegram orqali yuborgan ovoz faylini (.json) telefoningizga saqlang, keyin shu tugma bilan tanlang.</p>
+                </div>
+                <p id="voiceNote" class="text-sm font-bold text-emerald-700" aria-live="polite"></p>
+            </div>
+            <form id="voiceForm" class="hidden space-y-4" onsubmit="app.studio.saveVoice(event)">
+                <label class="block space-y-1.5">
+                    <span class="text-sm font-bold text-gray-700">Kim o'qiydi?</span>
+                    <input id="voiceName" type="text" maxlength="24" autocomplete="off" required placeholder="Masalan: Buvijon" class="w-full px-4 py-3 rounded-2xl border-2 border-orange-100 focus:border-rose-400 outline-none text-lg font-bold text-gray-800">
+                </label>
+                <div id="voiceAvatars" class="grid grid-cols-4 gap-2"></div>
+                <div class="flex gap-2">
+                    <button type="submit" class="flex-1 min-h-[48px] px-4 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-2xl shadow-md transition">Saqlash</button>
+                    <button type="button" onclick="app.studio.openVoices()" class="min-h-[48px] px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-2xl transition">Bekor qilish</button>
+                </div>
+                <div id="voiceEditTools" class="hidden flex flex-wrap justify-between gap-2">
+                    <button type="button" onclick="app.studio.sendAll()" class="min-h-[40px] text-sm font-bold text-sky-700 hover:underline"><i class="fa-solid fa-share-nodes"></i> Barcha yozuvlarni yuborish</button>
+                    <button type="button" onclick="app.studio.deleteVoice()" class="min-h-[40px] text-sm font-bold text-rose-600 hover:underline"><i class="fa-solid fa-trash-can"></i> Ovozni o'chirish</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Grown-ups only: a small sum before the recording studio (js/studio.js). -->
+    <div id="gateModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+        <form class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 text-center" onsubmit="app.studio.checkGate(event)">
+            <div class="w-14 h-14 bg-rose-100 text-rose-600 rounded-2xl mx-auto flex items-center justify-center text-2xl"><i class="fa-solid fa-user-shield"></i></div>
+            <h4 id="gateTitle" class="text-xl font-bold text-gray-900">Kattalar uchun</h4>
+            <p class="text-sm text-gray-600">Ovoz yozish bo'limiga kirish uchun hisoblang:</p>
+            <p id="gateQuestion" class="text-3xl font-bold text-gray-900" translate="no"></p>
+            <input id="gateAnswer" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" required aria-labelledby="gateQuestion" class="w-32 mx-auto block px-4 py-3 rounded-2xl border-2 border-orange-100 focus:border-rose-400 outline-none text-2xl font-bold text-center">
+            <p id="gateHint" class="min-h-[1.25rem] text-sm font-bold text-rose-600" aria-live="polite"></p>
+            <div class="flex gap-2">
+                <button type="submit" class="flex-1 min-h-[48px] bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-2xl shadow-md transition">Kirish</button>
+                <button type="button" onclick="app.studio.closeGate()" class="min-h-[48px] px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-2xl transition">Bekor qilish</button>
+            </div>
+        </form>
+    </div>
+
     <script src="js/art/core.js"></script>
     <script src="js/art/people.js"></script>
     <script src="js/art/animals.js"></script>
@@ -236,6 +356,10 @@
     <script src="js/translit.js"></script>
     <script src="js/store.js"></script>
     <script src="js/book.js"></script>
+    <script src="audio/narration.js"></script>
+    <script src="js/voices.js"></script>
+    <script src="js/narrator.js"></script>
+    <script src="js/studio.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

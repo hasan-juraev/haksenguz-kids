@@ -180,11 +180,14 @@
             if (view <= 0) return this.titleHTML();
             if (view > st.pages.length) return this.endHTML();
             const p = st.pages[view - 1];
+            // Title and sentences are separate pieces so read-along can light them up.
+            const [title, ...sents] = BookEngine.segments(p);
+            const sentHTML = sents.map((t, i) => `<span class="sent" data-action="say" data-seg="${i + 1}">${esc(t)}</span>`).join(' ');
             return `<div class="sheet sheet--right"><div class="page-pad">
                 <div class="page-head"><span class="running-head">${esc(st.tag.split('•')[0].trim())}</span><span class="chapter-chip">${view} / ${st.pages.length}</span></div>
                 <div class="page-body" data-fit="21">
-                    <h2 class="page-title">${esc(p.title)}</h2>
-                    <p class="page-text">${esc(p.text)}</p>
+                    <h2 class="page-title" data-action="say" data-seg="0">${esc(title)}</h2>
+                    <p class="page-text">${sentHTML}</p>
                     <p class="page-flourish" aria-hidden="true">❦ ❦ ❦</p>
                     ${this.questionHTML(view, p)}
                 </div>
@@ -488,7 +491,7 @@
             else if (act === 'prev') this.prev();
             else if (act === 'answer') this.answer(+a.dataset.view, +a.dataset.idx);
             else if (act === 'poke') this.poke(a);
-            else if (this.opts.onAction) this.opts.onAction(act);
+            else if (this.opts.onAction) this.opts.onAction(act, a);
         }
 
         poke(fig) {
@@ -607,6 +610,50 @@
             }, 150);
         }
     }
+
+    // Splits page text into sentences for read-along highlighting. Quoted
+    // speech stays whole («Salom! Kiraqol.» is one piece), and so does a line
+    // that carries on after a dash or a small letter: «Salom!» — debdi.
+    BookEngine.sentences = function (text) {
+        const s = String(text || '');
+        const out = [];
+        let depth = 0;
+        let start = 0;
+        // Where the next sentence starts if one ends just before `end`, else -1.
+        const nextStart = (end) => {
+            if (end >= s.length || !/\s/.test(s[end])) return -1;
+            let k = end;
+            while (k < s.length && /\s/.test(s[k])) k++;
+            return k >= s.length || /[—–\-a-zа-яёўқғҳ]/.test(s[k]) ? -1 : k;
+        };
+        for (let i = 0; i < s.length; i++) {
+            const ch = s[i];
+            let end = -1;
+            if (ch === '«' || ch === '“') {
+                depth++;
+            } else if (ch === '»' || ch === '”') {
+                depth = Math.max(0, depth - 1);
+                // «... tashlab kel!» Chol ... — the quote ended the sentence
+                if (depth === 0 && '.!?…'.includes(s[i - 1])) end = i + 1;
+            } else if (depth === 0 && '.!?…'.includes(ch)) {
+                end = i + 1;
+                while (end < s.length && '.!?…»”")'.includes(s[end])) end++;
+            }
+            const k = end < 0 ? -1 : nextStart(end);
+            if (k < 0) continue;
+            out.push(s.slice(start, end).trim());
+            start = k;
+            i = k - 1;
+        }
+        const rest = s.slice(start).trim();
+        if (rest) out.push(rest);
+        return out;
+    };
+
+    // What a narrator reads on a story page: its title, then each sentence.
+    BookEngine.segments = function (page) {
+        return [String(page.title || '').trim(), ...BookEngine.sentences(page.text)];
+    };
 
     // Questions answered right out of those asked, as 1–3 stars (3 when a book asks none).
     BookEngine.score = function (story, answers = {}) {

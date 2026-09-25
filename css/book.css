@@ -537,6 +537,24 @@ h1, h2, h3, h4, .font-heading {
     color: var(--ink);
 }
 
+/* read-along: the piece being read lights up like a highlighter pen */
+.page-title,
+.sent {
+    border-radius: 8px;
+    transition: background-color .25s, box-shadow .25s;
+}
+
+.book.has-voice [data-action="say"] {
+    cursor: pointer;
+}
+
+.is-reading {
+    background: #fde68a;
+    box-shadow: 0 0 0 3px #fde68a;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+}
+
 .page-text::first-letter {
     float: left;
     font-family: 'Fredoka', 'Nunito', sans-serif;

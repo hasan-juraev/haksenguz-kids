@@ -14,7 +14,7 @@ reading it.
 | Question | Decision |
 |---|---|
 | Ages | Both groups: 4–6 (listening first) and 7–10 (help with reading) |
-| Narration | A native Uzbek speaker will record it. No computer voices. |
+| Narration | A native Uzbek speaker will record it in the app's recording studio. No computer voices. |
 | Korean translations | Claude drafts them; a bilingual Uzbek–Korean reviewer checks every page |
 | Russian | Not in scope. The Cyrillic switch is for Uzbek Cyrillic (for grandparents) |
 | Accounts and servers | None. Everything stays on the device (see Privacy below) |
@@ -30,16 +30,29 @@ reading it.
 
 ## Phase 1 — Core features for kids in Korea
 
-1. **Listen in Uzbek, with each sentence highlighted.** This is the most
-   important item for ages 4–6.
-   - The narrator records each page with a recorder built into the app, then
-     exports one file. The recordings are added to the repo as
-     `audio/<book>/<page>.m4a` with sentence timings.
-   - **"Buvijon o'qib bersin" (let grandma read it):** the same recorder lets a
-     grandparent in Uzbekistan record a book on their phone and send the file on
-     Telegram. The family in Korea opens it in the app. Recordings stay on the
-     device.
-   - Words light up as they're read, which teaches ages 7–10 to read.
+1. **Listen in Uzbek, with each sentence highlighted.** ✅ Built; waiting for
+   the narrator's recordings. This is the most important item for ages 4–6.
+   - **Tinglash (Listen):** reads the page on screen and lights up each
+     sentence as it's read, which also teaches ages 7–10 to read.
+     - Turns the page by itself and waits at a question until the child
+       answers it.
+     - Tapping a sentence plays just that sentence.
+     - Highlighting is per sentence. Lighting up single words would need
+       Uzbek speech recognition.
+   - **Ovoz yozish (the recording studio)** is for grown-ups, behind a small
+     sum. Read a page, and the app finds where each sentence starts from the
+     pauses.
+   - **"Buvijon o'qib bersin" (let grandma read it):** a grandparent records a
+     book on their phone and taps "Yuborish". The whole book becomes one
+     `.json` file for Telegram. The family in Korea adds it with "Fayldan
+     qo'shish". Recordings stay on the device.
+   - **Built-in narration.** The narrator uses the same studio and sends the
+     `.json` file. `node tools/import-narration.js <file>` adds it to
+     `audio/`, so every copy of the app can read those pages.
+   - **Record on an iPhone if possible.** Its recordings (AAC) play on every
+     phone. Android and computer recordings are WebM/Opus, which older iPhones
+     may not play.
+   - **Needs hosting (item 3)** before a grandparent can open the link.
 2. **Korean helper.**
    - Tap a word to see its Korean meaning (extends the "Yangi so'z" card).
    - A 🇰🇷 button shows a sentence's Korean translation, only when asked.
@@ -118,5 +131,7 @@ reading it.
 Korean law (PIPA) requires a guardian's consent to collect personal data from
 children under 14. The app avoids the question entirely:
 - No accounts and no server.
-- Profiles, progress and voice recordings stay on the device.
-- Recordings leave the device only when a parent sends the file themselves.
+- Profiles, progress and voice recordings stay on the device (voice
+  recordings in IndexedDB).
+- Recordings leave the device only when a grown-up sends the file themselves.
+- The recording studio sits behind a small sum, so children don't wander in.

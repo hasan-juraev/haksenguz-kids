@@ -29,18 +29,25 @@
             this.heroKey = null;
             this.editingProfile = null;
             this.pickedAvatar = null;
+            this.voices = []; // who has read the open book aloud
 
             this.book = new root.BookEngine(document.getElementById('book'), {
                 onChange: (s) => {
                     this.updateControls(s);
                     this.saveProgress(s);
+                    this.reader.onChange(s);
                 },
                 onTurnStart: (t) => this.playPageTurnSound(t.cover ? 'cover' : 'page'),
                 onAnswer: (ok, praise) => this.onAnswer(ok, praise),
-                onAction: (act) => this.onBookAction(act),
+                onAction: (act, el) => this.onBookAction(act, el),
                 onPoke: () => this.playChime(),
                 decorate: (box) => root.Translit && root.Translit.apply(box),
             });
+            this.reader = new root.Narrator.ReadAlong(this.book, {
+                onState: (st) => this.renderListen(st),
+                toast: (msg) => this.toast(msg),
+            });
+            this.studio = new root.Studio(this);
 
             document.addEventListener('keydown', (e) => this.onKey(e));
             document.getElementById('profileList').addEventListener('click', (e) => this.onProfileListClick(e));
@@ -159,12 +166,14 @@
         }
 
         show(view) {
-            ['homeView', 'storyView', 'gameView'].forEach((id) => document.getElementById(id).classList.toggle('hidden', id !== view));
+            ['homeView', 'storyView', 'gameView', 'studioView'].forEach((id) => document.getElementById(id).classList.toggle('hidden', id !== view));
             root.scrollTo({ top: 0 });
         }
 
         goHome() {
             this.book.stopTurn();
+            this.reader.stop();
+            this.studio.close();
             this.show('homeView');
             this.renderHero();
             this.initLibrary();
@@ -178,8 +187,78 @@
             this.currentStoryObj = story;
             this.show('storyView');
             const rec = this.store.book(storyKey);
+            this.reader.use(storyKey, null);
+            this.voices = [];
+            this.renderListen();
             this.book.load(storyKey, story, rec);
             if (resume && rec.page >= 1) this.book.goTo(rec.page);
+            this.loadVoices(true);
+        }
+
+        // ---------- listening (read-along) ----------
+
+        // Finds who has read this book aloud; announce: tell the child about a family voice.
+        async loadVoices(announce) {
+            const key = this.currentStoryKey;
+            const voices = await root.Voices.forBook(key).catch(() => []);
+            if (key !== this.currentStoryKey) return; // another book was opened meanwhile
+            this.voices = voices;
+            const pick = voices.find((v) => v.id === this.store.settings.voice) || voices[0] || null;
+            this.reader.use(key, pick ? pick.id : null);
+            this.renderListen();
+            if (announce && pick && !pick.builtin) this.toast(`${pick.avatar} ${pick.name} bu ertakni o'qib bergan — 🎧 bosing!`);
+        }
+
+        currentVoice() {
+            return this.voices.find((v) => v.id === this.reader.voice) || null;
+        }
+
+        renderListen(st = { on: this.reader.on }) {
+            const has = this.voices.length > 0;
+            const btn = document.getElementById('listenBtn');
+            btn.className = `${has ? 'flex' : 'hidden'} min-h-[48px] px-4 items-center gap-2 rounded-2xl font-bold text-sm text-white shadow-md transition ${st.on ? 'bg-amber-500 hover:bg-amber-600' : 'bg-emerald-500 hover:bg-emerald-600'}`;
+            btn.setAttribute('aria-pressed', String(!!st.on));
+            btn.innerHTML = st.on
+                ? `<i class="fa-solid fa-pause"></i> <span class="hidden sm:inline">To'xtatish</span>`
+                : `<i class="fa-solid fa-headphones"></i> <span class="hidden sm:inline">Tinglash</span>`;
+            btn.setAttribute('aria-label', st.on ? "O'qishni to'xtatish" : 'Ertakni tinglash');
+            const v = this.currentVoice();
+            const chip = document.getElementById('voiceChip');
+            chip.classList.toggle('hidden', this.voices.length < 2);
+            chip.textContent = v ? v.avatar : '';
+            chip.setAttribute('aria-label', v ? `${v.name} o'qib beradi. Boshqa ovozni tanlash` : '');
+            this.book.el.classList.toggle('has-voice', has);
+        }
+
+        toggleListen() {
+            this.reader.toggle();
+        }
+
+        // Next voice that has read this book (the face next to "Tinglash").
+        nextVoice() {
+            if (this.voices.length < 2) return;
+            const i = this.voices.findIndex((v) => v.id === this.reader.voice);
+            const v = this.voices[(i + 1) % this.voices.length];
+            const wasOn = this.reader.on;
+            this.store.setSetting('voice', v.id);
+            this.reader.use(this.currentStoryKey, v.id);
+            this.renderListen();
+            this.toast(`${v.avatar} ${v.name} o'qib beradi`);
+            if (wasOn) this.reader.start();
+        }
+
+        // ---------- recording studio ----------
+
+        openStudio() {
+            if (!this.currentStoryKey) return;
+            this.reader.stop();
+            this.studio.gate(() => this.studio.open(this.currentStoryKey, this.book.view));
+        }
+
+        closeStudio() {
+            this.studio.close();
+            this.show('storyView');
+            this.loadVoices(false);
         }
 
         backToBook() {
@@ -203,22 +282,42 @@
         }
 
         onKey(e) {
-            if (!document.getElementById('infoModal').classList.contains('hidden')) {
+            const open = (id) => !document.getElementById(id).classList.contains('hidden');
+            if (open('infoModal')) {
                 if (e.key === 'Escape' || e.key === 'Enter') {
                     e.preventDefault();
                     this.closeModal();
                 }
                 return;
             }
-            if (!document.getElementById('profileModal').classList.contains('hidden')) {
+            if (open('gateModal')) {
+                if (e.key === 'Escape') this.studio.closeGate();
+                return;
+            }
+            if (open('voiceModal')) {
+                if (e.key === 'Escape') {
+                    if (this.studio.editing) this.studio.openVoices();
+                    else this.studio.closeVoices();
+                }
+                return;
+            }
+            if (open('profileModal')) {
                 if (e.key === 'Escape') {
                     if (this.editingProfile) this.showProfileList();
                     else this.closeProfiles();
                 }
                 return;
             }
-            if (document.getElementById('storyView').classList.contains('hidden')) return;
             if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+            if (open('studioView')) {
+                // Space starts and stops recording (a focused button handles its own).
+                if (e.key === ' ' && e.target.tagName !== 'BUTTON') {
+                    e.preventDefault();
+                    this.studio.toggleRecord();
+                }
+                return;
+            }
+            if (!open('storyView')) return;
             if (e.key === 'ArrowRight' || e.key === 'PageDown') {
                 e.preventDefault();
                 this.nextPage();
@@ -263,8 +362,9 @@
             this.store.save();
         }
 
-        onBookAction(act) {
-            if (act === 'quiz') this.startMiniGame();
+        onBookAction(act, el) {
+            if (act === 'say') this.reader.say(+el.dataset.seg); // tap a sentence to hear it
+            else if (act === 'quiz') this.startMiniGame();
             else if (act === 'restart') this.book.goTo(this.book.spread ? 0 : 1);
             else if (act === 'resume') {
                 const page = this.book.resumePage();
@@ -291,6 +391,7 @@
                 this.store.save();
                 this.toast("🤔 Yana bir o'ylab ko'ring!");
             }
+            this.reader.onAnswer(ok); // read-along waits for the right answer, then goes on
         }
 
         toast(msg) {
@@ -388,6 +489,7 @@
 
         startMiniGame() {
             const quiz = (this.currentStoryObj && this.currentStoryObj.quiz) || DEFAULT_QUIZ;
+            this.reader.stop();
             this.show('gameView');
             document.getElementById('gameQuestion').textContent = quiz.q;
             const container = document.getElementById('gameOptionsContainer');
