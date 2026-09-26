@@ -21,6 +21,10 @@
  *
  * Below 768px there is no spread: the two halves of a view stack vertically
  * and a page change is a short slide (swipe to turn).
+ *
+ * Reading state lives in a record passed to load(): { page, answers }. The
+ * engine fills in answers as questions are answered and offers to continue
+ * from record.page on the title page; saving it is the caller's business.
  */
 (function (root) {
     'use strict';
@@ -44,7 +48,7 @@
             this.view = -1;
             this.turn = null;
             this.raf = 0;
-            this.answers = {};
+            this.record = { page: 0, answers: {} };
             this.spread = this.isSpread();
             this.reduced = root.matchMedia ? root.matchMedia('(prefers-reduced-motion: reduce)').matches : false;
 
@@ -81,11 +85,12 @@
 
         // ---------- public API ----------
 
-        load(key, story) {
+        load(key, story, record) {
             this.stopTurn();
             this.key = key;
             this.story = story;
-            this.answers[key] = this.answers[key] || {};
+            this.record = record || { page: 0, answers: {} };
+            this.record.answers = this.record.answers || {};
             this.spread = this.isSpread();
             this.view = this.spread ? -1 : 0;
             this.el.style.setProperty('--cover', story.hue || '#7c2d12');
@@ -175,11 +180,14 @@
             if (view <= 0) return this.titleHTML();
             if (view > st.pages.length) return this.endHTML();
             const p = st.pages[view - 1];
+            // Title and sentences are separate pieces so read-along can light them up.
+            const [title, ...sents] = BookEngine.segments(p);
+            const sentHTML = sents.map((t, i) => `<span class="sent" data-action="say" data-seg="${i + 1}">${esc(t)}</span>`).join(' ');
             return `<div class="sheet sheet--right"><div class="page-pad">
                 <div class="page-head"><span class="running-head">${esc(st.tag.split('•')[0].trim())}</span><span class="chapter-chip">${view} / ${st.pages.length}</span></div>
                 <div class="page-body" data-fit="21">
-                    <h2 class="page-title">${esc(p.title)}</h2>
-                    <p class="page-text">${esc(p.text)}</p>
+                    <h2 class="page-title" data-action="say" data-seg="0">${esc(title)}</h2>
+                    <p class="page-text">${sentHTML}</p>
                     <p class="page-flourish" aria-hidden="true">❦ ❦ ❦</p>
                     ${this.questionHTML(view, p)}
                 </div>
@@ -189,7 +197,7 @@
 
         questionHTML(view, p) {
             if (!p.question) return '';
-            const state = this.answers[this.key][view] || {};
+            const state = this.record.answers[view] || {};
             const buttons = p.question.a.map((txt, i) => {
                 let cls = 'choice';
                 if (state.done && (i === p.question.ok || p.question.ok < 0) && i === state.pick) cls += ' choice--right';
@@ -217,10 +225,17 @@
             </div></div>`;
         }
 
+        // Story page to offer "continue" from (page 1 is just the next turn).
+        resumePage() {
+            const page = this.record.page || 0;
+            return page >= 2 && page <= this.story.pages.length ? page : 0;
+        }
+
         titleHTML() {
             const st = this.story;
             const mins = Math.max(2, Math.round(st.pages.reduce((n, p) => n + p.text.split(/\s+/).length, 0) / 90));
             const scene = st.cover || st.pages[0].scene;
+            const resume = this.resumePage();
             return `<div class="sheet sheet--right sheet--title"><div class="page-pad title-page">
                 <div class="title-ornament">❦</div>
                 <h1 class="title-name">${esc(st.title)}</h1>
@@ -228,15 +243,15 @@
                 <div class="title-medallion" data-action="poke">${this.art(scene, false, 'title')}</div>
                 <p class="title-meta">📄 ${st.pages.length} sahifa · ⏱ ~${mins} daqiqa</p>
                 <p class="title-opening">«Bir bor ekan, bir yo'q ekan...»</p>
-                <p class="title-hint">Sahifa chetidan torting yoki ➜ tugmasini bosing</p>
+                ${resume
+                    ? `<button type="button" class="btn-resume" data-action="resume">▶ Davom ettirish · ${resume}-sahifa</button>`
+                    : `<p class="title-hint">Sahifa chetidan torting yoki ➜ tugmasini bosing</p>`}
             </div></div>`;
         }
 
         endHTML() {
             const st = this.story;
-            const asked = st.pages.filter((p) => p.question).length;
-            const right = Object.values(this.answers[this.key]).filter((a) => a.done).length;
-            const stars = asked ? Math.max(1, Math.round((right / asked) * 3)) : 3;
+            const { asked, right, stars } = BookEngine.score(st, this.record.answers);
             return `<div class="sheet sheet--right sheet--finale"><div class="page-pad finale">
                 <div class="title-ornament">❦</div>
                 <h2 class="finale-title">Ertak tugadi!</h2>
@@ -279,6 +294,8 @@
         put(host, html) {
             const box = host.querySelector('.page-content, .face-content');
             box.innerHTML = html;
+            // e.g. switch the text to Cyrillic — before it is measured for fitting
+            if (this.opts.decorate) this.opts.decorate(box);
             this.fit(box);
         }
 
@@ -474,7 +491,7 @@
             else if (act === 'prev') this.prev();
             else if (act === 'answer') this.answer(+a.dataset.view, +a.dataset.idx);
             else if (act === 'poke') this.poke(a);
-            else if (this.opts.onAction) this.opts.onAction(act);
+            else if (this.opts.onAction) this.opts.onAction(act, a);
         }
 
         poke(fig) {
@@ -488,7 +505,8 @@
         answer(view, idx) {
             const p = this.story.pages[view - 1];
             if (!p || !p.question) return;
-            const st = this.answers[this.key][view] || (this.answers[this.key][view] = { wrong: [] });
+            const answers = this.record.answers;
+            const st = answers[view] || (answers[view] = { wrong: [] });
             if (st.done) return;
             const right = p.question.ok < 0 || idx === p.question.ok;
             if (right) {
@@ -592,6 +610,58 @@
             }, 150);
         }
     }
+
+    // Splits page text into sentences for read-along highlighting. Quoted
+    // speech stays whole («Salom! Kiraqol.» is one piece), and so does a line
+    // that carries on after a dash or a small letter: «Salom!» — debdi.
+    BookEngine.sentences = function (text) {
+        const s = String(text || '');
+        const out = [];
+        let depth = 0;
+        let start = 0;
+        // Where the next sentence starts if one ends just before `end`, else -1.
+        const nextStart = (end) => {
+            if (end >= s.length || !/\s/.test(s[end])) return -1;
+            let k = end;
+            while (k < s.length && /\s/.test(s[k])) k++;
+            return k >= s.length || /[—–\-a-zа-яёўқғҳ]/.test(s[k]) ? -1 : k;
+        };
+        for (let i = 0; i < s.length; i++) {
+            const ch = s[i];
+            let end = -1;
+            if (ch === '«' || ch === '“') {
+                depth++;
+            } else if (ch === '»' || ch === '”') {
+                depth = Math.max(0, depth - 1);
+                // «... tashlab kel!» Chol ... — the quote ended the sentence
+                if (depth === 0 && '.!?…'.includes(s[i - 1])) end = i + 1;
+            } else if (depth === 0 && '.!?…'.includes(ch)) {
+                end = i + 1;
+                while (end < s.length && '.!?…»”")'.includes(s[end])) end++;
+            }
+            const k = end < 0 ? -1 : nextStart(end);
+            if (k < 0) continue;
+            out.push(s.slice(start, end).trim());
+            start = k;
+            i = k - 1;
+        }
+        const rest = s.slice(start).trim();
+        if (rest) out.push(rest);
+        return out;
+    };
+
+    // What a narrator reads on a story page: its title, then each sentence.
+    BookEngine.segments = function (page) {
+        return [String(page.title || '').trim(), ...BookEngine.sentences(page.text)];
+    };
+
+    // Questions answered right out of those asked, as 1–3 stars (3 when a book asks none).
+    BookEngine.score = function (story, answers = {}) {
+        const asked = story.pages.filter((p) => p.question).length;
+        const right = Object.values(answers).filter((a) => a && a.done).length;
+        const stars = asked ? Math.max(1, Math.round((right / asked) * 3)) : 3;
+        return { asked, right, stars };
+    };
 
     root.BookEngine = BookEngine;
 })(window);

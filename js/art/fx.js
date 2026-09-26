@@ -47,7 +47,7 @@
         : `<path d="M0 0 v-14 q6 2 8 6" fill="none" ${S(1.8)}/><ellipse cx="-2" cy="0" rx="3.6" ry="2.8" fill="${o.color || '#7b2cbf'}" ${S(1)}/>`));
 
     Art.define('zzz', (c, o) => {
-        const inner = rising(c, 3, 3.6, (i) => `<text x="${i * 3}" y="0" font-family="Fredoka, Nunito, sans-serif" font-weight="700" font-size="${10 + i * 3}" fill="#6c63ff" stroke="#fff" stroke-width="2" paint-order="stroke">Z</text>`);
+        const inner = rising(c, 3, 3.6, (i) => `<text x="${i * 3}" y="0" font-family="Fredoka, Nunito, sans-serif" font-weight="700" font-size="${10 + i * 3}" fill="#6c63ff" stroke="#fff" stroke-width="2" paint-order="stroke" translate="no">Z</text>`);
         if (o.x !== undefined) return `<g transform="translate(${o.x} ${o.y}) scale(${o.s || 1})">${inner}</g>`;
         return inner;
     });
