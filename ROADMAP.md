@@ -123,8 +123,11 @@ reading it.
     Finishing it stamps the passport. Points buy stickers.
 12. **Short pieces.** Riddles, proverbs, lullabies and tongue twisters. Folk
     material is free to use; modern authors need permission.
-13. **Colouring mode.** Any story picture becomes a colouring page, printable
-    for community classes and multicultural lessons.
+13. **Colouring mode.** ✅ Built. Any story picture becomes a colouring page,
+    printable for community classes and multicultural lessons. The 🎨 on a
+    picture opens it; colour on screen, save it as a picture, or print it
+    blank. Also built: **Voqealar tartibi**, a game at the end of each book
+    where four pictures from the story are put in order (+30 points once).
 14. **Later:** bedtime mode, a character maker, "make your own story".
 
 ## Privacy

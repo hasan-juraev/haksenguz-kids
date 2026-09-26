@@ -14,6 +14,7 @@
     };
     const ANSWER_POINTS = 10;
     const QUIZ_POINTS = 50;
+    const ORDER_POINTS = 30;
 
     const esc = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
 
@@ -283,6 +284,7 @@
 
         onKey(e) {
             const open = (id) => !document.getElementById(id).classList.contains('hidden');
+            if (open('playModal')) return; // js/games.js closes it on Escape
             if (open('infoModal')) {
                 if (e.key === 'Escape' || e.key === 'Enter') {
                     e.preventDefault();
@@ -372,7 +374,48 @@
                     this.book.goTo(page);
                     this.playPageTurnSound('page');
                 }
-            }
+            } else if (act === 'color') this.openColoring(+el.dataset.view);
+            else if (act === 'order') this.openOrderGame();
+        }
+
+        // ---------- play corner (js/games.js) ----------
+
+        // The picture of a story page (or of the ending) as a colouring page.
+        openColoring(view) {
+            const st = this.currentStoryObj;
+            if (!st || !root.Games) return;
+            const page = st.pages[Math.min(Math.max(view, 1), st.pages.length) - 1];
+            this.reader.stop();
+            root.Games.color({
+                scene: page.scene,
+                title: view > st.pages.length ? st.title : page.title,
+                seed: `${this.currentStoryKey}:${view}`,
+                onPaint: () => this.playChime(),
+            });
+        }
+
+        // Four pictures from the story to put in order; pays out once per book.
+        openOrderGame() {
+            const key = this.currentStoryKey;
+            if (!key || !root.Games) return;
+            this.reader.stop();
+            root.Games.order({
+                story: this.currentStoryObj,
+                seed: key,
+                onRight: () => this.playChime(true),
+                onWrong: () => this.toast("🤔 Yana o'ylab ko'ring!"),
+                onWin: () => {
+                    this.playChime(true);
+                    const rec = this.store.book(key);
+                    if (rec.order) {
+                        this.toast('🧩 Barakalla!');
+                        return;
+                    }
+                    rec.order = true;
+                    this.addPoints(ORDER_POINTS);
+                    this.toast(`🧩 Barakalla! +${ORDER_POINTS} ball`);
+                },
+            });
         }
 
         // ---------- points & feedback ----------

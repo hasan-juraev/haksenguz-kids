@@ -7,6 +7,7 @@
  *   answers   page questions answered so far (see BookEngine.answer)
  *   finished  reached the last page at least once
  *   quiz      passed the final quiz (its points are given only once)
+ *   order     solved the story-order game (likewise paid once)
  * Settings (script, page sound) belong to the device.
  */
 (function (root) {
@@ -112,7 +113,7 @@
         // The active child's record for a book (created on first use).
         book(key) {
             const books = this.profile().books;
-            return books[key] || (books[key] = { page: 0, answers: {}, finished: false, quiz: false });
+            return books[key] || (books[key] = { page: 0, answers: {}, finished: false, quiz: false, order: false });
         }
 
         addPoints(n) {

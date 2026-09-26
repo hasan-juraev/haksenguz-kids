@@ -273,3 +273,21 @@ tests/narration.test.js    # node tests/narration.test.js
 * The narrator's recordings: record in the studio (ideally on an iPhone), send the `.json`, then run the import tool.
 * Offline/PWA and bundling the CDN styles and fonts. (Hosting is done: Netlify publishes `main` and builds a preview for every pull request.)
 * Issue C (`page.imageUrl` artwork) as before.
+
+## 10. Update: Play Corner (Roadmap item 13)
+
+### Colouring page (`js/games.js` → `Games.color`, `css/play.css`)
+* The 🎨 button on every picture (and on the "Tamom!" picture) opens that page's scene as a colouring page. The scene is rendered again in daylight, with no weather or vignette (`Art.render(scene, { coloring: true })`), and then turned into line art (`Games.toLineArt`):
+  * The engine's outline colour and near-black details (eyes, dark hats) stay. Every other filled or thick-stroked shape turns white and remembers whether a tap paints its fill or its stroke (`data-c`). Soft shading, blush and glows disappear.
+  * Shapes the engine draws without an outline (clouds, hills, mountains, sparkles) get an ink rim from an SVG filter. Runs of same-coloured outline-less shapes, such as a treeline's circles, are grouped so they read and fill as one area. `blob()` in `js/art/core.js` puts a crown's or cloud's circles in one `<g class="fg">` for the same reason.
+* 13 colours and an eraser, undo, clear, **save as PNG**, and **print** (a page with the picture and its heading, blank or as coloured so far, for community classes).
+* Painting plays the chime; read-along stops while the page is open.
+
+### Story-order game (`Games.order`)
+* **🧩 Voqealar tartibi** on the last spread shows four pictures from the story: the first page, the last page and two in between, shuffled. The child taps them in the order they happened. A wrong tap shakes the card, and after two misses the right card pulses as a hint.
+* The first win per book and child gives +30 points (`record.order` in `js/store.js`, like `record.quiz`).
+
+### Notes
+* Both open in `#playModal`. While it is open, the arrow keys don't turn the book's pages; Escape or ✕ closes it.
+* The Cyrillic switch covers both (the page-wide converter in `js/translit.js` sees the modal's text as it is drawn).
+* Neither uses a computer voice, in line with the narration decision in `ROADMAP.md`.
