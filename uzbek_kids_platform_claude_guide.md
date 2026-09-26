@@ -273,3 +273,56 @@ tests/narration.test.js    # node tests/narration.test.js
 * The narrator's recordings: record in the studio (ideally on an iPhone), send the `.json`, then run the import tool.
 * Offline/PWA and bundling the CDN styles and fonts. (Hosting is done: Netlify publishes `main` and builds a preview for every pull request.)
 * Issue C (`page.imageUrl` artwork) as before.
+
+---
+
+## 10. Update: No CDNs, Offline, Installable, Sharing (Roadmap Phase 1, step 3)
+
+The guideline in section 6 ("Zero External CSS/JS Dependencies") now holds: the page loads nothing from other sites.
+
+### Built files (`tools/build-assets.js`, run with `npm run build` after `npm install`)
+The generated files are committed, so the site still needs no build step. Rebuild when you add Tailwind classes or icons; `npm test` fails if you forget.
+* **`css/tailwind.css`** is built by the Tailwind CLI from `index.html` and `js/**/*.js`, using `tailwind.config.js` (the old inline config: brand/fairy colours and font families) and `css/tailwind.src.css`. It is about 27 KB and replaces the ~350 KB development CDN that built the styles on every visit. It is loaded *before* `book.css`, the order the CDN effectively had, so the app's own rules win ties.
+* **`css/icons.css` + `fonts/icons.woff2`**: the build scans the code for `fa-*` icon names and cuts a font with only those Font Awesome Free (solid) icons, about 2.5 KB. An unknown icon name stops the build. Only solid icons are available.
+* **`css/fonts.css` + `fonts/*.woff2`**: Fredoka (Latin) and Nunito (Latin + Cyrillic) variable fonts from Fontsource, split by alphabet with `unicode-range`, so a page loads only the files it needs. Licences are in `fonts/LICENSE-*.txt` (OFL; Font Awesome icons CC BY 4.0).
+* **`tests/assets.test.js`** checks that:
+  * nothing loads from other sites;
+  * every file `index.html` refers to exists;
+  * every icon used is built;
+  * the fonts, manifest and service worker are present;
+  * after `npm install`, `css/tailwind.css` is exactly what a fresh build gives.
+
+### Installable app
+* `manifest.webmanifest`: name "Ertaklar", standalone display, icons in `icons/`.
+  * The PNGs are rendered from `icons/icon.svg`: the header logo, i.e. Font Awesome's book on the orange gradient. There is a maskable version and a full-bleed apple-touch icon.
+* "Telefonga o'rnatish" in the banner:
+  * Android/Chrome: appears when the browser fires `beforeinstallprompt`, and opens its prompt.
+  * iPhone/iPad: always shown (outside the installed app), and explains Safari's Share → Add to Home Screen (공유 → 홈 화면에 추가).
+
+### Offline (`sw.js`)
+* Every request for the app's own files goes to the network first. After 4 s, or when offline, a kept copy is used, so updates reach users on their next visit.
+* After loading, the page sends the worker the list of files it used, plus every font in `css/fonts.css` (Cyrillic too, needed or not), so all of them are kept on the first visit.
+* Requests for part of a file (audio playback) are left to the browser: serving a kept whole file to them breaks playback on iPhones. So built-in narration needs internet; family recordings live in IndexedDB and work offline.
+* The worker only registers over http(s), not from `file://`.
+
+### Sharing and book links
+* "Ulashish" (banner) and "📤 Ulashish" (a book's last page) use the Web Share API, i.e. the phone's share sheet with Telegram and KakaoTalk. Without it, the link is copied.
+* An open book is in the address (`…/#zumrad`, via `history.replaceState`), so a shared link or a reload opens that book. `hashchange` is handled too.
+
+### Current file structure (additions)
+```text
+package.json, package-lock.json  # build tools only (Tailwind CLI, Font Awesome, Fontsource, subset-font)
+tailwind.config.js               # Tailwind theme (was inline in index.html)
+css/tailwind.src.css             # -> css/tailwind.css (built)
+css/icons.css, css/fonts.css     # built
+fonts/                           # built font files + licences
+icons/                           # app icons (icon.svg + rendered PNGs)
+manifest.webmanifest             # installable app
+sw.js                            # offline support
+tools/build-assets.js            # npm run build
+tests/assets.test.js             # part of npm test
+```
+
+### Still open
+* Built-in narration offline: a "download this book" button that saves its recordings.
+* The Korean helper (next): its rounded Korean font will be added to `tools/build-assets.js` the same way.
