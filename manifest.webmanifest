@@ -1,0 +1,16 @@
+{
+  "name": "Ertaklar Olami — o'zbek ertaklari",
+  "short_name": "Ertaklar",
+  "description": "O'zbek xalq ertaklari: varaqlanadigan, o'qib beriladigan rasmli kitoblar.",
+  "lang": "uz",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fff9ed",
+  "theme_color": "#f59e0b",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

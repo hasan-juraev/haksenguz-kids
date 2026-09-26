@@ -62,6 +62,11 @@
             this.renderSoundBtn();
             this.updateCategoryLabels();
             this.refreshProfile();
+            this.setupOffline();
+            this.setupInstall();
+            // A shared link (…/#zumrad) opens that book.
+            this.openFromLink();
+            root.addEventListener('hashchange', () => this.openFromLink());
         }
 
         // Everything on screen that depends on who is reading.
@@ -174,6 +179,7 @@
             this.book.stopTurn();
             this.reader.stop();
             this.studio.close();
+            if (root.location.hash) root.history.replaceState(null, '', root.location.pathname + root.location.search);
             this.show('homeView');
             this.renderHero();
             this.initLibrary();
@@ -185,6 +191,8 @@
             if (!story) return;
             this.currentStoryKey = storyKey;
             this.currentStoryObj = story;
+            // The address names the open book, so it can be shared as is.
+            if (root.location.hash !== `#${storyKey}`) root.history.replaceState(null, '', `#${storyKey}`);
             this.show('storyView');
             const rec = this.store.book(storyKey);
             this.reader.use(storyKey, null);
@@ -364,6 +372,7 @@
 
         onBookAction(act, el) {
             if (act === 'say') this.reader.say(+el.dataset.seg); // tap a sentence to hear it
+            else if (act === 'share') this.share(this.currentStoryKey);
             else if (act === 'quiz') this.startMiniGame();
             else if (act === 'restart') this.book.goTo(this.book.spread ? 0 : 1);
             else if (act === 'resume') {
@@ -661,6 +670,114 @@
             this.refreshProfile();
             if (wasActive && document.getElementById('homeView').classList.contains('hidden')) this.goHome();
             this.showProfileList();
+        }
+
+        // ---------- offline, install, share ----------
+
+        // sw.js keeps the app's files for use without internet (http/https only).
+        setupOffline() {
+            if (!('serviceWorker' in root.navigator) || !/^https?:$/.test(root.location.protocol)) return;
+            const start = () => root.navigator.serviceWorker.register('sw.js')
+                .then(() => root.navigator.serviceWorker.ready)
+                .then((reg) => {
+                    if (reg.active) reg.active.postMessage({ type: 'keep', urls: this.pageFiles() });
+                })
+                .catch(() => { /* offline support is optional */ });
+            if (document.readyState === 'complete') start();
+            else root.addEventListener('load', start, { once: true });
+        }
+
+        // Every file of the app this page uses, including fonts it hasn't
+        // needed yet (the Cyrillic ones); recordings are left out.
+        pageFiles() {
+            const urls = new Set([root.location.href.split('#')[0]]);
+            root.performance.getEntriesByType('resource').forEach((e) => urls.add(e.name));
+            [...document.styleSheets].forEach((sheet) => {
+                let rules = [];
+                try {
+                    rules = [...sheet.cssRules];
+                } catch (e) {
+                    return;
+                }
+                rules.filter((r) => r.type === CSSRule.FONT_FACE_RULE).forEach((r) => {
+                    const m = /url\(["']?([^"')]+)/.exec(r.style.getPropertyValue('src'));
+                    if (m) urls.add(new URL(m[1], sheet.href || root.location.href).href);
+                });
+            });
+            return [...urls].filter((u) => {
+                const url = new URL(u, root.location.href);
+                return url.origin === root.location.origin && !/\/audio\/.+\.(m4a|webm|ogg|mp3|wav|aac)$/.test(url.pathname);
+            });
+        }
+
+        // "Telefonga o'rnatish": Android/Chrome offers its own install prompt;
+        // on iPhone and iPad it is done from Safari's share menu, so we explain.
+        setupInstall() {
+            const installed = root.matchMedia('(display-mode: standalone)').matches || root.navigator.standalone === true;
+            if (installed) return;
+            root.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                this.installPrompt = e;
+                this.showInstall(true);
+            });
+            root.addEventListener('appinstalled', () => {
+                this.installPrompt = null;
+                this.showInstall(false);
+            });
+            const apple = /iphone|ipad|ipod/i.test(root.navigator.userAgent) || (root.navigator.platform === 'MacIntel' && root.navigator.maxTouchPoints > 1);
+            if (apple) this.showInstall(true);
+        }
+
+        showInstall(on) {
+            const btn = document.getElementById('installBtn');
+            btn.classList.toggle('hidden', !on);
+            btn.classList.toggle('flex', on);
+        }
+
+        installApp() {
+            if (this.installPrompt) {
+                const prompt = this.installPrompt;
+                this.installPrompt = null;
+                this.showInstall(false);
+                prompt.prompt();
+                return;
+            }
+            this.showModal("📲 Telefonga o'rnatish",
+                "Safari'da pastdagi «Ulashish» (공유) tugmasini bosing, so'ng «Bosh ekranga qo'shish» (홈 화면에 추가) ni tanlang. Ertaklar belgisi telefoningiz ekranida paydo bo'ladi.");
+        }
+
+        // Shares the app, or one book, through the phone's share sheet
+        // (Telegram, KakaoTalk...); elsewhere the link is copied.
+        async share(key) {
+            const story = key ? this.db[key] : null;
+            const url = root.location.href.split('#')[0] + (story ? `#${key}` : '');
+            const text = this.tx(story
+                ? `«${story.title}» — o'zbek ertagi: rasmli, varaqlanadigan kitob`
+                : "Ertaklar Olami — o'zbek xalq ertaklari bolalar uchun");
+            if (root.navigator.share) {
+                try {
+                    await root.navigator.share({ title: story ? story.title : 'Ertaklar Olami', text, url });
+                    return;
+                } catch (e) {
+                    if (e.name === 'AbortError') return;
+                }
+            }
+            try {
+                await root.navigator.clipboard.writeText(`${text}\n${url}`);
+                this.toast("🔗 Havola nusxalandi — Telegram yoki KakaoTalk'ga joylang");
+            } catch (e) {
+                this.showModal('🔗 Havola', url);
+            }
+        }
+
+        openFromLink() {
+            let key = '';
+            try {
+                key = decodeURIComponent(root.location.hash.slice(1));
+            } catch (e) {
+                return;
+            }
+            if (this.db[key] && key !== this.currentStoryKey) this.startStory(key);
         }
 
         // ---------- modal ----------

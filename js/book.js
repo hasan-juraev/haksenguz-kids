@@ -261,6 +261,7 @@
                 <div class="finale-actions">
                     <button type="button" class="btn-quiz" data-action="quiz">🏆 Bilimdon testi</button>
                     <button type="button" class="btn-reread" data-action="restart">↺ Boshidan o'qish</button>
+                    <button type="button" class="btn-reread" data-action="share">📤 Ulashish</button>
                 </div>
             </div></div>`;
         }

@@ -4,41 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ertaklar Olami - Interaktiv Kitob va Sahifalar</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Fredoka & Nunito for child-friendly typography -->
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <!-- FontAwesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        heading: ['Fredoka', 'Nunito', 'sans-serif'],
-                        body: ['Nunito', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#fff9ed',
-                            100: '#ffefd4',
-                            500: '#f59e0b',
-                            600: '#d97706',
-                            700: '#b45309',
-                        },
-                        fairy: {
-                            purple: '#8b5cf6',
-                            pink: '#ec4899',
-                            sky: '#0ea5e9',
-                            mint: '#10b981',
-                            indigo: '#6366f1',
-                            rose: '#f43f5e'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+    <meta name="description" content="O'zbek xalq ertaklari: varaqlanadigan, o'qib beriladigan rasmli kitoblar. Koreyadagi o'zbek bolalari uchun.">
+    <meta property="og:title" content="Ertaklar Olami">
+    <meta property="og:description" content="O'zbek xalq ertaklari: varaqlanadigan, o'qib beriladigan rasmli kitoblar.">
+    <!-- Installable app (manifest + sw.js) -->
+    <meta name="theme-color" content="#f59e0b">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+    <link rel="icon" href="icons/icon-32.png" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-title" content="Ertaklar">
+    <!-- Styles, fonts and icons ship with the app (npm run build): no CDNs, works offline -->
+    <link rel="stylesheet" href="css/fonts.css">
+    <link rel="stylesheet" href="css/icons.css">
+    <link rel="stylesheet" href="css/tailwind.css">
     <link rel="stylesheet" href="css/book.css">
     <link rel="stylesheet" href="css/art.css">
     <link rel="stylesheet" href="css/studio.css">
@@ -91,6 +70,14 @@
                             <span id="heroBtnLabel">Kitobni Ochish</span>
                         </button>
                         <p id="heroResume" class="hidden text-sm font-bold text-white/90"></p>
+                        <div class="flex flex-wrap items-center justify-center md:justify-start gap-2 pt-1">
+                            <button id="installBtn" onclick="app.installApp()" class="hidden min-h-[40px] px-3.5 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl backdrop-blur-md transition items-center gap-2">
+                                <i class="fa-solid fa-mobile-screen-button"></i> Telefonga o'rnatish
+                            </button>
+                            <button onclick="app.share()" class="min-h-[40px] px-3.5 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl backdrop-blur-md transition flex items-center gap-2">
+                                <i class="fa-solid fa-share-nodes"></i> Ulashish
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="mt-6 md:mt-0 z-10">

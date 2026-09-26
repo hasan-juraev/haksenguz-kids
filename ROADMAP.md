@@ -65,13 +65,20 @@ reading it.
      (중도입국) can learn Korean from tales they already know.
    - Needs a rounded Korean font such as Jua, because Fredoka and Nunito have no
      Hangul.
-3. **Online and offline.**
-   - ✅ Hosted on Netlify: `main` is the live site, and every pull request
-     gets its own preview link.
-   - Make it installable on the home screen and usable offline.
-   - Stop loading styles from CDNs: `cdn.tailwindcss.com` is development-only,
-     and fonts and icons should ship with the app.
-   - Add a Share button for Telegram and KakaoTalk.
+3. **Online and offline.** ✅ Done.
+   - Hosted on Netlify: `main` is the live site, and every pull request gets
+     its own preview link.
+   - Nothing loads from CDNs any more. Styles, fonts (Latin + Cyrillic) and
+     icons ship with the app (`npm run build`), and the page is far lighter
+     on phones.
+   - **Installable:** "Telefonga o'rnatish" uses Android's install prompt; on
+     iPhone it explains Safari's "Add to Home Screen" (with the Korean menu
+     name).
+   - **Offline:** after one visit the app opens without internet, family
+     recordings included. Built-in narration still needs internet.
+   - **Sharing:** "Ulashish" shares the app or a book through the phone's
+     share sheet (Telegram, KakaoTalk). A link ending in `#zumrad` opens that
+     book.
 4. **Reading levels.** Tag books by age and level so the library can show a
    4-year-old and a 9-year-old the right shelf.
 
