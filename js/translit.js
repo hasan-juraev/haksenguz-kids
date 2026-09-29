@@ -1,6 +1,8 @@
 /*
  * Uzbek Latin -> Cyrillic, and a display layer that shows every piece of
- * Uzbek text on the page in the chosen script.
+ * Uzbek text on the page in the chosen script, with the app's menus and
+ * buttons in the chosen language (Korean: js/i18n.js). Stories stay Uzbek:
+ * anything inside [data-content] is never swapped for another language.
  *
  * Content is written once, in Latin. With Cyrillic on, text nodes (and a few
  * attributes) are converted as they appear; the Latin original is kept, so
@@ -12,7 +14,7 @@
  * showing Cyrillic): keep source strings in JS or data and write them out.
  *
  *   Translit.toCyrillic("Bir bor ekan, bir yo'q ekan") -> "Бир бор экан, бир йўқ экан"
- *   Translit.setMode('cyr' | 'lat')
+ *   Translit.setMode('cyr' | 'lat')    Translit.setLang('uz' | 'ko')
  *   Translit.apply(el)  // convert a freshly built subtree right away (before measuring it)
  */
 (function (root) {
@@ -114,67 +116,77 @@
     // ---------- display layer ----------
 
     const SKIP = 'script, style, noscript, textarea, [translate="no"]';
+    // Story text: shown in the chosen script, but never swapped for another language.
+    const CONTENT = '[data-content]';
     const ATTRS = ['title', 'aria-label', 'placeholder', 'alt'];
     const ATTR_SEL = ATTRS.map((a) => `[${a}]`).join(',');
-    // What we put on screen and what it replaced, so a later switch back
+    // What the app wrote and what we put on screen instead, so a later switch
     // (or a change made by the app in the meantime) is handled correctly.
     const texts = new WeakMap();
     const attrs = new WeakMap();
     let mode = 'lat';
+    let lang = 'uz';
     let observer = null;
+    let title = null; // the page title as written in index.html
 
     const skipped = (el) => !el || !!el.closest(SKIP);
+    const active = () => mode === 'cyr' || lang !== 'uz';
 
-    function convertText(node, cyr) {
+    // How the app's text is shown: its menus in the chosen language (js/i18n.js),
+    // then everything Uzbek in the chosen script.
+    function display(text, el) {
+        let out = text;
+        if (lang !== 'uz' && root.I18n && !(el && el.closest(CONTENT))) out = root.I18n.translate(out, lang);
+        if (mode === 'cyr') out = toCyrillic(out);
+        return out;
+    }
+
+    function convertText(node, on) {
         const cur = node.nodeValue;
         const rec = texts.get(node);
-        if (!cyr) {
+        const src = rec && cur === rec.out ? rec.src : cur;
+        if (!on || !/[A-Za-z]/.test(src) || skipped(node.parentElement)) {
             if (rec && cur === rec.out) node.nodeValue = rec.src;
             texts.delete(node);
             return;
         }
-        if ((rec && cur === rec.out) || !/[A-Za-z]/.test(cur) || skipped(node.parentElement)) return;
-        const out = toCyrillic(cur);
-        if (out === cur) return;
-        texts.set(node, { src: cur, out });
-        node.nodeValue = out;
-    }
-
-    function convertAttrs(el, cyr) {
-        if (!cyr) {
-            const recs = attrs.get(el);
-            if (!recs) return;
-            Object.keys(recs).forEach((a) => {
-                if (el.getAttribute(a) === recs[a].out) el.setAttribute(a, recs[a].src);
-            });
-            attrs.delete(el);
+        const out = display(src, node.parentElement);
+        if (out === src) {
+            if (cur !== src) node.nodeValue = src;
+            texts.delete(node);
             return;
         }
-        if (skipped(el)) return;
+        texts.set(node, { src, out });
+        if (cur !== out) node.nodeValue = out;
+    }
+
+    function convertAttrs(el, on) {
+        const recs = attrs.get(el) || {};
+        const off = !on || skipped(el);
         ATTRS.forEach((a) => {
             const cur = el.getAttribute(a);
             if (cur === null) return;
-            const recs = attrs.get(el) || {};
-            if (recs[a] && cur === recs[a].out) return;
-            const out = toCyrillic(cur);
-            if (out === cur) return;
-            recs[a] = { src: cur, out };
-            attrs.set(el, recs);
-            el.setAttribute(a, out);
+            const src = recs[a] && cur === recs[a].out ? recs[a].src : cur;
+            const out = off ? src : display(src, el);
+            if (out === src) delete recs[a];
+            else recs[a] = { src, out };
+            if (cur !== out) el.setAttribute(a, out);
         });
+        if (Object.keys(recs).length) attrs.set(el, recs);
+        else attrs.delete(el);
     }
 
-    function walk(node, cyr) {
+    function walk(node, on) {
         if (node.nodeType === 3) {
-            convertText(node, cyr);
+            convertText(node, on);
             return;
         }
         if (node.nodeType !== 1 && node.nodeType !== 11) return;
         const tw = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
         let t;
-        while ((t = tw.nextNode())) convertText(t, cyr);
-        if (node.nodeType === 1 && node.matches(ATTR_SEL)) convertAttrs(node, cyr);
-        node.querySelectorAll(ATTR_SEL).forEach((el) => convertAttrs(el, cyr));
+        while ((t = tw.nextNode())) convertText(t, on);
+        if (node.nodeType === 1 && node.matches(ATTR_SEL)) convertAttrs(node, on);
+        node.querySelectorAll(ATTR_SEL).forEach((el) => convertAttrs(el, on));
     }
 
     function watch() {
@@ -182,7 +194,7 @@
         // Whatever the app draws later (pages, cards, toasts) is converted
         // before it is painted. Our own nodeValue writes are not observed.
         observer = new MutationObserver((records) => {
-            if (mode !== 'cyr') return;
+            if (!active()) return;
             records.forEach((r) => {
                 if (r.type === 'childList') r.addedNodes.forEach((n) => walk(n, true));
                 else convertAttrs(r.target, true);
@@ -191,17 +203,38 @@
         observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ATTRS });
     }
 
+    function refresh() {
+        document.documentElement.setAttribute('data-script', mode);
+        document.documentElement.setAttribute('data-lang', lang);
+        if (title === null) title = document.title;
+        document.title = display(title, null);
+        if (active()) watch();
+        else if (!observer) return; // never changed anything: nothing to restore
+        walk(document.body, active());
+    }
+
+    // 'lat' | 'cyr': the script Uzbek is shown in.
     function setMode(next) {
         mode = next === 'cyr' ? 'cyr' : 'lat';
-        document.documentElement.setAttribute('data-script', mode);
-        if (mode === 'cyr') watch();
-        else if (!observer) return; // never shown in Cyrillic: nothing to restore
-        walk(document.body, mode === 'cyr');
+        refresh();
+    }
+
+    // 'uz' | 'ko': the language of the app's menus and buttons (stories stay Uzbek).
+    function setLang(next) {
+        lang = next === 'ko' ? 'ko' : 'uz';
+        refresh();
+    }
+
+    // Both at once, with one pass over the page.
+    function set({ script, lang: next }) {
+        mode = script === 'cyr' ? 'cyr' : 'lat';
+        lang = next === 'ko' ? 'ko' : 'uz';
+        refresh();
     }
 
     function apply(node) {
-        if (mode === 'cyr' && node) walk(node, true);
+        if (active() && node) walk(node, true);
     }
 
-    root.Translit = { toCyrillic, setMode, apply, mode: () => mode };
+    root.Translit = { toCyrillic, setMode, setLang, set, apply, mode: () => mode, lang: () => lang, display: (text) => display(text, null) };
 })(window);

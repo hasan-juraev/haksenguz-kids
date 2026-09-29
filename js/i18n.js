@@ -1,0 +1,210 @@
+/*
+ * The app's menus and buttons in Korean (the 한 option in the header), for
+ * Korean parents, teachers, and children who read Korean best. Stories stay
+ * Uzbek: js/translit.js never applies this inside [data-content].
+ *
+ * EXACT maps a whole Uzbek UI text to Korean; PATTERNS handle texts with
+ * numbers or names in them. Both are checked against the Uzbek source text
+ * (before any Cyrillic), with surrounding spaces kept. A bilingual reviewer
+ * checks them in the table made by tools/korean-review.js.
+ */
+(function (root) {
+    'use strict';
+
+    const EXACT = {
+        // header and library
+        'Ertaklar Olami - Interaktiv Kitob va Sahifalar': 'Ertaklar Olami — 우즈베크 동화 그림책',
+        'Interaktiv 3D Kitoblar Platformasi': '우즈베크 동화 3D 그림책',
+        'Til va yozuv': '언어와 글자',
+        "Kim o'qiyapti?": '누가 읽고 있나요?',
+        '📚 Haqiqiy kitobdek varaqlanadi': '📚 진짜 책처럼 넘겨요',
+        "O'zbek xalq ertaklari, Navoiy dostonlari va sehrli sarguzashtlar": '우즈베크 전래동화, 나보이의 서사시, 그리고 신기한 모험 이야기',
+        'Kitobni oching, sahifani chetidan tortib varaqlang, rasmlarga bosib qahramonlarni jonlantiring va savollarga javob bering!':
+            '책을 펼치고, 페이지 끝을 잡아당겨 넘겨 보세요. 그림을 누르면 주인공들이 움직이고, 질문에 답할 수도 있어요!',
+        'Kitobni Ochish': '책 펼치기',
+        'Davom ettirish': '이어 읽기',
+        "Telefonga o'rnatish": '휴대폰에 설치하기',
+        'Ulashish': '공유하기',
+        'Barchasi': '전체',
+        'Xalq Ertaklari': '전래동화',
+        'Klassik Asarlar': '고전',
+        'Alisher Navoiy': '알리셰르 나보이',
+        'Zamonaviy Sirlar': '현대 동화',
+        'Interaktiv Kitoblar Kutubxonasi': '인터랙티브 책 도서관',
+        'Yangi': '새 책',
+        // genre on the library cards (the part of a story's tag before "•")
+        "O'zbek xalq ertagi": '우즈베크 전래동화',
+        "O'zbek xalq latifalari": '우즈베크 웃음 이야기',
+        'Xalq ertagi': '전래동화',
+        'Bayram ertagi': '명절 동화',
+        "Xudoyberdi To'xtaboyev": '후도이베르디 투흐타보예프',
+        'Abdulla Qodiriy': '압둘라 코디리',
+        'Zamonaviy ertak': '현대 동화',
+        'Fantastika': '판타지',
+        'Fantastik sarguzasht': '판타지 모험',
+        'Milliy qadriyatlar': '우즈베크 전통',
+        'Sharq hikmati': '동양의 지혜',
+        "O'qildi": '다 읽었어요',
+
+        // reading
+        'Kutubxona': '도서관',
+        'Ovoz yozish': '녹음하기',
+        'Ovoz yozish (kattalar uchun)': '녹음하기 (어른용)',
+        'Varaqlash Ovozi': '넘기는 소리',
+        'Varaqlash Ovozi: Yoqilgan': '넘기는 소리: 켜짐',
+        "Varaqlash Ovozi: O'chiq": '넘기는 소리: 꺼짐',
+        'Muqova': '표지',
+        'Sarlavha': '제목',
+        'Tamom': '끝',
+        'Sahifani chetidan torting, burchagiga bosing yoki ← → tugmalarini ishlating': '페이지 끝을 잡아당기거나, 모서리를 누르거나, ← → 키를 쓰세요',
+        'Oldingi': '이전',
+        'Keyingi': '다음',
+        'Kitobni ochish': '책 펼치기',
+        'Bilimdon Testi': '퀴즈',
+        'Tinglash': '듣기',
+        "To'xtatish": '멈추기',
+        'Ertakni tinglash': '동화 듣기',
+        "O'qishni to'xtatish": '읽기 멈추기',
+        'Chap sahifa': '왼쪽 페이지',
+        "O'ng sahifa": '오른쪽 페이지',
+        'Keyingi sahifa': '다음 페이지',
+        'Oldingi sahifa': '이전 페이지',
+        'Rasmga bosing': '그림을 눌러 보세요',
+        '👆 Rasmga bosing — qahramonlar jonlanadi!': '👆 그림을 누르면 주인공들이 움직여요!',
+        "📖 Yangi so'z": '📖 새 낱말',
+        'Varaqlang': '넘기세요',
+        'Yakun': '마지막',
+        '💡 Bolajonlar uchun savol': '💡 어린이 질문',
+        "🤔 Yana bir o'ylab ko'ring!": '🤔 다시 한번 생각해 볼까요?',
+        'Koreyscha tarjima': '한국어 번역',
+        'Ushbu kitob': '이 책은',
+        'Ertaklar Olami kutubxonasidan': 'Ertaklar Olami 도서관의 책이에요',
+        'Sahifa chetidan torting yoki ➜ tugmasini bosing': '페이지 끝을 잡아당기거나 ➜ 버튼을 누르세요',
+        '👆 Kitobni ochish uchun bosing': '👆 눌러서 책을 펼치세요',
+        '✨ Ertak shu yerda tugadi ✨': '✨ 이야기가 여기서 끝났어요 ✨',
+        'Tamom!': '끝!',
+        'Ertak tugadi!': '이야기 끝!',
+        "Ajoyib o'qidingiz!": '정말 잘 읽었어요!',
+        'Ertakdan saboq:': '이야기의 교훈:',
+        '🏆 Bilimdon testi': '🏆 퀴즈',
+        "↺ Boshidan o'qish": '↺ 처음부터 읽기',
+        '📤 Ulashish': '📤 공유하기',
+        '💡 Endi savolga javob bering!': '💡 이제 질문에 답해 보세요!',
+        "🎙️ Bu sahifa hali o'qib berilmagan": '🎙️ 이 페이지는 아직 녹음되지 않았어요',
+        'Bu qurilmada koreyscha ovoz topilmadi': '이 기기에는 한국어 음성이 없어요',
+        'Koreyschasini eshitish': '한국어로 듣기',
+
+        // quiz and messages
+        "To'g'ri javobni tanlab 50 ball qo'lga kiriting!": '정답을 골라 50점을 받아 보세요!',
+        '← Kitobga qaytish': '← 책으로 돌아가기',
+        'Tabriklaymiz! 🎉': '축하해요! 🎉',
+        "Siz to'g'ri xulosa topdingiz! Bu kitob uchun ballni avvalroq olgansiz.": '교훈을 바르게 찾았어요! 이 책의 점수는 이미 받았어요.',
+        "Boshqatdan urinib ko'ring! 💪": '다시 해 볼까요? 💪',
+        "Bu xulosa asar g'oyasiga mos kelmaydi.": '이 답은 이야기의 교훈과 맞지 않아요.',
+        'Tushunarli': '알겠어요',
+        'Xabar': '알림',
+        'Tafsilotlar...': '자세한 내용…',
+        "🔗 Havola nusxalandi — Telegram yoki KakaoTalk'ga joylang": '🔗 링크를 복사했어요 — 텔레그램이나 카카오톡에 붙여 넣으세요',
+        "📲 Telefonga o'rnatish": '📲 휴대폰에 설치하기',
+        "Safari'da pastdagi «Ulashish» (공유) tugmasini bosing, so'ng «Bosh ekranga qo'shish» (홈 화면에 추가) ni tanlang. Ertaklar belgisi telefoningiz ekranida paydo bo'ladi.":
+            'Safari 아래쪽의 공유 버튼을 누른 다음 ‘홈 화면에 추가’를 고르세요. 휴대폰 화면에 Ertaklar 아이콘이 생겨요.',
+        '🔗 Havola': '🔗 링크',
+        "Ertaklar Olami — o'zbek xalq ertaklari bolalar uchun": 'Ertaklar Olami — 어린이를 위한 우즈베크 전래동화',
+
+        // profiles
+        'Yopish': '닫기',
+        'Ism': '이름',
+        'Masalan: Asal': '예: Asal',
+        'Rasm tanlang': '그림을 고르세요',
+        'Saqlash': '저장',
+        'Bekor qilish': '취소',
+        "Kitobxonni o'chirish": '이 독자 삭제',
+        "Bola qo'shish": '아이 추가',
+        'Tahrirlash': '수정하기',
+        'Yangi kitobxon': '새 독자',
+
+        // recording studio
+        '🎙️ Ovoz yozish': '🎙️ 녹음하기',
+        'Kitobga qaytish': '책으로 돌아가기',
+        'Kimning ovozi?': '누구의 목소리인가요?',
+        "Sarlavhadan boshlab o'qing. Har gapdan keyin biroz to'xtang — bolalar o'qiyotgan gapni ko'rib boradi.":
+            '제목부터 읽어 주세요. 문장이 끝날 때마다 잠깐 쉬어 주세요 — 아이들이 지금 읽는 문장을 보며 따라가요.',
+        'Yozishni boshlash': '녹음 시작',
+        "Yozishni to'xtatish": '녹음 멈추기',
+        'Avval ovozni tanlang': '먼저 목소리를 고르세요',
+        '✓ Bu sahifa yozilgan': '✓ 이 페이지는 녹음했어요',
+        "Qizil tugmani bosing va sahifani o'qing": '빨간 버튼을 누르고 페이지를 읽어 주세요',
+        'Saqlanmoqda...': '저장하는 중…',
+        'Juda qisqa chiqdi. Qaytadan yozing.': '너무 짧아요. 다시 녹음해 주세요.',
+        "✓ Saqlandi. Tinglab ko'ring yoki keyingi sahifaga o'ting.": '✓ 저장했어요. 들어 보거나 다음 페이지로 넘어가세요.',
+        '✓ Saqlandi. Kitob tugadi — endi uni yuboring!': '✓ 저장했어요. 책을 다 녹음했어요 — 이제 보내 주세요!',
+        "Yozib bo'lmadi. Qaytadan urinib ko'ring.": '녹음하지 못했어요. 다시 해 보세요.',
+        'Mikrofonga ruxsat bering va qaytadan bosing.': '마이크 사용을 허용한 뒤 다시 눌러 주세요.',
+        "Bu brauzerda ovoz yozib bo'lmaydi. Telefoningizdagi Chrome yoki Safari'da oching.": '이 브라우저에서는 녹음할 수 없어요. 휴대폰의 Chrome이나 Safari에서 열어 주세요.',
+        "Tinglab ko'rish": '들어 보기',
+        "O'chirish": '삭제',
+        "Tayyor bo'lgach, bitta fayl qilib Telegram orqali yuboring.": '다 녹음하면 파일 하나로 만들어 텔레그램으로 보내 주세요.',
+        'Yuborish': '보내기',
+        'Ovoz tanlang': '목소리를 고르세요',
+        'Bu sahifa yozilgan. Qaytadan yozasizmi?': '이 페이지는 이미 녹음했어요. 다시 녹음할까요?',
+        "Fayldan qo'shish": '파일에서 추가하기',
+        "Buvijon yoki bobojon Telegram orqali yuborgan ovoz faylini (.json) telefoningizga saqlang, keyin shu tugma bilan tanlang.":
+            '할머니나 할아버지가 텔레그램으로 보낸 목소리 파일(.json)을 휴대폰에 저장한 다음, 이 버튼으로 골라 주세요.',
+        'Yangi ovoz': '새 목소리',
+        'Ovozni tahrirlash': '목소리 수정',
+        "Kim o'qiydi?": '누가 읽나요?',
+        'Masalan: Buvijon': '예: 할머니',
+        'Barcha yozuvlarni yuborish': '모든 녹음 보내기',
+        "Ovozni o'chirish": '목소리 삭제',
+        "Bu fayl ertak ovozi emas. Telegram'dagi .json faylni tanlang.": '동화 목소리 파일이 아니에요. 텔레그램으로 받은 .json 파일을 골라 주세요.',
+        'Kattalar uchun': '어른용',
+        "Ovoz yozish bo'limiga kirish uchun hisoblang:": '녹음하는 곳에 들어가려면 계산해 주세요:',
+        'Kirish': '들어가기',
+        "Yana bir urinib ko'ring": '다시 해 보세요',
+    };
+    // [pattern, Korean, an example of the Uzbek (for the reviewer and the tests)]
+    const PATTERNS = [
+        [/^(\d+) ta interaktiv kitob$/, '인터랙티브 책 $1권', '23 ta interaktiv kitob'],
+        [/^📄 (\d+) sahifali rasmli kitob$/, '📄 $1쪽 그림책', '📄 12 sahifali rasmli kitob'],
+        [/^(\d+) yulduz$/, '별 $1개', '3 yulduz'],
+        [/^⭐ (\d+) ball$/, '⭐ $1점', '⭐ 150 ball'],
+        [/^(\d+) ball$/, '$1점', '150 ball'],
+        [/^Sahifa (\d+) \/ (\d+)$/, '$1 / $2쪽', 'Sahifa 3 / 12'],
+        [/^(\d+) \/ (\d+) sahifa$/, '$1 / $2쪽', '3 / 12 sahifa'],
+        [/^(\d+) \/ (\d+) sahifa yozildi$/, '$2쪽 중 $1쪽 녹음했어요', '4 / 12 sahifa yozildi'],
+        [/^(\d+)-sahifa \(yozilgan\)$/, '$1쪽 (녹음함)', '3-sahifa (yozilgan)'],
+        [/^(\d+)-sahifa$/, '$1쪽', '3-sahifa'],
+        [/^▶ Davom ettirish · (\d+)-sahifa$/, '▶ 이어 읽기 · $1쪽', '▶ Davom ettirish · 3-sahifa'],
+        [/^📄 (\d+) sahifa · ⏱ ~(\d+) daqiqa$/, '📄 $1쪽 · ⏱ 약 $2분', '📄 12 sahifa · ⏱ ~6 daqiqa'],
+        [/^Savollarga javoblar: (\d+) \/ (\d+)$/, '맞힌 질문: $1 / $2', 'Savollarga javoblar: 4 / 5'],
+        [/^⭐ (.+) \+10 ball$/, '⭐ $1 +10점', '⭐ Barakalla! +10 ball'],
+        [/^Siz to'g'ri xulosa topdingiz va (\d+) ball qo'shildi!$/, '교훈을 바르게 찾았어요! $1점을 받았어요!', "Siz to'g'ri xulosa topdingiz va 50 ball qo'shildi!"],
+        [/^(.+) bu ertakni o'qib bergan — 🎧 bosing!$/, '$1 님이 이 동화를 읽어 줬어요 — 🎧 눌러 보세요!', "👵 Buvijon bu ertakni o'qib bergan — 🎧 bosing!"],
+        [/^(.+) o'qib beradi\. Boshqa ovozni tanlash$/, '$1 님이 읽어 줘요. 다른 목소리 고르기', "Buvijon o'qib beradi. Boshqa ovozni tanlash"],
+        [/^(.+) o'qib beradi$/, '$1 님이 읽어 줘요', "👵 Buvijon o'qib beradi"],
+        [/^«(.+)» — o'zbek ertagi: rasmli, varaqlanadigan kitob$/, '«$1» — 우즈베크 동화: 넘겨 보는 그림책', "«Oltin Tarvuz» — o'zbek ertagi: rasmli, varaqlanadigan kitob"],
+        [/^(.+): tahrirlash$/, '$1: 수정하기', 'Asal: tahrirlash'],
+        [/^(.+) o'chirilsinmi\? Uning ballari va o'qigan kitoblari ham o'chib ketadi\.$/, '‘$1’ 독자를 삭제할까요? 점수와 읽은 책 기록도 함께 지워져요.', "Asal o'chirilsinmi? Uning ballari va o'qigan kitoblari ham o'chib ketadi."],
+        [/^(\d+)-sahifadagi yozuv o'chirilsinmi\?$/, '$1쪽 녹음을 지울까요?', "3-sahifadagi yozuv o'chirilsinmi?"],
+        [/^(.+) ovozi va uning barcha yozuvlari o'chirilsinmi\?$/, '‘$1’ 목소리와 모든 녹음을 지울까요?', "Buvijon ovozi va uning barcha yozuvlari o'chirilsinmi?"],
+        [/^🔴 (\d+:\d\d) — o'qing\.\.\.$/, '🔴 $1 — 읽어 주세요…', "🔴 0:07 — o'qing..."],
+        [/^✓ (.+): (\d+) ta sahifa qo'shildi\.( Diqqat: bu telefon bu yozuvlarni o'qiy olmasligi mumkin\.)?$/,
+            (all, who, n, warn) => `✓ ${who}: ${n}쪽을 추가했어요.${warn ? ' 주의: 이 휴대폰에서는 이 녹음이 재생되지 않을 수도 있어요.' : ''}`,
+            "✓ 👵 Buvijon: 12 ta sahifa qo'shildi. Diqqat: bu telefon bu yozuvlarni o'qiy olmasligi mumkin."],
+    ];
+
+    function translate(text, lang) {
+        if (lang !== 'ko') return text;
+        const m = /^(\s*)([\s\S]*?)(\s*)$/.exec(text);
+        const core = m[2];
+        if (!core) return text;
+        let out = Object.prototype.hasOwnProperty.call(EXACT, core) ? EXACT[core] : undefined;
+        if (out === undefined) {
+            const hit = PATTERNS.find(([re]) => re.test(core));
+            if (hit) out = core.replace(hit[0], hit[1]);
+        }
+        return out === undefined ? text : m[1] + out + m[3];
+    }
+
+    root.I18n = { translate, EXACT, PATTERNS };
+})(window);

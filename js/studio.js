@@ -352,7 +352,7 @@
                 return `<div class="relative">
                     <button type="button" data-use="${esc(v.id)}"${on ? ' aria-current="true"' : ''} class="w-full min-h-[104px] p-3 rounded-2xl border-2 ${on ? 'border-rose-400 bg-rose-50' : 'border-orange-100 bg-white hover:bg-orange-50'} flex flex-col items-center justify-center gap-1 transition">
                         <span class="text-4xl leading-none" aria-hidden="true">${esc(v.avatar)}</span>
-                        <span class="font-bold text-gray-800 truncate max-w-full">${esc(v.name)}</span>
+                        <span class="font-bold text-gray-800 truncate max-w-full" data-content>${esc(v.name)}</span>
                     </button>
                     <button type="button" data-edit="${esc(v.id)}" aria-label="${esc(v.name)}: tahrirlash" class="absolute top-1.5 right-1.5 w-9 h-9 rounded-xl bg-white/90 text-gray-500 hover:text-rose-600 shadow-sm transition">
                         <i class="fa-solid fa-pen text-xs"></i>

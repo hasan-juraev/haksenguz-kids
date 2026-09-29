@@ -4,8 +4,8 @@ module.exports = {
     theme: {
         extend: {
             fontFamily: {
-                heading: ['Fredoka', 'Nunito', 'sans-serif'],
-                body: ['Nunito', 'sans-serif'],
+                heading: ['Fredoka', 'Nunito', 'Gowun Dodum', 'sans-serif'],
+                body: ['Nunito', 'Gowun Dodum', 'sans-serif'],
             },
             colors: {
                 brand: {

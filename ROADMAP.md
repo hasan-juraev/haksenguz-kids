@@ -54,17 +54,27 @@ reading it.
      may not play.
    - **Works on the Netlify site** (https, which phones require for the
      microphone), so a grandparent only needs the link.
-2. **Korean helper.**
-   - Tap a word to see its Korean meaning (extends the "Yangi so'z" card).
-   - A 🇰🇷 button shows a sentence's Korean translation, only when asked.
-   - Korean text-to-speech already works on almost every phone, so Korean audio
-     is free.
-   - A 한국어 option for the menus, for Korean parents in multicultural families
-     (다문화 가정) and for teachers.
+2. **Korean helper.** ✅ Built for *Zumrad va Qimmat* and *Oltin tarvuz*;
+   waiting for the reviewer.
+   - **Tap a word:** words a child growing up in Korea may not know are
+     underlined. Tapping one shows its Korean meaning, and 🔊 says it with the
+     phone's own Korean voice (almost every phone has one).
+   - **🇰🇷 on a page** shows the Korean of each sentence under the Uzbek, and of
+     the question and its answers. It appears only when tapped and turns off on
+     the next page, so the child reads the Uzbek first. The last page's moral,
+     the "Yangi so'z" card and the quiz have it too.
+   - **한국어 in the header** puts the menus, buttons and messages in Korean, for
+     Korean parents in multicultural families (다문화 가정) and for teachers.
+     The stories stay in Uzbek.
    - It also works the other way: children who recently arrived from Uzbekistan
      (중도입국) can learn Korean from tales they already know.
-   - Needs a rounded Korean font such as Jua, because Fredoka and Nunito have no
-     Hangul.
+   - **Checking the Korean:** `node tools/korean-review.js > korean-review.csv`
+     makes a table (Uzbek, Korean, a column for fixes) that opens in Excel or
+     Google Sheets. A book is marked `reviewed` in `js/stories-ko.js` once
+     checked.
+   - Korean text uses Gowun Dodum, a rounded Korean font, cut down to the
+     letters the app uses (44 KB), because Fredoka and Nunito have no Hangul.
+   - Next: Korean for more books, a few at a time as reviews come back.
 3. **Online and offline.** ✅ Done.
    - Hosted on Netlify: `main` is the live site, and every pull request gets
      its own preview link.
