@@ -15,6 +15,8 @@ On the "Koreyadagi hayotim" shelf (my life in Korea), Uzbek children live in tod
 - Bobur takes osh to the neighbour, who sends the dish back full of tteok.
 - Malika video-calls her grandmother in Samarkand.
 
+The "Bayramlar" shelf has holiday stories that pair an Uzbek holiday with a Korean one: Hangul kuni with O'zbek tili bayrami, and Seollal with Navro'z. A holiday book's card shows its next date. In the three weeks before a holiday, the banner offers its story.
+
 Any picture can become a colouring page (🎨) to colour on screen, save or print, and each book ends with a game of putting the story's pictures in order (🧩).
 
 The app can be installed on a phone's home screen and works offline after the first visit; a book's built-in narration can be saved for offline listening with ⬇️. "Ulashish" shares it, or a single book, to Telegram or KakaoTalk; a link ending in `#zumrad` opens that book.

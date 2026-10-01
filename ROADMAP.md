@@ -171,6 +171,31 @@ reading it.
    - 한글날 (Oct 9) ↔ O'zbek tili bayrami (Oct 21)
    - Children's Day: May 5 ↔ June 1
    - Hayit and Mustaqillik kuni
+
+   ✅ **Built: the "🎉 Bayramlar" shelf, with the first two stories.**
+   - *Harflar bayrami* (5–8): Hangul kuni and O'zbek tili bayrami. Asal learns
+     how King Sejong made Hangul for everyone, visits his golden statue on
+     9 October, and recites her own poem on 21 October. Her friend Seoyeon
+     learns that O' and G' "wear little hats", and Asal learns that Korean
+     letters "live together in little houses".
+   - *Ikki Yangi yil* (4–8): Seollal and Navro'z, with Bobur and Kim halmeoni
+     from *Osh va tteok*. In winter Bobur gets a hanbok, does sebe and eats
+     tteokguk ("one bowl, one year older"). In spring Kim halmeoni stirs the
+     sumalak and finds the lucky pebble.
+
+   **Time of year.** Each holiday book knows its days, so:
+   - Its library card shows the next date (🎉 9-oktabr).
+   - In the three weeks before a holiday, the banner offers its book with a
+     line like "🎉 8 kundan keyin bayram: Hangul kuni".
+
+   Seollal, Chusok and the two Hayits move every year. The phone's own
+   calendars work out their dates, so nothing needs updating by hand.
+
+   Next holiday stories:
+   - Chusok and harvest time
+   - Children's Day (May 5 ↔ June 1)
+   - Hayit
+   - Mustaqillik kuni
 8. **Longer short books.** The 10 classic, Navoiy and modern books are 5 short
    pages each with no word cards.
 

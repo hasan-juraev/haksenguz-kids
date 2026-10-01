@@ -1076,6 +1076,77 @@
         return s;
     });
 
+    Art.define('sejong', (c, o) => {
+        // King Sejong's golden statue in Seoul: seated, with a book, on a stone pedestal
+        const gold = { skin: '#e3b440', hair: '#b8862a', hat: '#c99a30', hatBand: '#a87a22', color: '#d6a43a', color2: '#ecc960', pants: '#c99a30', shoes: '#a87a22', trim: '#f2d47c', goreum: '#f2d47c', beardColor: '#c4932c' };
+        light(c, `<circle cx="0" cy="-120" r="80" fill="${radial(c, 'sejongglow', '#fff3b0', 0.45)}"/>`);
+        let s = `<rect x="-60" y="-46" width="120" height="46" fill="#cfcabb" ${S(2)}/><rect x="-68" y="-54" width="136" height="10" rx="2" fill="#e5e1d5" ${S(1.8)}/>`;
+        s += `<rect x="-32" y="-36" width="64" height="20" rx="2" fill="#b8b2a1" ${S(1.2)}/><text x="0" y="-21" text-anchor="middle" font-family="'Gowun Dodum', sans-serif" font-weight="700" font-size="11" fill="#5a5345">세종대왕</text>`;
+        // the throne's back, the king (legs under his robe), then the robe over his knees and his feet
+        s += `<rect x="-38" y="-150" width="76" height="70" rx="8" fill="#b8862a" ${S(1.8)}/>`;
+        const king = Art.parts.person(c, Object.assign({ head: 'ikseon', beard: 'short', outfit: 'durumagi', noLegs: true, pose: 'give', hold: 'book', mood: 'happy' }, gold));
+        s += `<g transform="translate(0 -84) scale(1.3)">${king}</g>`;
+        s += `<path d="M-34 -90 Q0 -98 34 -90 L40 -60 Q0 -52 -40 -60Z" fill="#d6a43a" ${S(1.8)}/><path d="M0 -92 V-56" stroke="#b8862a" stroke-width="1.6"/>`;
+        s += `<ellipse cx="-16" cy="-57" rx="10" ry="4.6" fill="#a87a22" ${S(1.5)}/><ellipse cx="16" cy="-57" rx="10" ry="4.6" fill="#a87a22" ${S(1.5)}/>`;
+        return s;
+    });
+
+    Art.define('paper', (c, o) => {
+        // a sheet of handwriting, one line per o.lines; o.keep: shown as written in every script
+        const lines = o.lines || [];
+        const w = o.w || 100;
+        const h = 18 + lines.length * 26;
+        let s = `<rect x="${-w / 2}" y="${-h}" width="${w}" height="${h}" rx="3" fill="#fffdf6" ${S(1.8)}/>`;
+        s += `<path d="M${-w / 2 + 8} ${-h + 6} h${w - 16}" stroke="#ffadad" stroke-width="1.2"/>`;
+        lines.forEach((ln, i) => {
+            s += `<text x="0" y="${-h + 32 + i * 26}" text-anchor="middle" font-family="Nunito, 'Gowun Dodum', sans-serif" font-weight="800" font-size="19" fill="${['#1d4ed8', '#c1121f', '#2b9348'][i % 3]}"${o.keep ? ' translate="no"' : ''}>${Art.esc(ln)}</text>`;
+        });
+        return s;
+    });
+
+    // a soup or pudding bowl standing on a table
+    const kosa = (fill, inner, col = '#f8f9fa', pattern = '') => `<path d="M-21 -15 Q-19 2 0 3 Q19 2 21 -15Z" fill="${col}" ${S(1.8)}/>${pattern}` +
+        `<ellipse cx="0" cy="-15" rx="21" ry="5.4" fill="${fill}" ${S(1.6)}/>${inner}`;
+    const steam = (c, y) => [-8, 6].map((x, i) => `<g transform="translate(${x} ${y})"><g ${c.anim('sv-rise', 3.2, i * 1.3)}><path d="M0 0 q-4 -5 0 -10 q4 -5 0 -10" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" opacity=".85"/></g></g>`).join('');
+
+    Art.define('tteokguk', (c, o) => {
+        // tteokguk: New Year soup with white rice-cake slices, egg and spring onion
+        const slices = [[-10, -15], [-2, -13.5], [8, -15.5], [2, -17]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="5" ry="2.5" fill="#fff" ${S(1)}/>`).join('');
+        return kosa('#f1e6cf', slices + `<path d="M-6 -17.5 l3 -1 M6 -12.6 l3 1" stroke="#2b9348" stroke-width="1.8" stroke-linecap="round"/><path d="M-12 -12.6 h4 M10 -18 h3" stroke="#f4a261" stroke-width="1.8" stroke-linecap="round"/>`) +
+            (o.steam === false ? '' : steam(c, -22));
+    });
+
+    Art.define('sumalak', (c, o) => {
+        // a kosa of sumalak in the blue cotton-flower pattern; o.stone: the lucky pebble on top
+        const cotton = [-12, 0, 12].map((x) => `<g transform="translate(${x} -6)"><circle r="2.6" fill="#fff"/><path d="M0 -4 v-2 M-3.6 -2 l-1.6 -1 M3.6 -2 l1.6 -1" stroke="#fff" stroke-width="1.2"/></g>`).join('');
+        const stone = o.stone ? `<ellipse cx="4" cy="-16.5" rx="3.6" ry="2.6" fill="#adb5bd" ${S(1.2)}/>` : '';
+        return kosa('#6b3e26', `<path d="M-14 -15 q4 -2 8 0 M2 -14 q4 -2 8 0" stroke="#8a5536" stroke-width="1.4" fill="none"/>${stone}`, '#1d4ed8', cotton) + (o.steam ? steam(c, -22) : '');
+    });
+
+    Art.define('yut', (c, o) => {
+        // yutnori: four yut sticks thrown over the yutpan mat
+        let s = `<ellipse cx="0" cy="-4" rx="58" ry="11" fill="#f4e3c1" ${S(1.8)}/><path d="M-40 -4 L40 -4 M0 -12 L0 4 M-28 -11 L28 3 M-28 3 L28 -11" stroke="#c49a6c" stroke-width="1.2"/>`;
+        const sticks = o.air ? [[-24, -64, -30], [-6, -78, 20], [14, -60, 60], [30, -74, -10]] : [[-22, -10, 4], [-8, -11, -6], [8, -10, 8], [22, -11, -4]];
+        sticks.forEach(([x, y, r], i) => {
+            const flat = i % 2 === 0;
+            s += `<g transform="translate(${x} ${y}) rotate(${r})"><rect x="-4" y="-18" width="8" height="36" rx="3.6" fill="${flat ? '#f1dcae' : '#c8a165'}" ${S(1.5)}/>` +
+                (flat ? '<path d="M-2 -8 l4 4 M2 -8 l-4 4 M-2 4 l4 4 M2 4 l-4 4" stroke="#8a5a33" stroke-width="1.1"/>' : '') + `</g>`;
+        });
+        if (o.air) s += [[-34, -88], [38, -92], [4, -100]].map(([x, y]) => `<path d="M${x} ${y} l4 -4 M${x + 6} ${y + 2} l5 -2" stroke="#ffd166" stroke-width="2" stroke-linecap="round"/>`).join('');
+        return s;
+    });
+
+    Art.define('maysa', () => {
+        // a plate of green wheat sprouts, grown for Navro'z (and for sumalak)
+        let s = `<ellipse cx="0" cy="-4" rx="30" ry="8" fill="#fff" ${S(1.8)}/><ellipse cx="0" cy="-6" rx="24" ry="5" fill="#d9b48a"/>`;
+        for (let i = 0; i < 15; i++) {
+            const x = -20 + i * 2.9;
+            const h = 22 + ((i * 7) % 11);
+            s += `<path d="M${n1(x)} -6 q${i % 2 ? 2 : -2} ${-h / 2} ${i % 2 ? 1 : -1} ${-h}" fill="none" stroke="${i % 3 ? '#52b788' : '#2d6a4f'}" stroke-width="2.4" stroke-linecap="round"/>`;
+        }
+        return s + `<path d="M-22 -10 Q0 -6 22 -10" fill="none" stroke="#e63946" stroke-width="2.4"/>`;
+    });
+
     Art.define('drawing', () => {
         // a child's drawing: Seoul's tower and blocks, Samarkand's dome, a heart between them
         let s = `<rect x="-62" y="-80" width="124" height="80" rx="3" fill="#fff" ${S(2)}/>`;

@@ -32,11 +32,13 @@
         'Zamonaviy Sirlar': '현대 동화',
         '🇰🇷 Ikki xalq — bir ertak': '🇰🇷 두 나라, 한 이야기',
         '🏙️ Koreyadagi hayotim': '🏙️ 한국에서의 내 생활',
+        '🎉 Bayramlar': '🎉 명절과 기념일',
         'Interaktiv Kitoblar Kutubxonasi': '인터랙티브 책 도서관',
         'Yangi': '새 책',
         // genre on the library cards (the part of a story's tag before "•")
         'Koreya xalq ertagi': '한국 전래동화',
         'Koreyadagi hayotim': '한국에서의 내 생활',
+        'Bayramlar': '명절과 기념일',
         "O'zbek xalq ertagi": '우즈베크 전래동화',
         "O'zbek xalq latifalari": '우즈베크 웃음 이야기',
         'Xalq ertagi': '전래동화',
@@ -207,9 +209,30 @@
         'Kirish': '들어가기',
         "Yana bir urinib ko'ring": '다시 해 보세요',
     };
+    // The holiday shelf (js/holidays.js): holiday names and the banner's words
+    // before them ("오늘은 / 내일은 / 9일 뒤는 / 지금은" + the holiday).
+    Object.assign(EXACT, {
+        "Navro'z": '나브루즈(우즈베크 봄맞이 새해)',
+        'Seollal': '설날',
+        'Chusok': '추석',
+        'Hangul kuni': '한글날',
+        "O'zbek tili bayrami": '우즈베크어의 날',
+        'Koreyada bolalar kuni': '어린이날',
+        'Bolalar kuni': '국제 어린이날',
+        'Mustaqillik kuni': '우즈베키스탄 독립기념일',
+        'Ramazon hayiti': '이드 알피트르(라마단 명절)',
+        'Qurbon hayiti': '이드 알아드하(희생제)',
+        '🎉 Bayram kunlari:': '🎉 지금은',
+        '🎉 Bugun bayram:': '🎉 오늘은',
+        '🎉 Ertaga bayram:': '🎉 내일은',
+    });
+    const MONTHS = ['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avgust', 'sentabr', 'oktabr', 'noyabr', 'dekabr'];
+
     // [pattern, Korean, an example of the Uzbek (for the reviewer and the tests)]
     const PATTERNS = [
         [/^(\d+) ta interaktiv kitob$/, '인터랙티브 책 $1권', '23 ta interaktiv kitob'],
+        [/^🎉 (\d+) kundan keyin bayram:$/, '🎉 $1일 뒤는', '🎉 8 kundan keyin bayram:'],
+        [new RegExp(`^🎉 (\\d+)-(${MONTHS.join('|')})$`), (all, d, m) => `🎉 ${MONTHS.indexOf(m) + 1}월 ${d}일`, '🎉 9-oktabr'],
         [/^📄 (\d+) sahifali rasmli kitob$/, '📄 $1쪽 그림책', '📄 12 sahifali rasmli kitob'],
         [/^(\d+) yulduz$/, '별 $1개', '3 yulduz'],
         [/^⭐ (\d+) ball$/, '⭐ $1점', '⭐ 150 ball'],

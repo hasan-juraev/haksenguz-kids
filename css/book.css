@@ -657,6 +657,12 @@ h1, h2, h3, h4, .font-heading {
     box-decoration-break: clone;
 }
 
+/* A page that opens with a number ("9-oktabr") has no big first letter:
+   it would split the number from its word. */
+.page-text.no-cap::first-letter {
+    all: unset;
+}
+
 .page-text::first-letter {
     float: left;
     font-family: 'Fredoka', 'Nunito', 'Gowun Dodum', sans-serif;

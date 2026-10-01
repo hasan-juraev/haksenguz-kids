@@ -12,7 +12,9 @@ require('../js/stories-folk.js');
 require('../js/stories-classic.js');
 require('../js/stories-twins.js');
 require('../js/stories-korea.js');
+require('../js/stories-holiday.js');
 require('../js/levels.js');
+require('../js/holidays.js');
 const db = window.storiesDatabase;
 const { SHELVES, AGES, shelfFor, fits, label, ageLabel } = window.Levels;
 const { sentences } = window.BookEngine;
@@ -32,7 +34,7 @@ const goodQuestion = (q, where) => {
     check(Number.isInteger(q.ok) && q.ok < q.a.length, `${where}: the right answer (ok: ${q.ok}) is not one of the answers`);
 };
 
-const CATEGORIES = ['folk', 'classic', 'navoiy', 'modern', 'twins', 'korea'];
+const CATEGORIES = ['folk', 'classic', 'navoiy', 'modern', 'twins', 'korea', 'holiday'];
 
 Object.entries(db).forEach(([key, st]) => {
     check(/^[a-z0-9_]+$/.test(key), `${key}: book keys are used in links (#${key}), so only a-z, 0-9 and _`);
@@ -51,6 +53,10 @@ Object.entries(db).forEach(([key, st]) => {
         if (p.word) check(Array.isArray(p.word) && p.word.length === 2 && p.word.every(text), `${where}: word card is [word, meaning]`);
     });
     if (st.quiz) goodQuestion(st.quiz, `${key} quiz`);
+    // A holiday book names its holidays, and only a holiday book does.
+    const days = st.holidays || [];
+    check((st.category === 'holiday') === days.length > 0, `${key}: the holiday shelf's books, and only they, have holidays`);
+    days.forEach((id) => check(!!window.Holidays.DAYS[id], `${key}: unknown holiday "${id}" (see js/holidays.js)`));
     // A Korean twin tale opens after its Uzbek tale, and ends with sorting cards.
     if (st.twin) {
         check(!!db[st.twin] && !db[st.twin].twin, `${key}: twin "${st.twin}" must be an existing Uzbek tale`);

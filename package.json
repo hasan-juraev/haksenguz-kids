@@ -4,7 +4,7 @@
   "description": "Interactive 3D picture book of Uzbek folk tales for Uzbek kids growing up in Korea",
   "scripts": {
     "build": "node tools/build-assets.js",
-    "test": "node tests/translit.test.js && node tests/narration.test.js && node tests/stories.test.js && node tests/korean.test.js && node tests/assets.test.js"
+    "test": "node tests/translit.test.js && node tests/narration.test.js && node tests/stories.test.js && node tests/holidays.test.js && node tests/korean.test.js && node tests/assets.test.js"
   },
   "devDependencies": {
     "@expo-google-fonts/gowun-dodum": "0.4.1",

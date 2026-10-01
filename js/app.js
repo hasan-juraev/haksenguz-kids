@@ -6,7 +6,7 @@
 (function (root) {
     'use strict';
 
-    const CATEGORIES = ['all', 'folk', 'classic', 'navoiy', 'modern', 'twins', 'korea'];
+    const CATEGORIES = ['all', 'folk', 'classic', 'navoiy', 'modern', 'twins', 'korea', 'holiday'];
     const DEFAULT_QUIZ = {
         q: "Kitobdan olgan xulosangiz qanday?",
         a: ["Ezgulik, ilm, birdamlik va halollik har doim g'alaba qozonadi ✨", "Dangasalik va yomon niyatlar hamisha mukofotlanadi 💤", "Faqat yolg'izlik va janjallashish yaxshi natija beradi 🍃"],
@@ -106,6 +106,13 @@
             const caption = document.getElementById('heroResume');
             caption.textContent = this.heroKey ? `📖 ${story.title} · ${rec.page} / ${story.pages.length}` : '';
             caption.classList.toggle('hidden', !this.heroKey);
+            // The banner's book is a holiday's story and the holiday is near.
+            const near = root.Holidays && root.Holidays.soon(story);
+            const line = document.getElementById('heroHoliday');
+            if (line) {
+                line.innerHTML = near ? `<span>${esc(root.Holidays.when(near.days))}</span> <span class="whitespace-nowrap">${esc(near.name)}</span>` : '';
+                line.classList.toggle('hidden', !near);
+            }
         }
 
         openHeroBook() {
@@ -124,13 +131,18 @@
             this.showModal('🔒 Hali yopiq', `Avval «${this.db[this.db[key].twin].title}» ertagini oxirigacha o'qing. Shunda uning Koreyadagi egizagi ochiladi!`);
         }
 
-        // With nothing in progress: the first book on the child's shelf they haven't finished.
+        // With nothing in progress: the story of a holiday that is near, else
+        // the first book on the child's shelf they haven't finished.
         suggestedBook() {
             const p = this.store.profile();
             const shelf = root.Levels ? root.Levels.shelfFor(p.age) : null;
             const keys = Object.keys(this.db).filter((k) => !this.isLocked(k));
             const fits = (k) => !shelf || root.Levels.fits(this.db[k], shelf);
-            return keys.find((k) => fits(k) && !(p.books[k] && p.books[k].finished)) || keys.find(fits) || keys[0];
+            const unread = (k) => !(p.books[k] && p.books[k].finished);
+            const H = root.Holidays;
+            const near = H ? keys.filter((k) => fits(k) && unread(k) && H.soon(this.db[k])) : [];
+            if (near.length) return near.sort((a, b) => H.soon(this.db[a]).days - H.soon(this.db[b]).days)[0];
+            return keys.find((k) => fits(k) && unread(k)) || keys.find(fits) || keys[0];
         }
 
         // Books in a category ('all' for every one) on the chosen age shelf.
@@ -186,6 +198,7 @@
                         <div class="flex items-center gap-1.5 flex-wrap">
                             <span class="text-[11px] font-bold text-brand-700 bg-orange-100 px-2 py-0.5 rounded-lg">${esc(item.tag.split('•')[0].trim())}</span>
                             ${item.age && root.Levels ? `<span class="text-[11px] font-bold text-sky-800 bg-sky-100 px-2 py-0.5 rounded-lg">${root.Levels.label(item)}</span>` : ''}
+                            ${this.holidayChip(item)}
                             ${item.isNew ? '<span class="text-[11px] font-bold text-white bg-emerald-500 px-2 py-0.5 rounded-lg">Yangi</span>' : ''}
                         </div>
                         <h4 class="font-bold text-gray-800 text-base leading-snug" data-content>${esc(item.title)}</h4>
@@ -199,6 +212,12 @@
             });
             const heading = document.getElementById('libraryHeading');
             if (heading) heading.textContent = `${keys.length} ta interaktiv kitob`;
+        }
+
+        // A holiday book's next date, "🎉 9-oktabr", with the holiday's name on hover.
+        holidayChip(story) {
+            const u = root.Holidays && root.Holidays.upcoming(story);
+            return u ? `<span class="text-[11px] font-bold text-rose-700 bg-rose-100 px-2 py-0.5 rounded-lg" title="${esc(u.name)}">🎉 ${root.Holidays.dateLabel(u.date)}</span>` : '';
         }
 
         // With the menus in Korean, a book's Korean title (if it has Korean) under its own.

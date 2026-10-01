@@ -197,7 +197,7 @@
                 <div class="page-head"><span class="running-head" data-content>${esc(st.tag.split('•')[0].trim())}</span><span class="head-tools">${this.koButton(view)}<span class="chapter-chip">${view} / ${st.pages.length}</span></span></div>
                 <div class="page-body" data-fit="21">
                     <h2 class="page-title" data-content data-action="say" data-seg="0">${esc(title)}</h2>${ko ? `<p class="ko-line ko-line--title" lang="ko">${esc(ko.s[0])}</p>` : ''}
-                    <p class="page-text${ko ? ' is-ko' : ''}" data-content>${sentHTML}</p>
+                    <p class="page-text${ko ? ' is-ko' : ''}${/^\d/.test(sents[0] || '') ? ' no-cap' : ''}" data-content>${sentHTML}</p>
                     <p class="page-flourish" aria-hidden="true">❦ ❦ ❦</p>
                     ${this.questionHTML(view, p, ko)}
                 </div>

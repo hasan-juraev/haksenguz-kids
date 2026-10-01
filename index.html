@@ -66,6 +66,8 @@
                     <span class="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider backdrop-blur-md">📚 Haqiqiy kitobdek varaqlanadi</span>
                     <h2 class="text-3xl md:text-4xl font-bold leading-tight">O'zbek xalq ertaklari, Navoiy dostonlari va sehrli sarguzashtlar</h2>
                     <p class="text-orange-100 text-sm md:text-base">Kitobni oching, sahifani chetidan tortib varaqlang, rasmlarga bosib qahramonlarni jonlantiring va savollarga javob bering!</p>
+                    <!-- A holiday coming up, when the suggested book is its story (js/holidays.js) -->
+                    <p id="heroHoliday" class="hidden bg-white/25 text-white text-sm font-bold px-3 py-1.5 rounded-2xl backdrop-blur-md w-fit mx-auto md:mx-0"></p>
                     <div class="pt-2 space-y-2">
                         <button onclick="app.openHeroBook()" class="px-6 py-3 bg-white text-brand-700 font-bold rounded-2xl shadow-lg hover:bg-orange-50 transform hover:scale-105 transition flex items-center justify-center space-x-2 mx-auto md:mx-0">
                             <i class="fa-solid fa-book-open text-brand-500"></i>
@@ -96,6 +98,7 @@
                 <button onclick="app.filterCategory('modern')" id="cat-modern" class="px-4 py-2 bg-white text-gray-600 hover:bg-brand-50 text-sm font-bold rounded-xl border border-orange-100 whitespace-nowrap transition">Zamonaviy Sirlar <span data-count></span></button>
                 <button onclick="app.filterCategory('twins')" id="cat-twins" class="px-4 py-2 bg-white text-gray-600 hover:bg-brand-50 text-sm font-bold rounded-xl border border-orange-100 whitespace-nowrap transition">🇰🇷 Ikki xalq — bir ertak <span data-count></span></button>
                 <button onclick="app.filterCategory('korea')" id="cat-korea" class="px-4 py-2 bg-white text-gray-600 hover:bg-brand-50 text-sm font-bold rounded-xl border border-orange-100 whitespace-nowrap transition">🏙️ Koreyadagi hayotim <span data-count></span></button>
+                <button onclick="app.filterCategory('holiday')" id="cat-holiday" class="px-4 py-2 bg-white text-gray-600 hover:bg-brand-50 text-sm font-bold rounded-xl border border-orange-100 whitespace-nowrap transition">🎉 Bayramlar <span data-count></span></button>
             </div>
 
             <!-- Age shelves (js/levels.js); a child's age picks theirs -->
@@ -387,11 +390,13 @@
     <script src="js/stories-classic.js"></script>
     <script src="js/stories-twins.js"></script>
     <script src="js/stories-korea.js"></script>
+    <script src="js/stories-holiday.js"></script>
     <script src="js/stories-ko.js"></script>
     <script src="js/i18n.js"></script>
     <script src="js/translit.js"></script>
     <script src="js/store.js"></script>
     <script src="js/levels.js"></script>
+    <script src="js/holidays.js"></script>
     <script src="js/book.js"></script>
     <script src="audio/narration.js"></script>
     <script src="js/voices.js"></script>

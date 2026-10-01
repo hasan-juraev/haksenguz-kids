@@ -170,6 +170,11 @@
             s += `<circle cx="13" cy="10" r="8.5" fill="${hair}" ${S(1.8)}/><path d="M3 15 L27 5" stroke="${OL}" stroke-width="4.4" stroke-linecap="round"/>` +
                 `<path d="M3 15 L27 5" stroke="${o.binyeo || '#e9c46a'}" stroke-width="2.2" stroke-linecap="round"/><circle cx="27" cy="5" r="2.6" fill="${o.binyeo || '#e9c46a'}" ${S(1.2)}/>`;
         }
+        // ikseongwan: a Joseon king's hat; its two round wings stand up behind
+        if (h === 'ikseon') {
+            const hc = o.hat || '#1d1d1d';
+            s += `<path d="M-15 -22 Q-15 -36 -6 -35 Q-1 -34 -1 -24Z M15 -22 Q15 -36 6 -35 Q1 -34 1 -24Z" fill="${hc}" ${S(1.6)}/>`;
+        }
         if (h !== 'rumol' && h !== 'crescentScarf') {
             s += `<circle cx="-16.2" cy="2" r="4.2" fill="${skin}" ${S(1.8)}/><circle cx="16.2" cy="2" r="4.2" fill="${skin}" ${S(1.8)}/>`;
         }
@@ -245,6 +250,9 @@
             s += `<path d="M-9.5 -19 L-8.5 -41 Q0 -45 8.5 -41 L9.5 -19Z" fill="#1d1d1d" ${S(1.6)}/>`;
             s += `<ellipse cx="0" cy="-19" rx="32" ry="6.6" fill="#2b2b2b" fill-opacity=".5" ${S(1.6)}/>`;
             s += `<ellipse cx="0" cy="-19.4" rx="11" ry="2.8" fill="#111" opacity=".7"/><path d="M-26 -21 Q0 -26 26 -21" fill="none" stroke="#fff" stroke-width=".9" opacity=".35"/>`;
+        } else if (h === 'ikseon') {
+            s += `<path d="M-16.6 -4 C-17.6 -20 -10 -27 0 -27 C10 -27 17.6 -20 16.6 -4 Q0 -10.5 -16.6 -4Z" fill="${hat || '#1d1d1d'}" ${S(1.7)}/>`;
+            s += `<path d="M-16 -7.6 Q0 -13.4 16 -7.6" fill="none" stroke="${o.hatBand || '#3a3a3a'}" stroke-width="2.2"/>`;
         } else if (h === 'cap') {
             s += `<path d="M-16 -8 C-16 -20 -8 -24 0 -24 C8 -24 16 -20 16 -8Z" fill="${hat || '#e63946'}" ${S(1.6)}/><path d="M6 -9 L26 -7 Q24 -3 6 -4Z" fill="${hat || '#e63946'}" ${S(1.5)}/>`;
         }

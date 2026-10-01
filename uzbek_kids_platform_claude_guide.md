@@ -488,3 +488,51 @@ fonts/gowun-dodum-ko.*   # built Korean font + the letters in it
 ### Adding a story
 1. Write it in `js/stories-korea.js` with `category: "korea"` and an `age`.
 2. For the Korean helper, add its Korean to `js/stories-ko.js`, then run `npm run build` (font) and `npm test`.
+
+## 17. Update: Bayramlar, the Holiday Shelf (Roadmap Phase 2, item 7)
+
+### When holidays come (`js/holidays.js`)
+* `Holidays.DAYS` lists each holiday: its `name`, its `date` as `[month, day]` and the calendar `cal` it is counted in.
+  * Fixed days use the ordinary calendar: Navro'z, Hangul kuni, O'zbek tili bayrami, both Children's Days and Mustaqillik kuni.
+  * Seollal and Chusok use the Korean lunar calendar (`'dangi'`).
+  * Ramazon and Qurbon hayiti use the Islamic one (`'islamic-umalqura'`).
+  * `long: 1` means the day after still counts: Seollal and Chusok are three days off in Korea.
+* For the moving holidays, the browser's own `Intl` calendars find the next day the calendar reads that month and day. Nothing needs updating each year.
+  * Hayit is announced in Uzbekistan and can fall a day either side of this date.
+  * A browser without these calendars gets no date, rather than a wrong one.
+* The functions:
+  * `next(id, today)`: the holiday's next date.
+  * `upcoming(story)`: the book's first holiday, as `{ id, name, date, days }`.
+  * `soon(story)`: the same, but only from 21 days (`SOON`) before the holiday until it is over.
+  * `when(days)`: the banner's words, e.g. "🎉 8 kundan keyin bayram:".
+  * `dateLabel(date)`: "9-oktabr".
+
+### Stories (`js/stories-holiday.js`)
+* Category `holiday`, the shelf "🎉 Bayramlar" (명절과 기념일).
+* A book names its days in `holidays: ['hangul', 'uztili']`. `tests/stories.test.js` checks that only holiday books have them, and that each id is in `Holidays.DAYS`.
+* *Harflar bayrami* (`harflar_bayrami`, 5–8) and *Ikki Yangi yil* (`ikki_yangi_yil`, 4–8). They reuse the children of "Koreyadagi hayotim" (Asal, Bobur, Kim buvi), and both have Korean in `js/stories-ko.js`.
+
+### In the app (`js/app.js`, `index.html`)
+* Library cards of holiday books show "🎉 9-oktabr" (`holidayChip`); the holiday's name is the chip's `title`.
+* `suggestedBook()` offers a holiday's book first while its holiday is `soon`, as long as the book suits the child's age and they haven't finished it. `#heroHoliday` in the banner then says which holiday it is.
+* Korean menus: the holiday names and the banner's words are in `js/i18n.js`, e.g. "🎉 8일 뒤는 한글날". A pattern turns "🎉 9-oktabr" into "🎉 10월 9일".
+
+### Pictures (`js/art/world.js`, `js/art/people.js`)
+* `sejong`: King Sejong's golden statue on its pedestal, seated with a book. He wears the `ikseon` head: the king's hat with two wings standing up behind.
+* `paper`: a sheet of handwriting, one line per item of `lines`. `keep: true` keeps each line as written in every script, so "Ўзбек" and "O'zbek" stay side by side.
+* Food on a table: `tteokguk` (New Year soup), `sumalak` in a blue cotton-pattern kosa (`stone: true` adds the lucky pebble), and `maysa`, a plate of wheat sprouts.
+* `yut`: yut sticks over the mat. `air: true` shows them mid-throw.
+* People can kneel or sit on the floor with `noLegs: true`. `rot` leans the whole figure, e.g. for a bow.
+
+### Text
+* A page that opens with a number ("9-oktabr — ...") has no big first letter (`.no-cap` in `css/book.css`), so the number stays with its word.
+* SVG text collapses spaces, so chalkboard lines are one idea each: "ㅁ = og'iz".
+
+### Tests
+* `tests/holidays.test.js` covers:
+  * fixed days, and the next year's once a day has passed;
+  * Seollal and Chusok for 2026–2028, as published in Korea;
+  * Hayit to within a day;
+  * which of a book's holidays comes first, the three-week window and the three-day Seollal;
+  * a browser without lunar calendars.
+
