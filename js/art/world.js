@@ -1,7 +1,9 @@
 /*
  * Places and props: skies, landscapes and interiors (Art.background), plus
  * trees, Uzbek houses, the kulba, palace portal and minaret, so'ri, tandir,
- * qozon, sandiq, tarvuz, dasturxon, arava, flying gilam and friends.
+ * qozon, sandiq, tarvuz, dasturxon, arava, flying gilam and friends; and for
+ * the Korean twin tales a Korean village and madang yard, the straw-roofed
+ * chogajip, the tiled giwajip, bak gourds, onggi jars and the gourd saw.
  */
 (function (Art) {
     'use strict';
@@ -216,6 +218,52 @@
         return `<path d="M150 ${H} C182 292 236 272 206 240 L214 236 C252 262 226 300 262 ${H}Z" fill="${col}" opacity=".9"/>`;
     }
 
+    // ---------- Korea ----------
+
+    // Soft green mountains behind a Korean village or madang (yard), with pines.
+    function korea(c, sc, hz, night, season) {
+        const lv = LEAVES[season] || LEAVES.summer;
+        const g = GROUND[season] || GROUND.summer;
+        let s = hills(c, hz - 34, night ? '#4c5d8f' : season === 'autumn' ? '#b9a27a' : '#8db3a6', 52);
+        s += hills(c, hz - 12, night ? '#3f5580' : season === 'autumn' ? '#a8894f' : '#6f9e7d', 30);
+        for (let i = 0; i < 9; i++) {
+            const x = 18 + i * 46 + c.rand(-10, 10);
+            const k = c.rand(0.4, 0.62);
+            s += `<g transform="translate(${n1(x)} ${n1(hz - 8 + c.rand(-6, 4))}) scale(${n1(k * 100) / 100})" opacity=".9">${Art.item(c, ['tree', 0, 0, { kind: 'pine', season, still: true }])}</g>`;
+        }
+        if (sc.bg === 'kvillage') {
+            s += `<g opacity=".85">${Art.item(c, ['chogajip', 66, hz + 6, { s: 0.34, porch: false }])}${Art.item(c, ['chogajip', 340, hz + 4, { s: 0.3, porch: false }])}</g>`;
+            s += ground(c, hz + 8, season, 'kvillage');
+            s += road();
+            return s;
+        }
+        // madang: packed earth inside an earthen wall capped with straw (or tiles, for the rich)
+        s += hills(c, hz + 2, shade(g[1], -12), 12);
+        const wt = hz - 52;
+        const tile = sc.wall === 'tile';
+        s += `<path d="M-10 ${hz + 4} L-10 ${wt + 8} L${W + 10} ${wt + 8} L${W + 10} ${hz + 4}Z" fill="${night ? '#a8977c' : '#dcc7a3'}" ${S(2)}/>`;
+        for (let i = 0; i < 26; i++) s += `<ellipse cx="${n1(c.rand(0, W))}" cy="${n1(c.rand(wt + 16, hz - 2))}" rx="${n1(c.rand(5, 9))}" ry="${n1(c.rand(3, 5))}" fill="${night ? '#958670' : '#c4ae8b'}" stroke="${OL}" stroke-width=".6" stroke-opacity=".4"/>`;
+        if (tile) {
+            s += `<path d="M-14 ${wt + 10} L-6 ${wt - 6} L${W + 6} ${wt - 6} L${W + 14} ${wt + 10}Z" fill="#4a4f5c" ${S(2)}/>`;
+            for (let x = -4; x < W + 8; x += 10) s += `<circle cx="${x}" cy="${wt + 9}" r="3.4" fill="#5b6170" ${S(1)}/>`;
+        } else {
+            s += `<path d="M-14 ${wt + 12} Q${W / 2} ${wt - 14} ${W + 14} ${wt + 12} Q${W / 2} ${wt + 2} -14 ${wt + 12}Z" fill="#d8b15c" ${S(2)}/>`;
+            for (let x = -8; x < W + 10; x += 8) s += `<path d="M${x} ${wt + 6} l2 6" stroke="#a9842f" stroke-width="1.2"/>`;
+        }
+        const gx = sc.gateX !== undefined ? sc.gateX : 312;
+        if (gx !== false) {
+            s += `<rect x="${gx - 24}" y="${wt + 4}" width="48" height="${hz - wt}" fill="#8a5a33" ${S(2)}/>`;
+            s += `<path d="M${gx} ${wt + 4} V${hz + 4} M${gx - 24} ${wt + 22} H${gx + 24} M${gx - 24} ${hz - 14} H${gx + 24}" stroke="${OL}" stroke-width="1.4"/>`;
+            s += tile
+                ? `<path d="M${gx - 36} ${wt + 6} L${gx - 28} ${wt - 10} L${gx + 28} ${wt - 10} L${gx + 36} ${wt + 6}Z" fill="#4a4f5c" ${S(1.8)}/>`
+                : `<path d="M${gx - 36} ${wt + 8} Q${gx} ${wt - 16} ${gx + 36} ${wt + 8} Q${gx} ${wt} ${gx - 36} ${wt + 8}Z" fill="#d8b15c" ${S(1.8)}/>`;
+        }
+        s += `<rect x="-10" y="${hz + 4}" width="${W + 20}" height="${H - hz}" fill="${season === 'winter' ? '#eef3f8' : night ? '#c9b48e' : '#e8d3a8'}"/>`;
+        s += `<rect x="-10" y="${hz + 4}" width="${W + 20}" height="8" fill="#000" opacity=".08"/>`;
+        for (let i = 0; i < 10; i++) s += `<ellipse cx="${n1(c.rand(0, W))}" cy="${n1(c.rand(hz + 16, H))}" rx="${n1(c.rand(6, 16))}" ry="2" fill="#d6bd8d"/>`;
+        return s;
+    }
+
     // ---------- interiors ----------
 
     function room(c, sc) {
@@ -309,6 +357,7 @@
         const far = night ? '#5b6aa8' : time === 'sunset' ? '#b88fb7' : '#a9c4de';
         const near = night ? '#4a5896' : time === 'sunset' ? '#9c7fa8' : '#86a8cc';
         const snowy = season !== 'summer' || kind === 'mountains';
+        if (kind === 'kvillage' || kind === 'kyard') return s + korea(c, sc, hz, night, season);
 
         if (kind === 'space') {
             c.lights.push(stars(c, 60, H));
@@ -643,6 +692,147 @@
         s += `<path d="M-12 0 L-12 -24 L12 -24 L12 0Z" fill="#d62828" ${S(1.8)}/><path d="M-8 -20 L8 -20 L8 -4 L-8 -4Z" fill="none" stroke="#ffd166" stroke-width="1.4"/>`;
         s += `<ellipse cx="0" cy="-64" rx="10" ry="3" fill="#8b5a2b" ${S(1.4)}/>`;
         return s;
+    });
+
+    // Hanji: cream paper in a wooden lattice, for Korean doors and windows.
+    function hanji(x, y, w, h, lit) {
+        let s = `<rect x="${n1(x)}" y="${n1(y)}" width="${n1(w)}" height="${n1(h)}" fill="${lit ? '#ffe9a8' : '#fbf6e9'}" ${S(1.6)}/>`;
+        for (let i = 1; i < 3; i++) s += `<path d="M${n1(x + (w * i) / 3)} ${n1(y)} V${n1(y + h)}" stroke="#8a5a33" stroke-width="1.1"/>`;
+        for (let i = 1; i < 4; i++) s += `<path d="M${n1(x)} ${n1(y + (h * i) / 4)} H${n1(x + w)}" stroke="#8a5a33" stroke-width="1.1"/>`;
+        return s;
+    }
+
+    // A swallow nest under the eaves, with chicks (Oltin tarvuz, Hungbu va Nolbu).
+    const eaveNest = (x, y) => `<g transform="translate(${n1(x)} ${n1(y)})"><path d="M-9 0 Q0 12 9 0Z" fill="#a47148" ${S(1.4)}/><circle cx="-3" cy="-1" r="3" fill="#233d8f" ${S(1)}/><circle cx="3" cy="-1" r="3" fill="#233d8f" ${S(1)}/><path d="M-3 -2 l-1 -3 l2 1z M3 -2 l1 -3 l-2 1z" fill="#f4a261"/></g>`;
+
+    // Bak: the Korean gourd, round and pale, with ribs and a curly stem.
+    function gourd(c, r, o = {}) {
+        let s = '';
+        if (o.glow) s += `<circle cy="${n1(-r)}" r="${n1(r * 2.2)}" fill="${radial(c, 'gourdglow', '#fff3b0', 0.7)}"/>`;
+        s += `<ellipse cx="0" cy="${n1(-r * 0.92)}" rx="${r}" ry="${n1(r * 0.92)}" fill="#eef3d8" ${S(2)}/>`;
+        s += [-0.55, 0, 0.55].map((k) => `<path d="M${n1(k * r * 0.5)} ${n1(-r * 1.8)} Q${n1(k * r * 1.35)} ${n1(-r * 0.92)} ${n1(k * r * 0.5)} ${n1(-r * 0.06)}" fill="none" stroke="#c7d3a2" stroke-width="1.6"/>`).join('');
+        s += `<ellipse cx="${n1(-r * 0.38)}" cy="${n1(-r * 1.3)}" rx="${n1(r * 0.22)}" ry="${n1(r * 0.14)}" fill="#fff" opacity=".8"/>`;
+        s += `<path d="M0 ${n1(-r * 1.82)} l-1 -6 l3 0z" fill="#7a5a2b" ${S(1)}/><path d="M1 ${n1(-r * 1.86 - 4)} q8 -6 6 2 q-2 5 4 4" fill="none" stroke="#5a8f3c" stroke-width="1.6"/>`;
+        return s;
+    }
+
+    Art.define('chogajip', (c, o) => {
+        // 초가집: earthen walls between wooden posts, hanji doors, a wooden maru
+        // porch, and a thick rounded straw roof tied down with rope.
+        const w = o.w || 120;
+        const h = o.h || 52;
+        const x0 = -w / 2;
+        const lit = !!o.lit;
+        let s = `<rect x="${x0 - 6}" y="-8" width="${w + 12}" height="8" rx="2" fill="#b7b0a3" ${S(1.8)}/>`;
+        s += [0.15, 0.4, 0.62, 0.85].map((k) => `<path d="M${n1(x0 - 6 + (w + 12) * k)} -8 v8" stroke="#8d867a" stroke-width="1.2"/>`).join('');
+        s += `<rect x="${x0}" y="${-h}" width="${w}" height="${h - 8}" fill="#e3c99a" ${S(2)}/>`;
+        for (const px of [x0, x0 + w / 2 - 3, x0 + w - 6]) s += `<rect x="${n1(px)}" y="${-h}" width="6" height="${h - 8}" fill="#8a5a33" ${S(1.4)}/>`;
+        s += `<rect x="${x0 - 2}" y="${-h - 2}" width="${w + 4}" height="6" fill="#7a4e2a" ${S(1.6)}/>`;
+        s += hanji(x0 + 12, -h + 9, w * 0.22, h * 0.6, lit) + hanji(x0 + w / 2 + 7, -h + 9, w * 0.22, h * 0.6, lit);
+        if (lit) light(c, `<circle cx="${n1(x0 + 12 + w * 0.11)}" cy="${n1(-h + 9 + h * 0.3)}" r="34" fill="${radial(c, 'hanji', '#ffcf5c', 0.65)}"/>${hanji(x0 + 12, -h + 9, w * 0.22, h * 0.6, true)}`);
+        if (o.porch !== false) s += `<rect x="${x0 + 4}" y="-16" width="${w - 8}" height="8" fill="#b07a46" ${S(1.6)}/><path d="M${x0 + 4} -12 H${x0 + w - 4}" stroke="#8a5a33" stroke-width="1"/>`;
+        const ey = -h - 2;
+        const Y1 = ey - 22;
+        const Yc = ey - (o.roofH || 44) - 10;
+        const X = x0 - 6;
+        s += `<path d="M${x0 - 18} ${ey + 6} Q${x0 - 22} ${ey - 10} ${X} ${Y1} Q0 ${Yc} ${-X} ${Y1} Q${-x0 + 22} ${ey - 10} ${-x0 + 18} ${ey + 6} Q0 ${ey + 12} ${x0 - 18} ${ey + 6}Z" fill="#d8b15c" ${S(2.2)}/>`;
+        s += `<path d="M${x0 - 18} ${ey + 6} Q0 ${ey + 12} ${-x0 + 18} ${ey + 6}" fill="none" stroke="#a9842f" stroke-width="3"/>`;
+        for (let k = -3; k <= 3; k++) s += `<path d="M${n1(k * w * 0.13)} ${n1((Y1 + Yc) / 2 - 2)} Q${n1(k * w * 0.19)} ${n1(ey - 12)} ${n1(k * w * 0.25)} ${ey + 8}" fill="none" stroke="#9b7a33" stroke-width="1.4"/>`;
+        s += `<path d="M${X + 4} ${ey - 10} Q0 ${Yc + 14} ${-X - 4} ${ey - 10}" fill="none" stroke="#9b7a33" stroke-width="1.4"/>`;
+        for (let x = x0 - 12; x < -x0 + 12; x += 7) s += `<path d="M${x} ${ey + 3} l2 6" stroke="#b8913f" stroke-width="1.2"/>`;
+        if (o.nest) s += eaveNest(x0 + 16, ey + 12);
+        const n = o.gourds || 0;
+        if (n) {
+            // vines over the roof, and big pale gourds lying on it
+            const roofY = (x) => {
+                const t = (1 - x / X) / 2;
+                return (1 - t) * (1 - t) * Y1 + 2 * t * (1 - t) * Yc + t * t * Y1;
+            };
+            s += blob([[x0 + 6, roofY(x0 + 6) + 6, 9], [x0 + 26, roofY(x0 + 26) + 2, 11], [-10, roofY(-10) + 1, 10], [x0 + w - 30, roofY(x0 + w - 30) + 2, 11], [x0 + w - 8, roofY(x0 + w - 8) + 6, 9]], '#5fa04e', 1.6);
+            const r = o.gourdR || 15;
+            for (let i = 0; i < n; i++) {
+                const gx = (i - (n - 1) / 2) * w * 0.3;
+                s += `<g transform="translate(${n1(gx)} ${n1(roofY(gx) + r * 0.5)})">${gourd(c, r * (i === Math.floor(n / 2) ? 1.15 : 1), { glow: o.glow })}</g>`;
+            }
+        }
+        return s;
+    });
+
+    Art.define('giwajip', (c, o) => {
+        // 기와집: a rich house of red-brown posts and white walls on a stone
+        // terrace, under a dark tiled roof whose eaves curl up at the corners.
+        const w = o.w || 150;
+        const h = o.h || 58;
+        const x0 = -w / 2;
+        let s = `<rect x="${x0 - 12}" y="-14" width="${w + 24}" height="14" fill="#c9c1b3" ${S(1.8)}/><path d="M${x0 - 12} -7 H${-x0 + 12}" stroke="#a39b8c" stroke-width="1.2"/>`;
+        s += `<rect x="-16" y="-7" width="32" height="7" fill="#b4ac9d" ${S(1.2)}/>`;
+        const top = -14 - h;
+        s += `<rect x="${x0}" y="${top}" width="${w}" height="${h}" fill="#f4efe6" ${S(2)}/>`;
+        const bay = (w - 7) / 3;
+        for (let i = 0; i < 3; i++) s += hanji(x0 + 7 + i * bay + 7, top + 12, bay - 21, h - 22, false);
+        for (let i = 0; i <= 3; i++) s += `<rect x="${n1(x0 + i * bay)}" y="${top}" width="7" height="${h}" fill="#7a3b1d" ${S(1.4)}/>`;
+        s += `<rect x="${x0 - 4}" y="${top - 8}" width="${w + 8}" height="9" fill="#5c2e16" ${S(1.6)}/>`;
+        s += Array.from({ length: 9 }, (_, i) => `<circle cx="${n1(x0 + 8 + (i * (w - 16)) / 8)}" cy="${top - 3.5}" r="2" fill="${['#2a9d8f', '#e63946', '#ffd166'][i % 3]}"/>`).join('');
+        const ey = top - 10;
+        const rt = ey - (o.roofH || 42);
+        const rx = w * 0.3;
+        s += `<path d="M${x0 - 36} ${ey - 12} Q0 ${ey + 18} ${-x0 + 36} ${ey - 12} Q${-x0 + 6} ${ey - 16} ${rx} ${rt} Q0 ${rt + 5} ${-rx} ${rt} Q${x0 - 6} ${ey - 16} ${x0 - 36} ${ey - 12}Z" fill="#4a4f5c" ${S(2.2)}/>`;
+        for (let k = -7; k <= 7; k++) s += `<path d="M${n1(k * rx / 7.5)} ${rt + 4} Q${n1(k * w / 13)} ${n1((rt + ey) / 2)} ${n1(k * (w + 60) / 15.5)} ${n1(ey + 2 - Math.abs(k) * 1.6)}" fill="none" stroke="#6b7282" stroke-width="1.4"/>`;
+        s += `<path d="M${-rx - 12} ${rt - 8} Q${-rx - 4} ${rt + 2} ${-rx + 8} ${rt} Q0 ${rt + 4} ${rx - 8} ${rt} Q${rx + 4} ${rt + 2} ${rx + 12} ${rt - 8}" fill="none" stroke="${OL}" stroke-width="8" stroke-linecap="round"/>`;
+        s += `<path d="M${-rx - 12} ${rt - 8} Q${-rx - 4} ${rt + 2} ${-rx + 8} ${rt} Q0 ${rt + 4} ${rx - 8} ${rt} Q${rx + 4} ${rt + 2} ${rx + 12} ${rt - 8}" fill="none" stroke="#2f333d" stroke-width="5" stroke-linecap="round"/>`;
+        for (let i = 0; i <= 16; i++) {
+            const t = i / 16;
+            const x = (1 - t) * (1 - t) * (x0 - 36) + 2 * t * (1 - t) * 0 + t * t * (-x0 + 36);
+            const y = (1 - t) * (1 - t) * (ey - 12) + 2 * t * (1 - t) * (ey + 18) + t * t * (ey - 12);
+            s += `<circle cx="${n1(x)}" cy="${n1(y)}" r="3.2" fill="#5b6170" ${S(1)}/>`;
+        }
+        if (o.nest) s += eaveNest(x0 + 20, ey + 8);
+        if (o.gourds) {
+            const r = o.gourdR || 15;
+            s += blob([[-rx, rt + 8, 9], [-rx * 0.3, rt + 6, 11], [rx * 0.4, rt + 6, 10], [rx, rt + 8, 9]], '#5fa04e', 1.6);
+            for (let i = 0; i < o.gourds; i++) s += `<g transform="translate(${n1((i - (o.gourds - 1) / 2) * rx * 0.9)} ${rt + 14})">${gourd(c, r)}</g>`;
+        }
+        return s;
+    });
+
+    Art.define('gourd', (c, o) => {
+        const r = o.r || 26;
+        if (!o.open) return gourd(c, r, o);
+        // sawn open: the bowl, what came out of it, and the lid lying beside it
+        let s = '';
+        const rimY = -r * 0.85;
+        if (o.open === 'gold' || o.open === 'rice') s += `<circle cy="${n1(rimY - r * 0.4)}" r="${n1(r * 2.3)}" fill="${radial(c, 'gourdopen', o.open === 'gold' ? '#ffd166' : '#ffffff', 0.75)}"/>`;
+        s += `<g transform="translate(${n1(r * 1.25)} ${n1(-r * 0.2)}) rotate(28)"><path d="M${-r * 0.9} 0 A${r * 0.9} ${r * 0.75} 0 0 1 ${r * 0.9} 0Z" fill="#eef3d8" ${S(1.8)}/><path d="M0 ${n1(-r * 0.75)} l-1 -5 l3 0z" fill="#7a5a2b" ${S(1)}/></g>`;
+        s += `<path d="M${-r} ${n1(rimY)} A${r} ${n1(r * 0.85)} 0 0 0 ${r} ${n1(rimY)}Z" fill="#e4edc6" ${S(2)}/>`;
+        s += [-0.5, 0, 0.5].map((k) => `<path d="M${n1(k * r * 1.3)} ${n1(rimY + 2)} Q${n1(k * r * 1.1)} ${n1(rimY + r * 0.55)} ${n1(k * r * 0.5)} ${n1(-r * 0.06)}" fill="none" stroke="#c2cf98" stroke-width="1.6"/>`).join('');
+        s += `<ellipse cx="0" cy="${n1(rimY)}" rx="${r}" ry="${n1(r * 0.24)}" fill="#fbfdf2" ${S(1.8)}/>`;
+        if (o.open === 'gold') {
+            s += [[-10, -2], [6, -4], [-2, -9], [14, -1], [-14, -8], [4, -14], [10, -9]].map(([x, y]) => `<ellipse cx="${n1(x * r / 26)}" cy="${n1(rimY + y * r / 26)}" rx="${n1(5 * r / 26)}" ry="${n1(3 * r / 26)}" fill="#fbbf24" ${S(1.2)}/>`).join('');
+            s += Art.parts.sparkles(c, { y: rimY - r * 0.9, w: r * 2.2, h: r * 1.6, n: 5 });
+        } else if (o.open === 'rice') {
+            s += `<path d="M${n1(-r * 0.85)} ${n1(rimY)} Q0 ${n1(rimY - r * 0.9)} ${n1(r * 0.85)} ${n1(rimY)}Z" fill="#fff" ${S(1.6)}/>`;
+            for (let i = 0; i < 16; i++) s += `<ellipse cx="${n1(c.rand(-r * 0.7, r * 0.7))}" cy="${n1(rimY - c.rand(2, r * 0.55))}" rx="1.8" ry="1.1" fill="#f1ede1"/>`;
+            for (let i = 0; i < 8; i++) s += `<ellipse cx="${n1(r + c.rand(2, 18))}" cy="${n1(-c.rand(0, 4))}" rx="1.8" ry="1.1" fill="#fff" stroke="${OL}" stroke-width=".5"/>`;
+        } else if (o.open === 'smoke') {
+            for (let i = 0; i < 3; i++) s += `<g transform="translate(${n1((i - 1) * r * 0.5)} ${n1(rimY - 8)})"><g ${c.anim('sv-rise', 3.2, i)}><circle r="${n1(r * 0.42)}" fill="#6c5b7b" opacity=".75"/></g></g>`;
+        }
+        return s;
+    });
+
+    Art.define('saw', (c, o) => {
+        const half = (o.w || 72) / 2;
+        let teeth = '';
+        for (let x = -half + 2; x < half - 2; x += 4) teeth += `l2 4 l2 -4 `;
+        return `<rect x="${-half}" y="-4" width="${half * 2}" height="8" rx="2" fill="#b9c2cc" ${S(1.4)}/><path d="M${-half + 2} 4 ${teeth}" fill="#b9c2cc" ${S(1)}/>` +
+            tube(-half - 4, -12, -half - 4, 10, 3.4, '#9c6b3f') + tube(half + 4, -12, half + 4, 10, 3.4, '#9c6b3f');
+    });
+
+    Art.define('onggi', (c, o) => {
+        // jangdok: brown earthenware jars of soy sauce, doenjang and kimchi
+        const jars = [[-28, 1], [8, 1.25], [40, 0.85], [-8, 0.7], [62, 0.72]].slice(0, o.n || 3);
+        return jars.map(([x, k]) => `<g transform="translate(${x} 0) scale(${k})"><path d="M-14 0 Q-21 -14 -16 -24 Q-12 -30 -8 -31 L8 -31 Q12 -30 16 -24 Q21 -14 14 0Z" fill="#6b3f2a" ${S(1.8)}/>` +
+            `<ellipse cx="0" cy="-32" rx="10" ry="3.2" fill="#55311f" ${S(1.4)}/><path d="M-12 -34 Q0 -42 12 -34 L10 -31 Q0 -36 -10 -31Z" fill="#7c4a31" ${S(1.4)}/>` +
+            `<path d="M-10 -22 Q-8 -12 -9 -4" stroke="#a87458" stroke-width="2" fill="none" opacity=".6"/></g>`).join('');
     });
 
     Art.define('palace', (c) => {

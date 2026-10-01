@@ -8,6 +8,8 @@ A Korean helper supports children who read Korean best. Tapping an underlined wo
 
 The library has shelves by age (4–6, 7–8, 9+); a child's profile can have an age, which opens their shelf.
 
+"Ikki xalq — bir ertak": finishing *Oltin tarvuz* opens its Korean twin, 흥부와 놀부 retold in Uzbek as *Hungbu va Nolbu*, which ends with a game of finding what the two tales share and where they differ.
+
 Any picture can become a colouring page (🎨) to colour on screen, save or print, and each book ends with a game of putting the story's pictures in order (🧩).
 
 The app can be installed on a phone's home screen and works offline after the first visit; a book's built-in narration can be saved for offline listening with ⬇️. "Ulashish" shares it, or a single book, to Telegram or KakaoTalk; a link ending in `#zumrad` opens that book.

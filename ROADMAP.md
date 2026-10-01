@@ -116,7 +116,20 @@ reading it.
    | Susambil | 팥죽 할멈과 호랑이 | Small helpers team up against a big bully |
    | Nasriddin Afandi | 봉이 김선달 | The clever trickster |
 
-   The first one to build is 흥부와 놀부.
+   ✅ **Built: Oltin tarvuz ↔ 흥부와 놀부 ("Hungbu va Nolbu").** A 12-page
+   Uzbek retelling, with Korean pictures drawn by the art engine (straw-roofed
+   choga, tiled giwajip, gourds on the roof, hanbok and gat, 도깨비 goblins).
+   - It sits on its own shelf, "🇰🇷 Ikki xalq — bir ertak", locked until the
+     child finishes *Oltin tarvuz*. That book's last page then announces and
+     opens it.
+   - Its last page has **🔍 Farqlarni toping**: the child sorts 12 cards into
+     "only in Oltin tarvuz", "in both" or "only in Hungbu va Nolbu", building
+     a table of what the two tales share (+30 points once).
+   - It has the Korean helper too (🇰🇷 and tap-a-word), so a child who knows
+     흥부와 놀부 from a Korean kindergarten can read it both ways. Its Korean
+     is in the review table with the rest.
+   - Next twins, in order: 콩쥐 팥쥐, 도깨비 방망이, 팥죽 할멈과 호랑이,
+     봉이 김선달.
 6. **New shelf: "Koreyadagi hayotim" (my life in Korea).** Uzbek children as
    heroes in Korean places:
    - first day at a Korean school

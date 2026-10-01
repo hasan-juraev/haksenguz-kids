@@ -425,3 +425,33 @@ fonts/gowun-dodum-ko.*   # built Korean font + the letters in it
 * `sw.js` no longer keeps audio files, so a downloaded recording isn't stored twice. Playback still goes straight to the network as before.
 * An audio file that fails to load now ends the clip (`Player` listens for `error`). If the phone is offline, read-along says to save the book with ⬇️ first.
 * Nothing changes until the narrator's recordings are imported, because no book has built-in narration yet.
+
+## 15. Update: Ikki xalq — bir ertak, Korean Twin Tales (Roadmap Phase 2, item 5)
+
+### Twin tales (`js/stories-twins.js`)
+* A Korean folk tale retold in Uzbek, with the usual book fields plus:
+  * `twin`: the Uzbek tale it pairs with (`hungbu_nolbu` → `oltin_tarvuz`);
+  * `compare`: `{ icons: [uzbek tale, korean tale], cards: [[emoji, text, 'uz' | 'ko' | 'both'], ...] }`.
+* Category `twins`, the shelf "🇰🇷 Ikki xalq — bir ertak".
+* The first one is *Hungbu va Nolbu* (흥부와 놀부): 12 pages, 5 questions, word cards for the Korean words (*choga*, *bak*, *dokkebi*), and the Korean helper in `js/stories-ko.js`.
+
+### Locked until the Uzbek tale is read (`js/app.js`)
+* `isLocked(key)`: a twin opens once the active child has finished its Uzbek tale. Locked cards show 🔒 and "«Oltin Tarvuz»ni o'qib tugating". Tapping one explains this, and the banner never suggests a locked book. A shared link still opens it, for grown-ups.
+* The first time the Uzbek tale is finished, a toast says the twin is open. That tale's last page shows "🇰🇷 Egizak ertak ochildi!" with the twin's title (`data-action="twin"`).
+
+### Find the differences (`Games.compare` in `js/games.js`, `css/play.css`)
+* On the twin's last page, "🔍 Farqlarni toping" opens the game in `#playModal`. The two covers are on top, then one card at a time with three answers: only in the Uzbek tale, in both, only in the Korean one.
+* A right answer moves the card into a three-column table, so the finished game shows what the tales share and where they differ. A wrong answer shakes the card.
+* The first win per child and book gives +30 points (`record.compare` in `js/store.js`).
+* Card words are story content (`data-content`) and stay Uzbek in Korean mode; the game's buttons and messages are in `js/i18n.js`.
+
+### Korean pictures (`js/art/world.js`, `js/art/people.js`)
+* Backgrounds `kvillage` (soft green mountains with pines, distant straw roofs) and `kyard`, a madang inside an earthen wall capped with straw, or with tiles when the scene has `wall: 'tile'`.
+* `chogajip` (straw roof, hanji doors, maru porch; options `gourds`, `glow`, `nest`, `lit`), `giwajip` (tiled roof with upturned eaves, on a stone terrace), `gourd` (whole, or `open: 'gold' | 'rice' | 'smoke'`), `saw` (also as a held item), `onggi` jars.
+* People: outfits `hanbok` (jeogori and wide baji tied at the ankle), `durumagi` (long coat) and `chima` (short jeogori over a long skirt; `jacket` colour). All have the dark collar band, white dongjeong and goreum ribbon. `saekdong: true` gives a child rainbow sleeves.
+* Heads: `gat` (horsehair hat), `sangtu` (topknot with headband), `jjok` (bun with a binyeo pin) and `daenggi` (braid with a ribbon).
+* Cast presets: `hungbu`, `hungbuxotin`, `nolbu`, `nolbuxotin`, `hkid1`–`hkid3`, and the goblins `dokkebi` and `dokkebi2`, which are the `dev` part recoloured, with its club.
+
+### Adding the next twin
+1. Write the tale in `js/stories-twins.js` with `twin` and `compare`. The Uzbek tale needs no change; it finds its twin.
+2. Add its Korean to `js/stories-ko.js`, then run `npm run build` (font) and `npm test`. `tests/stories.test.js` checks the twin and the cards.

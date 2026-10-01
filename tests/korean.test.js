@@ -14,6 +14,7 @@ global.window = { matchMedia: () => ({ matches: false }) };
 require('../js/book.js');
 require('../js/stories-folk.js');
 require('../js/stories-classic.js');
+require('../js/stories-twins.js');
 require('../js/stories-ko.js');
 require('../js/i18n.js');
 const { hangulUsed } = require('../tools/build-assets.js');

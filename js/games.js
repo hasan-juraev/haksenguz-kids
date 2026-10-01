@@ -339,5 +339,68 @@
         return card;
     }
 
-    root.Games = { color, order, close: closeModal, toLineArt };
+    // ---------- find the differences (twin tales) ----------
+
+    // One card at a time: is it only in the first tale, only in the second,
+    // or in both? Each right answer adds the card to a table of what the two
+    // tales share and where they differ.
+    function compare({ left, right, icons, cards, seed, onRight, onWrong, onWin }) {
+        const deck = shuffle(cards.map((c, i) => ({ c, order: i }))).map((x) => x.c);
+        const name = (i, st) => `<span aria-hidden="true">${icons[i]}</span> <span data-content>${esc(st.title)}</span>`;
+        const pic = (i, st) => `<figure class="cmp-pic"><span class="cmp-art">${root.Art.render(st.cover || st.pages[0].scene, { still: true, seed: `${seed}:cmp:${i}` })}</span><figcaption>${name(i, st)}</figcaption></figure>`;
+        const col = (where, head) => `<div class="cmp-col cmp-col--${where}" data-col="${where}"><p class="cmp-head">${head}</p><ul></ul></div>`;
+        const card = openModal(`
+            <div class="cmp-game">
+                <div class="play-head"><h3>🔍 Farqlarni toping</h3><button type="button" class="play-x" data-close aria-label="Yopish">✕</button></div>
+                <div class="cmp-pics">${pic(0, left)}${pic(1, right)}</div>
+                <p class="play-sub">Bu qaysi ertakda bor?</p>
+                <div class="cmp-card"><span class="cmp-emoji" aria-hidden="true"></span><span class="cmp-text" data-content></span><span class="cmp-count"></span></div>
+                <div class="cmp-choices">
+                    <button type="button" data-where="uz">${name(0, left)}</button>
+                    <button type="button" data-where="both"><span aria-hidden="true">✨</span> Ikkalasida ham</button>
+                    <button type="button" data-where="ko">${name(1, right)}</button>
+                </div>
+                <div class="cmp-board">${col('uz', name(0, left))}${col('both', '<span aria-hidden="true">✨</span> Ikkalasida ham')}${col('ko', name(1, right))}</div>
+                <p class="order-result" aria-live="polite"></p>
+            </div>`, 'play-card--compare');
+        const box = card.querySelector('.cmp-card');
+        const result = card.querySelector('.order-result');
+        let i = 0;
+        const show = () => {
+            box.querySelector('.cmp-emoji').textContent = deck[i][0];
+            box.querySelector('.cmp-text').textContent = deck[i][1];
+            box.querySelector('.cmp-count').textContent = `${i + 1} / ${deck.length}`;
+        };
+        show();
+        card.querySelector('.cmp-choices').addEventListener('click', (e) => {
+            const b = e.target.closest('[data-where]');
+            if (!b || i >= deck.length) return;
+            const [emoji, text, where] = deck[i];
+            if (b.dataset.where !== where) {
+                box.classList.remove('is-wrong');
+                void box.offsetWidth;
+                box.classList.add('is-wrong');
+                result.textContent = "🤔 Yana o'ylab ko'ring!";
+                if (onWrong) onWrong();
+                return;
+            }
+            const li = document.createElement('li');
+            li.innerHTML = `<span aria-hidden="true">${esc(emoji)}</span> <span data-content>${esc(text)}</span>`;
+            card.querySelector(`[data-col="${where}"] ul`).appendChild(li);
+            result.textContent = '';
+            if (++i < deck.length) {
+                show();
+                if (onRight) onRight();
+                return;
+            }
+            box.classList.add('hidden');
+            card.querySelector('.cmp-choices').classList.add('hidden');
+            card.querySelector('.cmp-game').classList.add('is-won');
+            result.textContent = "🎉 Barakalla! Ikki ertakning o'xshash va farqli tomonlarini topdingiz!";
+            if (onWin) onWin();
+        });
+        return card;
+    }
+
+    root.Games = { color, order, compare, close: closeModal, toLineArt };
 })(window);

@@ -307,12 +307,19 @@
             const view = this.lastView;
             const { asked, right, stars } = BookEngine.score(st, this.record.answers);
             const ko = this.koShown(view);
+            // "Ikki xalq — bir ertak": this tale's Korean twin (js/stories-twins.js), or, at the end of a twin, its game.
+            const db = root.storiesDatabase || {};
+            const twin = Object.keys(db).find((k) => db[k].twin === this.key);
+            const special = twin
+                ? `<button type="button" class="btn-twin" data-action="twin" data-key="${esc(twin)}"><span>🇰🇷 Egizak ertak ochildi!</span> <b data-content>${esc(db[twin].title)}</b></button>`
+                : st.compare ? `<button type="button" class="btn-twin" data-action="compare">🔍 Farqlarni toping</button>` : '';
             return `<div class="sheet sheet--right sheet--finale"><div class="page-pad finale">
                 <div class="title-ornament">❦</div>
                 <h2 class="finale-title">Ertak tugadi!</h2>
                 <div class="finale-stars" aria-label="${stars} yulduz">${'★'.repeat(stars)}<span>${'★'.repeat(3 - stars)}</span></div>
                 <p class="finale-score">${asked ? `Savollarga javoblar: ${right} / ${asked}` : 'Ajoyib o\'qidingiz!'}</p>
                 <div class="finale-moral"><b>Ertakdan saboq:</b> ${this.ko && this.ko.moral ? this.koButton(view) : ''}<span data-content>${esc(st.moral || "Yaxshilik va ezgulik har doim g'alaba qiladi.")}</span>${ko && ko.moral ? `<span class="ko-line" lang="ko">${esc(ko.moral)}</span>` : ''}</div>
+                ${special}
                 <div class="finale-actions">
                     <button type="button" class="btn-quiz" data-action="quiz">🏆 Bilimdon testi</button>
                     <button type="button" class="btn-game" data-action="order">🧩 Voqealar tartibi</button>

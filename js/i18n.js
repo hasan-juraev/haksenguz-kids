@@ -30,9 +30,11 @@
         'Klassik Asarlar': '고전',
         'Alisher Navoiy': '알리셰르 나보이',
         'Zamonaviy Sirlar': '현대 동화',
+        '🇰🇷 Ikki xalq — bir ertak': '🇰🇷 두 나라, 한 이야기',
         'Interaktiv Kitoblar Kutubxonasi': '인터랙티브 책 도서관',
         'Yangi': '새 책',
         // genre on the library cards (the part of a story's tag before "•")
+        'Koreya xalq ertagi': '한국 전래동화',
         "O'zbek xalq ertagi": '우즈베크 전래동화',
         "O'zbek xalq latifalari": '우즈베크 웃음 이야기',
         'Xalq ertagi': '전래동화',
@@ -128,6 +130,14 @@
         'Yoshi': '나이',
         "Kutubxona shu yoshga mos kitoblarni ko'rsatadi.": '도서관에서 이 나이에 맞는 책을 보여 줘요.',
 
+        // twin tales (js/stories-twins.js) and their "find the differences" game
+        '🔒 Hali yopiq': '🔒 아직 잠겨 있어요',
+        '🇰🇷 Egizak ertak ochildi!': '🇰🇷 쌍둥이 이야기가 열렸어요!',
+        '🔍 Farqlarni toping': '🔍 다른 점 찾기',
+        'Bu qaysi ertakda bor?': '어느 이야기에 나올까요?',
+        'Ikkalasida ham': '두 이야기 모두',
+        "🎉 Barakalla! Ikki ertakning o'xshash va farqli tomonlarini topdingiz!": '🎉 Barakalla! 두 이야기의 같은 점과 다른 점을 찾았어요!',
+
         // play corner (js/games.js): colouring page and story-order game
         "Rasmni bo'yash": '그림 색칠하기',
         "O'yin": '놀이',
@@ -222,6 +232,9 @@
         [/^(.+) ovozi va uning barcha yozuvlari o'chirilsinmi\?$/, '‘$1’ 목소리와 모든 녹음을 지울까요?', "Buvijon ovozi va uning barcha yozuvlari o'chirilsinmi?"],
         [/^🔴 (\d+:\d\d) — o'qing\.\.\.$/, '🔴 $1 — 읽어 주세요…', "🔴 0:07 — o'qing..."],
         [/^Rang (\d+)$/, '$1번 색', 'Rang 4'],
+        [/^🔒 «(.+)»ni o'qib tugating$/, '🔒 «$1» 다 읽으면 열려요', "🔒 «Oltin Tarvuz»ni o'qib tugating"],
+        [/^Avval «(.+)» ertagini oxirigacha o'qing\. Shunda uning Koreyadagi egizagi ochiladi!$/, '먼저 «$1» 이야기를 끝까지 읽어 보세요. 그러면 한국의 쌍둥이 이야기가 열려요!', "Avval «Oltin Tarvuz» ertagini oxirigacha o'qing. Shunda uning Koreyadagi egizagi ochiladi!"],
+        [/^🔓 Yangi ertak ochildi: «(.+)»!$/, '🔓 새 이야기가 열렸어요: «$1»!', '🔓 Yangi ertak ochildi: «Hungbu va Nolbu»!'],
         [/^(\d+)–(\d+) yosh$/, '$1~$2세', '5–8 yosh'],
         [/^(\d+)\+ yosh$/, '$1세 이상', '9+ yosh'],
         [/^(\d+) yosh$/, '$1세', '6 yosh'],

@@ -294,6 +294,187 @@
     color: #047857;
 }
 
+/* ---------- find the differences (twin tales) ---------- */
+
+.cmp-pics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.cmp-pic {
+    margin: 0;
+    text-align: center;
+}
+
+.cmp-art {
+    display: block;
+    aspect-ratio: 400 / 260;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 3px solid #fde68a;
+}
+
+.cmp-art svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.cmp-pic figcaption {
+    margin-top: 4px;
+    font-weight: 800;
+    color: #7c2d12;
+}
+
+.cmp-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 72px;
+    padding: 10px 16px;
+    border-radius: 18px;
+    border: 3px dashed #f59e0b;
+    background: #fffbeb;
+}
+
+.cmp-card.hidden {
+    display: none;
+}
+
+.cmp-emoji {
+    font-size: 40px;
+    line-height: 1;
+}
+
+.cmp-text {
+    font-size: 22px;
+    font-weight: 800;
+    color: #1f2937;
+}
+
+.cmp-count {
+    margin-left: auto;
+    font-size: 13px;
+    font-weight: 800;
+    color: #92400e;
+}
+
+.cmp-card.is-wrong {
+    animation: cardShake .45s ease-in-out;
+    border-color: #fda4af;
+}
+
+.cmp-choices {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.cmp-choices.hidden {
+    display: none;
+}
+
+.cmp-choices button {
+    min-height: 56px;
+    padding: 6px 8px;
+    border: 0;
+    border-radius: 16px;
+    font-weight: 800;
+    font-size: 15px;
+    color: #fff;
+    background: linear-gradient(135deg, #f59e0b, #ea580c);
+    box-shadow: 0 4px 0 #9a3412;
+    cursor: pointer;
+}
+
+.cmp-choices [data-where="both"] {
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+    box-shadow: 0 4px 0 #4c1d95;
+}
+
+.cmp-choices [data-where="ko"] {
+    background: linear-gradient(135deg, #0ea5e9, #1d4ed8);
+    box-shadow: 0 4px 0 #1e3a8a;
+}
+
+.cmp-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.cmp-col {
+    min-height: 80px;
+    padding: 8px;
+    border-radius: 14px;
+    background: #fff7ed;
+}
+
+.cmp-col--both {
+    background: #f5f3ff;
+}
+
+.cmp-col--ko {
+    background: #eff6ff;
+}
+
+.cmp-head {
+    margin: 0 0 6px;
+    font-size: 13px;
+    font-weight: 800;
+    text-align: center;
+    color: #7c2d12;
+}
+
+.cmp-col ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 4px;
+}
+
+.cmp-col li {
+    padding: 4px 6px;
+    border-radius: 10px;
+    background: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    animation: cmpIn .3s ease-out;
+}
+
+@keyframes cmpIn {
+    from {
+        transform: scale(.6);
+        opacity: 0;
+    }
+}
+
+.cmp-game.is-won .order-result {
+    color: #047857;
+}
+
+/* The button on a tale's last page that opens its Korean twin. */
+.btn-twin {
+    width: 100%;
+    min-height: 52px;
+    margin-bottom: 8px;
+    padding: 10px 16px;
+    border: 0;
+    border-radius: 16px;
+    font-weight: 800;
+    font-size: 15px;
+    color: #fff;
+    background: linear-gradient(135deg, #0ea5e9, #1d4ed8);
+    box-shadow: 0 4px 0 #1e3a8a;
+    cursor: pointer;
+}
+
 /* Toasts (points, "try again") show above an open game. */
 #toast {
     z-index: 80;
@@ -305,11 +486,21 @@
     .play-card {
         padding: 12px;
     }
+
+    .cmp-choices button {
+        font-size: 13px;
+    }
+
+    .cmp-col li {
+        font-size: 12px;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
     .order-card.is-wrong,
-    .order-card.is-hint {
+    .order-card.is-hint,
+    .cmp-card.is-wrong,
+    .cmp-col li {
         animation: none;
     }
 }

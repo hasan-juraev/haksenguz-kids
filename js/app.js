@@ -6,7 +6,7 @@
 (function (root) {
     'use strict';
 
-    const CATEGORIES = ['all', 'folk', 'classic', 'navoiy', 'modern'];
+    const CATEGORIES = ['all', 'folk', 'classic', 'navoiy', 'modern', 'twins'];
     const DEFAULT_QUIZ = {
         q: "Kitobdan olgan xulosangiz qanday?",
         a: ["Ezgulik, ilm, birdamlik va halollik har doim g'alaba qozonadi ✨", "Dangasalik va yomon niyatlar hamisha mukofotlanadi 💤", "Faqat yolg'izlik va janjallashish yaxshi natija beradi 🍃"],
@@ -15,6 +15,7 @@
     const ANSWER_POINTS = 10;
     const QUIZ_POINTS = 50;
     const ORDER_POINTS = 30;
+    const COMPARE_POINTS = 30;
 
     const esc = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
 
@@ -112,11 +113,22 @@
             else this.startStory(this.heroBook || this.suggestedBook());
         }
 
+        // A Korean twin tale opens once this child has finished its Uzbek tale.
+        isLocked(key) {
+            const twin = this.db[key] && this.db[key].twin;
+            const rec = twin ? this.store.profile().books[twin] : null;
+            return !!twin && !(rec && rec.finished);
+        }
+
+        showLocked(key) {
+            this.showModal('🔒 Hali yopiq', `Avval «${this.db[this.db[key].twin].title}» ertagini oxirigacha o'qing. Shunda uning Koreyadagi egizagi ochiladi!`);
+        }
+
         // With nothing in progress: the first book on the child's shelf they haven't finished.
         suggestedBook() {
             const p = this.store.profile();
             const shelf = root.Levels ? root.Levels.shelfFor(p.age) : null;
-            const keys = Object.keys(this.db);
+            const keys = Object.keys(this.db).filter((k) => !this.isLocked(k));
             const fits = (k) => !shelf || root.Levels.fits(this.db[k], shelf);
             return keys.find((k) => fits(k) && !(p.books[k] && p.books[k].finished)) || keys.find(fits) || keys[0];
         }
@@ -164,11 +176,12 @@
                 const card = document.createElement('button');
                 card.type = 'button';
                 card.className = 'bg-white p-3 rounded-2xl shadow-sm hover:shadow-lg transition border border-orange-100 cursor-pointer flex space-x-4 items-center group text-left w-full';
-                card.onclick = () => this.startStory(key);
+                const locked = this.isLocked(key);
+                card.onclick = () => (locked ? this.showLocked(key) : this.startStory(key));
                 const scene = item.cover || item.pages[0].scene;
                 const art = root.Art ? root.Art.render(scene, { still: true, seed: key + ':thumb' }) : '';
                 card.innerHTML = `
-                    <div class="thumb-art w-24 h-24 rounded-2xl flex-shrink-0 shadow-md group-hover:scale-105 transition" style="box-shadow:0 0 0 3px ${item.hue || '#f59e0b'}">${art}</div>
+                    <div class="thumb-art relative w-24 h-24 rounded-2xl flex-shrink-0 shadow-md group-hover:scale-105 transition" style="box-shadow:0 0 0 3px ${item.hue || '#f59e0b'}">${art}${locked ? '<span class="absolute inset-0 flex items-center justify-center bg-white/55 text-3xl" aria-hidden="true">🔒</span>' : ''}</div>
                     <div class="overflow-hidden space-y-1 min-w-0 flex-1">
                         <div class="flex items-center gap-1.5 flex-wrap">
                             <span class="text-[11px] font-bold text-brand-700 bg-orange-100 px-2 py-0.5 rounded-lg">${esc(item.tag.split('•')[0].trim())}</span>
@@ -177,7 +190,9 @@
                         </div>
                         <h4 class="font-bold text-gray-800 text-base leading-snug" data-content>${esc(item.title)}</h4>
                         ${this.koTitle(key)}
-                        <p class="text-xs text-gray-500">📄 ${item.pages.length} sahifali rasmli kitob</p>
+                        ${locked
+                            ? `<p class="text-xs font-bold text-sky-800">🔒 «${esc(this.db[item.twin].title)}»ni o'qib tugating</p>`
+                            : `<p class="text-xs text-gray-500">📄 ${item.pages.length} sahifali rasmli kitob</p>`}
                         ${this.cardStatus(item, books[key])}
                     </div>`;
                 grid.appendChild(card);
@@ -468,6 +483,8 @@
             if (!key || s.busy) return;
             const rec = this.store.book(key);
             if (s.end) {
+                const twin = !rec.finished && Object.keys(this.db).find((k) => this.db[k].twin === key);
+                if (twin) this.toast(`🔓 Yangi ertak ochildi: «${this.db[twin].title}»!`);
                 rec.finished = true;
                 rec.page = 0;
             } else if (s.view >= 1) {
@@ -493,6 +510,8 @@
                 }
             } else if (act === 'color') this.openColoring(+el.dataset.view);
             else if (act === 'order') this.openOrderGame();
+            else if (act === 'twin') this.startStory(el.dataset.key);
+            else if (act === 'compare') this.openCompare();
         }
 
         // ---------- play corner (js/games.js) ----------
@@ -531,6 +550,34 @@
                     rec.order = true;
                     this.addPoints(ORDER_POINTS);
                     this.toast(`🧩 Barakalla! +${ORDER_POINTS} ball`);
+                },
+            });
+        }
+
+        // Twin tales: is it in the Uzbek tale, the Korean one, or both? Pays out once per book.
+        openCompare() {
+            const key = this.currentStoryKey;
+            const st = this.currentStoryObj;
+            if (!st || !st.compare || !this.db[st.twin] || !root.Games) return;
+            this.reader.stop();
+            root.Games.compare({
+                left: this.db[st.twin],
+                right: st,
+                icons: st.compare.icons || ['📕', '📗'],
+                cards: st.compare.cards,
+                seed: key,
+                onRight: () => this.playChime(true),
+                onWrong: () => this.toast("🤔 Yana o'ylab ko'ring!"),
+                onWin: () => {
+                    this.playChime(true);
+                    const rec = this.store.book(key);
+                    if (rec.compare) {
+                        this.toast('🔍 Barakalla!');
+                        return;
+                    }
+                    rec.compare = true;
+                    this.addPoints(COMPARE_POINTS);
+                    this.toast(`🔍 Barakalla! +${COMPARE_POINTS} ball`);
                 },
             });
         }

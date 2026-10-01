@@ -10,6 +10,7 @@ global.window = { matchMedia: () => ({ matches: false }) };
 require('../js/book.js');
 require('../js/stories-folk.js');
 require('../js/stories-classic.js');
+require('../js/stories-twins.js');
 require('../js/levels.js');
 const db = window.storiesDatabase;
 const { SHELVES, AGES, shelfFor, fits, label, ageLabel } = window.Levels;
@@ -30,7 +31,7 @@ const goodQuestion = (q, where) => {
     check(Number.isInteger(q.ok) && q.ok < q.a.length, `${where}: the right answer (ok: ${q.ok}) is not one of the answers`);
 };
 
-const CATEGORIES = ['folk', 'classic', 'navoiy', 'modern'];
+const CATEGORIES = ['folk', 'classic', 'navoiy', 'modern', 'twins'];
 
 Object.entries(db).forEach(([key, st]) => {
     check(/^[a-z0-9_]+$/.test(key), `${key}: book keys are used in links (#${key}), so only a-z, 0-9 and _`);
@@ -49,6 +50,14 @@ Object.entries(db).forEach(([key, st]) => {
         if (p.word) check(Array.isArray(p.word) && p.word.length === 2 && p.word.every(text), `${where}: word card is [word, meaning]`);
     });
     if (st.quiz) goodQuestion(st.quiz, `${key} quiz`);
+    // A Korean twin tale opens after its Uzbek tale, and ends with sorting cards.
+    if (st.twin) {
+        check(!!db[st.twin] && !db[st.twin].twin, `${key}: twin "${st.twin}" must be an existing Uzbek tale`);
+        const cards = (st.compare && st.compare.cards) || [];
+        check(cards.length >= 6 && cards.every((c) => Array.isArray(c) && c.length === 3 && text(c[0]) && text(c[1]) && ['uz', 'ko', 'both'].includes(c[2])),
+            `${key}: compare.cards must be at least 6 [emoji, text, 'uz'|'ko'|'both']`);
+        check(['uz', 'ko', 'both'].every((w) => cards.some((c) => c[2] === w)), `${key}: the cards need things only in each tale and things in both`);
+    }
 });
 
 // ---------- shelves ----------

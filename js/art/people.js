@@ -1,8 +1,10 @@
 /*
  * People of the fairy tales: one parametric figure dressed in Uzbek clothing
- * (atlas dress, chapan with belbog', do'ppi, salla, ro'mol, telpak) plus
- * the dev, the fairy and the little star. Named presets ("zumrad", "momo",
- * "afandi", ...) live in Art.cast so story scenes stay short.
+ * (atlas dress, chapan with belbog', do'ppi, salla, ro'mol, telpak) or in
+ * Korean hanbok (jeogori and baji, chima, durumagi; gat, topknot, binyeo bun,
+ * daenggi braid) for the Korean twin tales, plus the dev, the fairy and the
+ * little star. Named presets ("zumrad", "momo", "afandi", "hungbu", ...) live
+ * in Art.cast so story scenes stay short.
  */
 (function (Art) {
     'use strict';
@@ -72,6 +74,7 @@
         dasturxon: { two: true, svg: () => `<rect x="-14" y="-7" width="28" height="14" rx="2" fill="#c1121f" ${S(1.5)}/><rect x="-11" y="-4" width="22" height="8" fill="none" stroke="#ffd166" stroke-width="1.4" stroke-dasharray="2 2"/>` },
         hen: { two: true, k: 1.3, svg: () => `<ellipse cx="0" cy="-2" rx="12" ry="9" fill="#fbbf24" ${S(1.5)}/><circle cx="9" cy="-11" r="6" fill="#fbbf24" ${S(1.5)}/><path d="M6 -17 q2 -4 4 0 q2 -4 4 0Z" fill="#e63946" ${S(1)}/><path d="M14 -11 l5 1 l-5 2z" fill="#f97316"/><circle cx="10" cy="-12" r="1.2" fill="${OL}"/><path d="M-12 -4 q-6 -6 -4 -12 q4 4 6 8z" fill="#f59e0b" ${S(1.2)}/>` },
         kite: { svg: () => `<path d="M0 0 L-2 -60" stroke="#6b7280" stroke-width="1"/>` },
+        saw: { two: true, svg: () => `<rect x="-34" y="-3" width="68" height="7" rx="2" fill="#b9c2cc" ${S(1.4)}/><path d="M-32 4 ${Array.from({ length: 16 }, (_, i) => `l2 3 l2 -3`).join(' ')}" fill="#b9c2cc" ${S(1)}/>${tube(-38, -8, -38, 8, 3, '#9c6b3f')}${tube(38, -8, 38, 8, 3, '#9c6b3f')}` },
         telescope: { svg: () => `<g transform="rotate(-35)"><rect x="-4" y="-34" width="10" height="36" rx="3" fill="#3d5a80" ${S(1.5)}/><rect x="-5" y="-38" width="12" height="6" rx="2" fill="#e0b84e" ${S(1.2)}/></g>` },
     };
 
@@ -160,13 +163,22 @@
         const hair = o.hair || (o.age === 'old' ? '#ebe7df' : '#3a2418');
         const h = o.head || 'none';
         let s = '';
+        // jjok: a married woman's low bun, held by a binyeo pin (behind the head)
+        if (h === 'jjok') {
+            s += `<circle cx="13" cy="10" r="8.5" fill="${hair}" ${S(1.8)}/><path d="M3 15 L27 5" stroke="${OL}" stroke-width="4.4" stroke-linecap="round"/>` +
+                `<path d="M3 15 L27 5" stroke="${o.binyeo || '#e9c46a'}" stroke-width="2.2" stroke-linecap="round"/><circle cx="27" cy="5" r="2.6" fill="${o.binyeo || '#e9c46a'}" ${S(1.2)}/>`;
+        }
         if (h !== 'rumol' && h !== 'crescentScarf') {
             s += `<circle cx="-16.2" cy="2" r="4.2" fill="${skin}" ${S(1.8)}/><circle cx="16.2" cy="2" r="4.2" fill="${skin}" ${S(1.8)}/>`;
         }
         s += `<circle cx="0" cy="0" r="17" fill="${skin}" ${S(2.2)}/>`;
         const bearded = !!o.beard;
-        if (h === 'braids' || h === 'girlcap' || h === 'crescent' || h === 'wreath') {
+        if (h === 'braids' || h === 'girlcap' || h === 'crescent' || h === 'wreath' || h === 'jjok' || h === 'daenggi') {
             s += `<path d="M-17.6 2 C-19 -15 -9 -21 0 -21 C9 -21 19 -15 17.6 2 C15 -7 8 -11 1.2 -11 L0 -8.5 L-1.2 -11 C-8 -11 -15 -7 -17.6 2Z" fill="${hair}" ${S(1.6)}/>`;
+        } else if (h === 'sangtu' || h === 'gat') {
+            // hair combed up into a topknot, under a black manggeon headband
+            s += `<path d="M-17 -1 C-18 -15 -8 -21 0 -21 C8 -21 18 -15 17 -1 C12 -9 6 -11 0 -11 C-6 -11 -12 -9 -17 -1Z" fill="${hair}" ${S(1.6)}/>`;
+            s += `<path d="M-17.6 -5 Q0 -12.5 17.6 -5 L17.2 -1.2 Q0 -8.6 -17.2 -1.2Z" fill="#1b1b1b" ${S(1.2)}/>`;
         } else if (h === 'boy' || h === 'doppi' || h === 'modern') {
             if (o.age !== 'old') {
                 s += `<path d="M-17 -1 C-18 -15 -8 -21 0 -21 C8 -21 18 -15 17 -1 C13 -8 8 -9 4 -8 C3 -11 -3 -11 -4 -8 C-8 -9 -13 -8 -17 -1Z" fill="${hair}" ${S(1.6)}/>`;
@@ -214,6 +226,14 @@
             s += `<path d="M-13 -12 q2 -3 4 0 q2 -3 4 0 M-2 -12 q2 -3 4 0 q2 -3 4 0 M-10 -22 q2 -3 4 0 q2 -3 4 0 M2 -24 q2 -3 4 0 q2 -3 4 0" fill="none" stroke="#5a4a40" stroke-width="1.4"/>`;
         } else if (h === 'rumol' || h === 'crescentScarf') {
             s += `<path d="M-18.4 -3 C-17.4 -17 -9 -22.6 0 -22.6 C9 -22.6 17.4 -17 18.4 -3 C13.6 -12 7 -14.4 0 -14.4 C-7 -14.4 -13.6 -12 -18.4 -3Z" fill="${o.scarfFill || hat || '#f4efe4'}" ${S(1.6)}/>`;
+        } else if (h === 'sangtu') {
+            s += `<ellipse cx="0" cy="-24" rx="5.4" ry="6" fill="${hair}" ${S(1.5)}/><path d="M-7 -24.5 H7" stroke="${OL}" stroke-width="3.6" stroke-linecap="round"/><path d="M-7 -24.5 H7" stroke="#e9c46a" stroke-width="1.6" stroke-linecap="round"/>`;
+        } else if (h === 'gat') {
+            // gat: the scholar's hat of black horsehair; the brim lets the light through
+            s += `<path d="M-13.5 -16 Q-13 6 -4 19 M13.5 -16 Q13 6 4 19" fill="none" stroke="#3d2b1f" stroke-width="1.4" stroke-dasharray="1.6 1.6"/>`;
+            s += `<path d="M-9.5 -19 L-8.5 -41 Q0 -45 8.5 -41 L9.5 -19Z" fill="#1d1d1d" ${S(1.6)}/>`;
+            s += `<ellipse cx="0" cy="-19" rx="32" ry="6.6" fill="#2b2b2b" fill-opacity=".5" ${S(1.6)}/>`;
+            s += `<ellipse cx="0" cy="-19.4" rx="11" ry="2.8" fill="#111" opacity=".7"/><path d="M-26 -21 Q0 -26 26 -21" fill="none" stroke="#fff" stroke-width=".9" opacity=".35"/>`;
         } else if (h === 'cap') {
             s += `<path d="M-16 -8 C-16 -20 -8 -24 0 -24 C8 -24 16 -20 16 -8Z" fill="${hat || '#e63946'}" ${S(1.6)}/><path d="M6 -9 L26 -7 Q24 -3 6 -4Z" fill="${hat || '#e63946'}" ${S(1.5)}/>`;
         }
@@ -243,11 +263,12 @@
         const outfit = o.outfit || (fem ? 'dress' : 'robe');
         const fill = fabric(c, o);
         const col = o.color || '#3aa36b';
+        const hanbok = outfit === 'hanbok' || outfit === 'durumagi' || outfit === 'chima';
         const shirtBottom = top + (child ? 30 : 40);
         // Seated figures (riders, so'ri, carpet) get a short lap-length robe and
         // are drawn with the seat, not the feet, at the origin.
         const seated = !!(o.seated || o.noLegs);
-        const bodyBottom = seated ? top + (child ? 34 : 46) : (outfit === 'shirt' ? shirtBottom : hem);
+        const bodyBottom = seated ? top + (child ? 34 : 46) : (outfit === 'shirt' || outfit === 'hanbok' ? shirtBottom : hem);
         let back = '';
         let legs = '';
         let body = '';
@@ -266,6 +287,14 @@
                         `<path d="M${x0} ${hy + 4} Q${x0 + side * 6} ${(hy + y1) / 2} ${x1} ${y1}" fill="none" stroke="${hair}" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="3 1.2"/>`;
                 }
             }
+        }
+        if (o.head === 'daenggi') {
+            // one long braid down the back, tied with a daenggi ribbon
+            const y1 = hy + (child ? 48 : 60);
+            const x1 = sw + (child ? 16 : 20);
+            back += `<path d="M8 ${hy + 6} Q${x1 + 6} ${(hy + y1) / 2} ${x1} ${y1}" fill="none" stroke="${OL}" stroke-width="7.4" stroke-linecap="round"/>` +
+                `<path d="M8 ${hy + 6} Q${x1 + 6} ${(hy + y1) / 2} ${x1} ${y1}" fill="none" stroke="${hair}" stroke-width="5" stroke-linecap="round" stroke-dasharray="3.4 1.4"/>` +
+                `<path d="M${x1} ${y1} l-7 9 l6 -1 l1 6 l3 -12 l4 11 l2 -6 l5 2z" fill="${o.ribbon || '#d62828'}" ${S(1.2)}/>`;
         }
         if (o.head === 'rumol' || o.head === 'crescentScarf') {
             const sf = o.scarfFill || o.hat || '#f4efe4';
@@ -293,7 +322,10 @@
         } else {
             const lt = bodyBottom - 3;
             const spread = o.walk ? 5 : 0;
-            legs += tube(-6, lt, -7 - spread, -4, child ? 6 : 7, legCol) + tube(6, lt, 7 + spread, -4, child ? 6 : 7, legCol);
+            // hanbok baji: wide trousers tied at the ankle (daenim)
+            const lw = hanbok && !fem ? (child ? 9 : 11) : (child ? 6 : 7);
+            legs += tube(-6, lt, -7 - spread, -4, lw, legCol) + tube(6, lt, 7 + spread, -4, lw, legCol);
+            if (hanbok && !fem) legs += `<path d="M${-12 - spread} -9 h${10} M${2 + spread} -9 h10" stroke="${o.daenim || '#6c757d'}" stroke-width="2.6" stroke-linecap="round"/>`;
             legs += `<ellipse cx="${-9 - spread}" cy="-2.5" rx="${child ? 6.5 : 7.5}" ry="3.6" fill="${shoe}" ${S(1.7)}/>` +
                 `<ellipse cx="${9 + spread}" cy="-2.5" rx="${child ? 6.5 : 7.5}" ry="3.6" fill="${shoe}" ${S(1.7)}/>`;
         }
@@ -331,6 +363,24 @@
         } else if (outfit === 'shirt') {
             body += `<path d="M-6 ${t - 1} L0 ${t + 6} L6 ${t - 1}" fill="#fff" ${S(1.3)}/>`;
             body += `<circle cx="0" cy="${t + 13}" r="1.2" fill="${OL}"/><circle cx="0" cy="${t + 21}" r="1.2" fill="${OL}"/>`;
+        } else if (hanbok) {
+            // jeogori: a short jacket (over a long chima for women, to the
+            // knees for the durumagi coat) with a dark collar band, the white
+            // dongjeong at the neck and a long goreum ribbon tied at the chest.
+            if (outfit === 'chima') {
+                const jy = t + (child ? 13 : 17);
+                const jw = widthAt(jy) + 1;
+                body += `<path d="M${-a} ${t} Q${-a - 6} ${t + 1} ${-a - 7} ${t + 11} L${-jw} ${jy} Q0 ${jy + 3} ${jw} ${jy} L${a + 7} ${t + 11} Q${a + 6} ${t + 1} ${a} ${t} Q0 ${t - 3} ${-a} ${t}Z" fill="${o.jacket || '#fff4d6'}" ${S(1.8)}/>`;
+            }
+            const gy = t + (child ? 10 : 14);
+            body += `<path d="M-7 ${t - 1} L5 ${gy}" stroke="${OL}" stroke-width="6.4" stroke-linecap="round"/><path d="M-7 ${t - 1} L5 ${gy}" stroke="${o.trim || '#5c677d'}" stroke-width="3.6" stroke-linecap="round"/>`;
+            body += `<path d="M-6.4 ${t - 1.4} L-1.6 ${t + 5}" stroke="#fff" stroke-width="2" stroke-linecap="round"/>`;
+            const rib = o.goreum || o.trim || '#c1121f';
+            const rl = child ? 14 : 20;
+            body += `<path d="M5 ${gy} L3 ${gy + rl} M5.6 ${gy} L10 ${gy + rl - 4}" stroke="${OL}" stroke-width="5.4" stroke-linecap="round"/>` +
+                `<path d="M5 ${gy} L3 ${gy + rl} M5.6 ${gy} L10 ${gy + rl - 4}" stroke="${rib}" stroke-width="3" stroke-linecap="round"/>` +
+                `<path d="M5 ${gy} q7 -5 9 1 q-5 3 -9 -1z" fill="${rib}" ${S(1.2)}/><circle cx="5" cy="${gy}" r="2.2" fill="${rib}" ${S(1.2)}/>`;
+            if (outfit === 'durumagi') body += `<path d="M5 ${gy + 2} L3 ${b + 1}" stroke="${OL}" stroke-width="1.3" opacity=".55"/>`;
         } else if (outfit === 'royal') {
             body += `<path d="M-7 ${t - 1} L0 ${t + 16} L7 ${t - 1}" fill="#fff4d6" ${S(1.3)}/>`;
             body += `<path d="M-8 ${t} L-3 ${b} M8 ${t} L3 ${b}" stroke="#f4c542" stroke-width="3.2"/>`;
@@ -345,7 +395,10 @@
 
         // arms
         const pose = typeof o.pose === 'object' ? o.pose : (POSES[o.pose] || POSES.down);
-        const sleeve = o.sleeve || col;
+        // saekdong: a child's festive sleeves in rainbow stripes
+        const sleeve = o.sleeve || (o.saekdong
+            ? c.def('saekdong', (id) => `<pattern id="${id}" width="8" height="15" patternUnits="userSpaceOnUse">${['#e63946', '#ffd166', '#52b788', '#3a86ff', '#ff8fab'].map((k, i) => `<rect y="${i * 3}" width="8" height="3" fill="${k}"/>`).join('')}</pattern>`)
+            : outfit === 'chima' ? (o.jacket || '#fff4d6') : col);
         const H = {};
         for (const sd of [-1, 1]) {
             const [ox, oy] = sd > 0 ? pose.r : pose.l;
@@ -526,5 +579,16 @@
         kid3: { age: 'child', head: 'boy', outfit: 'shirt', color: '#06d6a0', pants: '#073b4c', shoes: '#ef476f' },
         kid4: { sex: 'f', age: 'child', pattern: 'ikat', color: '#fb5607', color2: '#ffd166', color3: '#3a86ff', head: 'girlcap', hat: '#3a86ff', pants: '#3a86ff' },
         ona: { sex: 'f', head: 'rumol', hat: '#f28482', scarfFill: '#f5cac3', pattern: 'ikat', color: '#84a59d', color2: '#f7ede2', color3: '#f28482', pants: '#f6bd60' },
+        // Hungbu va Nolbu (Korea): the poor brother in patched white, the rich one in a jade durumagi and gat
+        hungbu: { head: 'sangtu', outfit: 'hanbok', color: '#f1ece0', trim: '#8d99ae', goreum: '#8d99ae', pants: '#e6dfcd', patches: true, shoes: '#c9a86a' },
+        hungbuxotin: { sex: 'f', head: 'jjok', outfit: 'chima', color: '#7a9e7e', jacket: '#f6f0e1', trim: '#7a9e7e', goreum: '#9c6644', shoes: '#efe8d8' },
+        nolbu: { head: 'gat', outfit: 'durumagi', color: '#2a9d8f', trim: '#1d3557', goreum: '#1d3557', pants: '#e6dfcd', beard: 'short', belly: true, mood: 'sly', shoes: '#1d3557' },
+        nolbuxotin: { sex: 'f', head: 'jjok', outfit: 'chima', color: '#9d0208', jacket: '#ffd166', trim: '#9d0208', goreum: '#9d0208', binyeo: '#90e0ef', mood: 'angry', shoes: '#fff' },
+        hkid1: { age: 'child', head: 'boy', outfit: 'hanbok', color: '#fdfbf6', saekdong: true, trim: '#3a86ff', goreum: '#e63946', pants: '#e6dfcd', shoes: '#c9a86a' },
+        hkid2: { sex: 'f', age: 'child', head: 'daenggi', outfit: 'chima', color: '#ef476f', jacket: '#ffd166', saekdong: true, trim: '#3a86ff', goreum: '#3a86ff', shoes: '#fff' },
+        hkid3: { age: 'child', head: 'boy', outfit: 'hanbok', color: '#e9f5db', trim: '#2a9d8f', goreum: '#2a9d8f', pants: '#e6dfcd', shoes: '#c9a86a', s: 0.86 },
+        // dokkebi: the Korean goblin with his magic club (bangmangi)
+        dokkebi: { part: 'dev', color: '#e76f51', dark: '#9c3d22', bellyColor: '#ffd6a5', club: true },
+        dokkebi2: { part: 'dev', color: '#4895ef', dark: '#1d4e89', bellyColor: '#cde7ff', club: true },
     });
 })(window.Art);
