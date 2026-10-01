@@ -294,7 +294,7 @@
                 <h1 class="title-name" data-content>${esc(st.title)}</h1>
                 <p class="title-tag" data-content>${esc(st.tag)}</p>
                 <div class="title-medallion" data-action="poke">${this.art(scene, false, 'title')}</div>
-                <p class="title-meta">📄 ${st.pages.length} sahifa · ⏱ ~${mins} daqiqa</p>
+                <p class="title-meta"><span>📄 ${st.pages.length} sahifa · ⏱ ~${mins} daqiqa</span>${st.age ? ` · <span>${st.age[0]}–${st.age[1]} yosh</span>` : ''}</p>
                 <p class="title-opening" data-content>«Bir bor ekan, bir yo'q ekan...»</p>
                 ${resume
                     ? `<button type="button" class="btn-resume" data-action="resume">▶ Davom ettirish · ${resume}-sahifa</button>`

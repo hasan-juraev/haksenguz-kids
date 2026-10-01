@@ -4,7 +4,8 @@
  * Har bir sahifa: title, text, scene (js/art rasm tavsifi) va ixtiyoriy
  *   question: { q, a: [javoblar], ok: to'g'ri javob indeksi }
  *   word:     [so'z, ma'nosi]  — "Yangi so'z" kartochkasi
- * Kitob darajasida: moral (xulosa), quiz (yakuniy test), hue (muqova rangi).
+ * Kitob darajasida: moral (xulosa), quiz (yakuniy test), hue (muqova rangi),
+ *   age: [eng kichik, eng katta yosh] — kutubxona javonlari uchun (js/levels.js).
  */
 window.storiesDatabase = window.storiesDatabase || {};
 
@@ -12,6 +13,7 @@ Object.assign(window.storiesDatabase, {
     zumrad: {
         title: "Zumrad va Qimmat",
         category: "folk",
+        age: [5, 8],
         tag: "O'zbek xalq ertagi • Odob va mehnat",
         hue: "#1f7a58",
         moral: "Mehnatsevarlik va shirin so'z insonni baxtga yetaklaydi, dangasalik va qo'pollik esa pushaymonlik keltiradi.",
@@ -96,6 +98,7 @@ Object.assign(window.storiesDatabase, {
     oltin_tarvuz: {
         title: "Oltin Tarvuz",
         category: "folk",
+        age: [5, 8],
         tag: "O'zbek xalq ertagi • Yaxshilik",
         hue: "#2d6a4f",
         isNew: true,
@@ -169,6 +172,7 @@ Object.assign(window.storiesDatabase, {
     susambil: {
         title: "Susambil",
         category: "folk",
+        age: [4, 8],
         tag: "O'zbek xalq ertagi • Do'stlik",
         hue: "#6a4c93",
         isNew: true,
@@ -239,6 +243,7 @@ Object.assign(window.storiesDatabase, {
     ur_toqmoq: {
         title: "Ur, To'qmoq!",
         category: "folk",
+        age: [5, 8],
         tag: "O'zbek xalq ertagi • Halollik",
         hue: "#9a3412",
         isNew: true,
@@ -311,6 +316,7 @@ Object.assign(window.storiesDatabase, {
     uch_ogayni: {
         title: "Uch Og'a-ini Botirlar",
         category: "folk",
+        age: [6, 9],
         tag: "O'zbek xalq ertagi • Birlik va qahramonlik",
         hue: "#1d4e89",
         moral: "Birlikda kuch bor: ahil aka-ukalarni hech kim yengolmaydi.",
@@ -382,6 +388,7 @@ Object.assign(window.storiesDatabase, {
     afandi_1: {
         title: "Nasriddin Afandi Latifalari",
         category: "folk",
+        age: [7, 10],
         tag: "O'zbek xalq latifalari • Hazil va hikmat",
         hue: "#b45309",
         moral: "Afandi latifalari kuldiradi va o'ylantiradi: insonni kiyimiga qarab baholama, ochko'z bo'lma, har kimning gapiga qarab ish tutma.",
@@ -454,6 +461,7 @@ Object.assign(window.storiesDatabase, {
     hakim_qizi: {
         title: "Donishmand Qiz",
         category: "folk",
+        age: [8, 10],
         tag: "O'zbek xalq ertagi • Aql-zakovat",
         hue: "#1e40af",
         moral: "Aql va bilim — hech qachon tugamaydigan xazina. Zukko odam eng qiyin savolga ham javob topadi.",
@@ -524,6 +532,7 @@ Object.assign(window.storiesDatabase, {
     qanotli_tulki: {
         title: "Topag'on Tulki",
         category: "folk",
+        age: [4, 7],
         tag: "Xalq ertagi • Topqirlik",
         hue: "#c2410c",
         moral: "Aql va birdamlik har qanday qahraton qishdan kuchli.",
@@ -584,6 +593,7 @@ Object.assign(window.storiesDatabase, {
     sehrli_nay: {
         title: "Sehrli Nay Navosi",
         category: "folk",
+        age: [5, 8],
         tag: "Xalq ertagi • Musiqa va mehr",
         hue: "#5b21b6",
         moral: "Yaxshi niyat bilan chalingan kuy — eng kuchli sehr. San'at qalblarni isitadi va odamlarni birlashtiradi.",
@@ -643,6 +653,7 @@ Object.assign(window.storiesDatabase, {
     zumrad_buloq: {
         title: "Sehrli Buloq Sirlari",
         category: "folk",
+        age: [5, 8],
         tag: "Xalq ertagi • Tabiatni asrash",
         hue: "#0e7490",
         moral: "Tabiat bizga mehr bersa, biz ham unga mehr berishimiz kerak. Toza buloq — hayot manbai.",
@@ -704,6 +715,7 @@ Object.assign(window.storiesDatabase, {
     oltin_baliq: {
         title: "Saxiy Baliq",
         category: "folk",
+        age: [4, 7],
         tag: "Xalq ertagi • Saxiylik",
         hue: "#b45309",
         moral: "Saxiy odamning yaxshiligi qaytib, butun elga baraka keltiradi.",
@@ -763,6 +775,7 @@ Object.assign(window.storiesDatabase, {
     quvnoq_chumchuq: {
         title: "Chumchuqning Topqirligi",
         category: "folk",
+        age: [4, 7],
         tag: "Xalq ertagi • Topqirlik",
         hue: "#a16207",
         moral: "Kichkina bo'lsang ham aqlli bo'l: birlik va topqirlik bor joyda kichiklar ham katta ishlar qiladi.",
@@ -822,6 +835,7 @@ Object.assign(window.storiesDatabase, {
     bahor_elchisi: {
         title: "Navro'z Sadosi",
         category: "folk",
+        age: [4, 7],
         tag: "Bayram ertagi • An'analar",
         hue: "#15803d",
         moral: "Navro'z — yangilanish, mehr va do'stlik bayrami. Tabiat uyg'ongani kabi qalblarimiz ham uyg'onadi.",

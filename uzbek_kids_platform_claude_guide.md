@@ -401,3 +401,19 @@ fonts/gowun-dodum-ko.*   # built Korean font + the letters in it
 * Both open in `#playModal`. While it is open, the arrow keys don't turn the book's pages; Escape or ✕ closes it.
 * The Cyrillic and 한국어 switches cover both: the page-wide display layer in `js/translit.js` converts the window's text as it is drawn, and `js/i18n.js` has the Korean for its buttons and messages. Story text in it (the page title in the colouring heading, the order cards' captions) is marked `data-content`, so it stays Uzbek. The printed heading is taken as shown, so it prints in Cyrillic, or with the Korean word for "colouring", when those are on.
 * Neither uses a computer voice, in line with the narration decision in `ROADMAP.md`.
+
+## 13. Update: Reading Levels (Roadmap Phase 1, item 4)
+
+### Ages and shelves (`js/levels.js`)
+* Every book has `age: [youngest, oldest]`: from a grown-up reading it with the child, to the child reading it alone. The current values are a first estimate from sentence length, vocabulary and theme. The folk tales mostly suit 4–8, Afandi and *Donishmand qiz* 7–10, and Navoiy and Qodiriy 9–12.
+* The library has three shelves: `4-6`, `7-8` and `9+`. A book stands on every shelf its ages touch (`Levels.fits`), so a 5–8 book is on both 4–6 and 7–8.
+* `Levels.shelfFor(age)` gives a child's shelf. Children under 4 use the 4–6 shelf.
+
+### In the app (`js/app.js`, `js/store.js`)
+* A profile may have an `age` (the form offers 4 to 11+, and tapping the chosen age again clears it). `Store.updateProfile` keeps only believable ages, from 2 to 18.
+* Choosing a child opens their shelf, marked with their face. "Barcha yoshlar" shows every book. The category counts and the heading count the books on the chosen shelf. A category with no book for that age shows a message with "Barcha kitoblarni ko'rsatish".
+* With no book in progress, the banner suggests the first book on the child's shelf that they haven't finished (`suggestedBook`).
+* Cards and title pages show a book's ages ("5–8 yosh"); in Korean, "5~8세".
+
+### Tests
+* `tests/stories.test.js` (part of `npm test`) checks every book: its key, title, category and age range, at least three pages with a title, text and picture, and questions and quizzes whose right answer exists. It also checks the shelf rules, and that each shelf has at least five books. Run it after adding or lengthening books.

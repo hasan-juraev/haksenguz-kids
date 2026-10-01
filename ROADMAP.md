@@ -89,8 +89,17 @@ reading it.
    - **Sharing:** "Ulashish" shares the app or a book through the phone's
      share sheet (Telegram, KakaoTalk). A link ending in `#zumrad` opens that
      book.
-4. **Reading levels.** Tag books by age and level so the library can show a
-   4-year-old and a 9-year-old the right shelf.
+4. **Reading levels.** ✅ Built.
+   - Every book has an age range (`age: [5, 8]`), from being read to the
+     child to reading it alone. It shows on the library cards and the book's
+     title page.
+   - The library has three shelves: 4–6 (listening first), 7–8 (starting to
+     read) and 9+ (reading alone: Navoiy, Qodiriy).
+   - A child's profile can have an age. It opens their shelf, marked with
+     their face, and "Kitobni Ochish" suggests the first unread book on it.
+   - The ages are a first estimate from each book's sentences, words and
+     theme; change them in the story files if a book feels too hard or too
+     easy.
 
 ## Phase 2 — Stories that connect both worlds
 

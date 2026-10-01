@@ -96,6 +96,15 @@
                 <button onclick="app.filterCategory('modern')" id="cat-modern" class="px-4 py-2 bg-white text-gray-600 hover:bg-brand-50 text-sm font-bold rounded-xl border border-orange-100 whitespace-nowrap transition">Zamonaviy Sirlar <span data-count></span></button>
             </div>
 
+            <!-- Age shelves (js/levels.js); a child's age picks theirs -->
+            <div id="ageFilter" role="group" aria-label="Yosh bo'yicha" class="flex items-center gap-2 overflow-x-auto pb-2 -mt-3">
+                <span class="text-sm font-bold text-gray-500 whitespace-nowrap">🎈 Yoshi:</span>
+                <button type="button" data-shelf="all" onclick="app.filterAge('all')">Barcha yoshlar</button>
+                <button type="button" data-shelf="4-6" onclick="app.filterAge('4-6')"><span data-mine aria-hidden="true"></span><span>4–6 yosh</span></button>
+                <button type="button" data-shelf="7-8" onclick="app.filterAge('7-8')"><span data-mine aria-hidden="true"></span><span>7–8 yosh</span></button>
+                <button type="button" data-shelf="9+" onclick="app.filterAge('9+')"><span data-mine aria-hidden="true"></span><span>9+ yosh</span></button>
+            </div>
+
             <!-- Library Grid -->
             <div class="space-y-3">
                 <h3 class="text-xl font-bold text-gray-800 flex items-center space-x-2">
@@ -104,6 +113,10 @@
                 </h3>
                 <div id="libraryGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     <!-- Populated via JS -->
+                </div>
+                <div id="libraryEmpty" class="hidden bg-white/70 rounded-2xl border border-dashed border-orange-200 p-6 text-center space-y-3">
+                    <p class="font-bold text-gray-600">📚 Bu yoshga mos kitob hali yo'q.</p>
+                    <button type="button" onclick="app.filterAge('all')" class="min-h-[44px] px-4 bg-brand-500 hover:bg-brand-600 text-white text-sm font-bold rounded-xl transition">Barcha kitoblarni ko'rsatish</button>
                 </div>
             </div>
         </div>
@@ -291,6 +304,11 @@
                     <span class="text-sm font-bold text-gray-700">Rasm tanlang</span>
                     <div id="avatarPicker" class="grid grid-cols-4 gap-2"></div>
                 </div>
+                <div class="space-y-1.5">
+                    <span class="text-sm font-bold text-gray-700">Yoshi</span>
+                    <div id="agePicker" class="grid grid-cols-4 gap-2" role="group" aria-label="Yoshi"></div>
+                    <p class="text-xs text-gray-500">Kutubxona shu yoshga mos kitoblarni ko'rsatadi.</p>
+                </div>
                 <div class="flex gap-2 pt-1">
                     <button type="submit" class="flex-1 min-h-[48px] px-4 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-2xl shadow-md transition">Saqlash</button>
                     <button type="button" onclick="app.showProfileList()" class="min-h-[48px] px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-2xl transition">Bekor qilish</button>
@@ -367,6 +385,7 @@
     <script src="js/i18n.js"></script>
     <script src="js/translit.js"></script>
     <script src="js/store.js"></script>
+    <script src="js/levels.js"></script>
     <script src="js/book.js"></script>
     <script src="audio/narration.js"></script>
     <script src="js/voices.js"></script>

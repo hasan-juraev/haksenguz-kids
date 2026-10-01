@@ -25,11 +25,13 @@
             this.currentStoryKey = null;
             this.currentStoryObj = null;
             this.activeCategory = 'all';
+            this.activeShelf = 'all'; // age shelf (js/levels.js); the child's own, if their age is set
             this.soundEnabled = this.store.settings.sound !== false;
             this.audioCtx = null;
             this.heroKey = null;
             this.editingProfile = null;
             this.pickedAvatar = null;
+            this.pickedAge = null;
             this.voices = []; // who has read the open book aloud
 
             this.book = new root.BookEngine(document.getElementById('book'), {
@@ -54,6 +56,7 @@
             document.addEventListener('keydown', (e) => this.onKey(e));
             document.getElementById('profileList').addEventListener('click', (e) => this.onProfileListClick(e));
             document.getElementById('avatarPicker').addEventListener('click', (e) => this.onAvatarClick(e));
+            document.getElementById('agePicker').addEventListener('click', (e) => this.onAgeClick(e));
             document.addEventListener('click', (e) => {
                 if (!e.target.closest('#glossCard, .gloss')) this.closeGloss();
             });
@@ -65,8 +68,7 @@
             if (root.Translit) root.Translit.set({ script: this.store.settings.script, lang: this.store.settings.lang });
             this.renderScriptBtn();
             this.renderSoundBtn();
-            this.updateCategoryLabels();
-            this.refreshProfile();
+            this.refreshProfile(); // also the age shelf, category counts and library
             this.setupOffline();
             this.setupInstall();
             // A shared link (…/#zumrad) opens that book.
@@ -80,6 +82,10 @@
             document.getElementById('profileAvatar').textContent = p.avatar;
             document.getElementById('profileName').textContent = p.name;
             document.getElementById('userPoints').textContent = `${p.points} ball`;
+            // A child's age picks their shelf; without one, every book shows.
+            this.activeShelf = (root.Levels && root.Levels.shelfFor(p.age)) || 'all';
+            this.renderAgeFilter();
+            this.updateCategoryLabels();
             this.renderHero();
             this.initLibrary();
         }
@@ -91,9 +97,10 @@
             const p = this.store.profile();
             const rec = p.last && this.db[p.last] ? p.books[p.last] : null;
             this.heroKey = rec && rec.page >= 1 ? p.last : null;
-            const story = this.db[this.heroKey || 'zumrad'];
+            this.heroBook = this.heroKey || this.suggestedBook();
+            const story = this.db[this.heroBook];
             const hero = document.getElementById('heroArt');
-            if (hero && story && root.Art) hero.innerHTML = root.Art.render(story.cover || story.pages[0].scene, { still: false, seed: 'hero:' + (this.heroKey || 'zumrad') });
+            if (hero && story && root.Art) hero.innerHTML = root.Art.render(story.cover || story.pages[0].scene, { still: false, seed: 'hero:' + this.heroBook });
             document.getElementById('heroBtnLabel').textContent = this.heroKey ? 'Davom ettirish' : 'Kitobni Ochish';
             const caption = document.getElementById('heroResume');
             caption.textContent = this.heroKey ? `📖 ${story.title} · ${rec.page} / ${story.pages.length}` : '';
@@ -102,16 +109,47 @@
 
         openHeroBook() {
             if (this.heroKey) this.startStory(this.heroKey, true);
-            else this.startStory('zumrad');
+            else this.startStory(this.heroBook || this.suggestedBook());
+        }
+
+        // With nothing in progress: the first book on the child's shelf they haven't finished.
+        suggestedBook() {
+            const p = this.store.profile();
+            const shelf = root.Levels ? root.Levels.shelfFor(p.age) : null;
+            const keys = Object.keys(this.db);
+            const fits = (k) => !shelf || root.Levels.fits(this.db[k], shelf);
+            return keys.find((k) => fits(k) && !(p.books[k] && p.books[k].finished)) || keys.find(fits) || keys[0];
+        }
+
+        // Books in a category ('all' for every one) on the chosen age shelf.
+        shelfKeys(cat) {
+            return Object.keys(this.db).filter((k) => (cat === 'all' || this.db[k].category === cat) && (!root.Levels || root.Levels.fits(this.db[k], this.activeShelf)));
         }
 
         updateCategoryLabels() {
-            const keys = Object.keys(this.db);
             CATEGORIES.forEach((c) => {
                 const count = document.querySelector(`#cat-${c} [data-count]`);
-                if (!count) return;
-                const n = c === 'all' ? keys.length : keys.filter((k) => this.db[k].category === c).length;
-                count.textContent = `(${n})`;
+                if (count) count.textContent = `(${this.shelfKeys(c).length})`;
+            });
+        }
+
+        filterAge(shelf) {
+            this.activeShelf = shelf;
+            this.renderAgeFilter();
+            this.updateCategoryLabels();
+            this.initLibrary();
+        }
+
+        // The age shelves; the active child's own shelf carries their face.
+        renderAgeFilter() {
+            const p = this.store.profile();
+            const mine = root.Levels ? root.Levels.shelfFor(p.age) : null;
+            document.querySelectorAll('#ageFilter [data-shelf]').forEach((btn) => {
+                const on = btn.dataset.shelf === this.activeShelf;
+                btn.setAttribute('aria-pressed', String(on));
+                btn.className = `min-h-[36px] px-3 rounded-full text-xs font-bold whitespace-nowrap transition flex items-center gap-1 ${on ? 'bg-amber-400 text-amber-950 shadow-sm' : 'bg-white text-gray-600 border border-orange-100 hover:bg-amber-50'}`;
+                const face = btn.querySelector('[data-mine]');
+                if (face) face.textContent = btn.dataset.shelf === mine ? p.avatar : '';
             });
         }
 
@@ -119,7 +157,8 @@
             const grid = document.getElementById('libraryGrid');
             grid.innerHTML = '';
             const books = this.store.profile().books;
-            const keys = Object.keys(this.db).filter((k) => this.activeCategory === 'all' || this.db[k].category === this.activeCategory);
+            const keys = this.shelfKeys(this.activeCategory);
+            document.getElementById('libraryEmpty').classList.toggle('hidden', keys.length > 0);
             keys.forEach((key) => {
                 const item = this.db[key];
                 const card = document.createElement('button');
@@ -133,6 +172,7 @@
                     <div class="overflow-hidden space-y-1 min-w-0 flex-1">
                         <div class="flex items-center gap-1.5 flex-wrap">
                             <span class="text-[11px] font-bold text-brand-700 bg-orange-100 px-2 py-0.5 rounded-lg">${esc(item.tag.split('•')[0].trim())}</span>
+                            ${item.age && root.Levels ? `<span class="text-[11px] font-bold text-sky-800 bg-sky-100 px-2 py-0.5 rounded-lg">${root.Levels.label(item)}</span>` : ''}
                             ${item.isNew ? '<span class="text-[11px] font-bold text-white bg-emerald-500 px-2 py-0.5 rounded-lg">Yangi</span>' : ''}
                         </div>
                         <h4 class="font-bold text-gray-800 text-base leading-snug" data-content>${esc(item.title)}</h4>
@@ -717,6 +757,7 @@
                         <span class="text-4xl leading-none" aria-hidden="true">${esc(p.avatar)}</span>
                         <span class="font-bold text-gray-800 truncate max-w-full" data-content>${esc(p.name)}</span>
                         <span class="text-xs font-bold text-amber-600">⭐ ${p.points} ball</span>
+                        ${p.age && root.Levels ? `<span class="text-xs font-bold text-sky-700">${root.Levels.ageLabel(p.age)}</span>` : ''}
                     </button>
                     <button type="button" data-edit="${esc(p.id)}" aria-label="${esc(p.name)}: tahrirlash" class="absolute top-1.5 right-1.5 w-9 h-9 rounded-xl bg-white/90 text-gray-500 hover:text-brand-600 hover:bg-white shadow-sm transition">
                         <i class="fa-solid fa-pen text-xs"></i>
@@ -757,7 +798,9 @@
             document.getElementById('profileDeleteBtn').classList.toggle('hidden', !p || this.store.profiles().length < 2);
             const input = document.getElementById('profileNameInput');
             input.value = p ? p.name : '';
+            this.pickedAge = p ? p.age || null : null;
             this.renderAvatarPicker();
+            this.renderAgePicker();
             input.focus();
         }
 
@@ -775,17 +818,34 @@
             this.renderAvatarPicker();
         }
 
+        // Ages 4 to 11+ (optional: tapping the chosen one again clears it).
+        renderAgePicker() {
+            if (!root.Levels) return;
+            document.getElementById('agePicker').innerHTML = root.Levels.AGES.map((a) => {
+                const on = a === this.pickedAge;
+                return `<button type="button" data-age="${a}" aria-pressed="${on}" class="min-h-[48px] text-lg font-bold rounded-2xl border-2 ${on ? 'border-brand-500 bg-orange-50 text-brand-700' : 'border-orange-100 text-gray-700 hover:bg-orange-50'} transition">${a >= 11 ? '11+' : a}</button>`;
+            }).join('');
+        }
+
+        onAgeClick(e) {
+            const btn = e.target.closest('[data-age]');
+            if (!btn) return;
+            const age = +btn.dataset.age;
+            this.pickedAge = age === this.pickedAge ? null : age;
+            this.renderAgePicker();
+        }
+
         saveProfile(e) {
             e.preventDefault();
             const name = document.getElementById('profileNameInput').value.trim();
             if (!name) return;
             if (this.editingProfile === 'new') {
-                const p = this.store.addProfile(name, this.pickedAvatar);
+                const p = this.store.addProfile(name, this.pickedAvatar, this.pickedAge);
                 this.useProfile(p.id);
                 this.goHome();
                 return;
             }
-            this.store.updateProfile(this.editingProfile, { name, avatar: this.pickedAvatar });
+            this.store.updateProfile(this.editingProfile, { name, avatar: this.pickedAvatar, age: this.pickedAge });
             this.refreshProfile();
             this.showProfileList();
         }

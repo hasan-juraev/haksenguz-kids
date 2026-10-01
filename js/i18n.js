@@ -111,6 +111,15 @@
         '🔗 Havola': '🔗 링크',
         "Ertaklar Olami — o'zbek xalq ertaklari bolalar uchun": 'Ertaklar Olami — 어린이를 위한 우즈베크 전래동화',
 
+        // reading levels (js/levels.js): age shelves and a child's age
+        "Yosh bo'yicha": '나이별',
+        '🎈 Yoshi:': '🎈 나이:',
+        'Barcha yoshlar': '모든 나이',
+        "📚 Bu yoshga mos kitob hali yo'q.": '📚 이 나이에 맞는 책이 아직 없어요.',
+        "Barcha kitoblarni ko'rsatish": '모든 책 보기',
+        'Yoshi': '나이',
+        "Kutubxona shu yoshga mos kitoblarni ko'rsatadi.": '도서관에서 이 나이에 맞는 책을 보여 줘요.',
+
         // play corner (js/games.js): colouring page and story-order game
         "Rasmni bo'yash": '그림 색칠하기',
         "O'yin": '놀이',
@@ -205,6 +214,9 @@
         [/^(.+) ovozi va uning barcha yozuvlari o'chirilsinmi\?$/, '‘$1’ 목소리와 모든 녹음을 지울까요?', "Buvijon ovozi va uning barcha yozuvlari o'chirilsinmi?"],
         [/^🔴 (\d+:\d\d) — o'qing\.\.\.$/, '🔴 $1 — 읽어 주세요…', "🔴 0:07 — o'qing..."],
         [/^Rang (\d+)$/, '$1번 색', 'Rang 4'],
+        [/^(\d+)–(\d+) yosh$/, '$1~$2세', '5–8 yosh'],
+        [/^(\d+)\+ yosh$/, '$1세 이상', '9+ yosh'],
+        [/^(\d+) yosh$/, '$1세', '6 yosh'],
         [/^✓ (.+): (\d+) ta sahifa qo'shildi\.( Diqqat: bu telefon bu yozuvlarni o'qiy olmasligi mumkin\.)?$/,
             (all, who, n, warn) => `✓ ${who}: ${n}쪽을 추가했어요.${warn ? ' 주의: 이 휴대폰에서는 이 녹음이 재생되지 않을 수도 있어요.' : ''}`,
             "✓ 👵 Buvijon: 12 ta sahifa qo'shildi. Diqqat: bu telefon bu yozuvlarni o'qiy olmasligi mumkin."],

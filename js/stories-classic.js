@@ -12,6 +12,7 @@ window.storiesDatabase = window.storiesDatabase || {};
         sariq_dev: {
             title: "Sariq devni minib",
             category: "classic",
+            age: [7, 10],
             tag: "Xudoyberdi To'xtaboyev • Fantastik qissa",
             hue: "#a16207",
             moral: "Haqiqiy do'stlik va bilim — eng ulkan boylik.",
@@ -50,6 +51,7 @@ window.storiesDatabase = window.storiesDatabase || {};
         navoiy_farhod: {
             title: "Farhod va Shirin",
             category: "navoiy",
+            age: [9, 12],
             tag: "Alisher Navoiy • Doston",
             hue: "#1e3a8a",
             moral: "Sabr, sadoqat va mehnatsevarlik — dostonning abadiy sabog'i.",
@@ -88,6 +90,7 @@ window.storiesDatabase = window.storiesDatabase || {};
         navoiy_lison: {
             title: "Lison ut-tayr (Qushlar tili)",
             category: "navoiy",
+            age: [9, 12],
             tag: "Alisher Navoiy • Falsafiy doston",
             hue: "#0369a1",
             moral: "Haqiqiy go'zallik va hikmat — birga intilish va o'zini anglashda.",
@@ -125,6 +128,7 @@ window.storiesDatabase = window.storiesDatabase || {};
         qodiriy_o_tkan: {
             title: "O'tkan kunlar (Bolalar talqini)",
             category: "classic",
+            age: [10, 12],
             tag: "Abdulla Qodiriy • Klassik roman",
             hue: "#9f1239",
             moral: "Ilm, sadoqat va vatanga muhabbat — ajdodlardan qolgan eng qimmat meros.",
@@ -162,6 +166,7 @@ window.storiesDatabase = window.storiesDatabase || {};
         sehrli_olma: {
             title: "Sehrli Olma",
             category: "modern",
+            age: [4, 6],
             tag: "Zamonaviy ertak • Mehr-oqibat",
             hue: "#047857",
             moral: "Saxovatli bo'lish har doim baxt keltiradi.",
@@ -199,6 +204,7 @@ window.storiesDatabase = window.storiesDatabase || {};
         oy_qiz: {
             title: "Oyqiz Sirlari",
             category: "modern",
+            age: [4, 6],
             tag: "Fantastika • Sehr",
             hue: "#4338ca",
             moral: "Orzular sari intilish har doim go'zal.",
@@ -236,6 +242,7 @@ window.storiesDatabase = window.storiesDatabase || {};
         yulduz_bola: {
             title: "Yulduz Bola",
             category: "modern",
+            age: [4, 6],
             tag: "Zamonaviy ertak • Mehribonlik",
             hue: "#ca8a04",
             moral: "Qalbdagi mehribonlik yulduzdek porlab turadi.",
@@ -273,6 +280,7 @@ window.storiesDatabase = window.storiesDatabase || {};
         sirli_sandiq: {
             title: "Buvijonning Sandig'i",
             category: "classic",
+            age: [6, 9],
             tag: "Milliy qadriyatlar",
             hue: "#be123c",
             moral: "Milliy qadriyatlarimiz — ajdodlarimizdan qolgan bebaho meros.",
@@ -310,6 +318,7 @@ window.storiesDatabase = window.storiesDatabase || {};
         shox_va_dehqon: {
             title: "Shoh va Dehqon",
             category: "navoiy",
+            age: [8, 11],
             tag: "Sharq hikmati • Adolat",
             hue: "#7c2d12",
             moral: "Adolat va mehnat — davlat ustuni.",
@@ -347,6 +356,7 @@ window.storiesDatabase = window.storiesDatabase || {};
         sehrli_gilam: {
             title: "Sehrli Gilam Sayohati",
             category: "modern",
+            age: [5, 8],
             tag: "Fantastik sarguzasht",
             hue: "#0f766e",
             moral: "Tariximizni o'rganish va sayohat qilish maroqli.",
