@@ -10,13 +10,16 @@
 }
 
 body {
-    font-family: 'Nunito', sans-serif;
+    font-family: 'Nunito', 'Gowun Dodum', sans-serif;
     background-color: #fff9ed;
     overflow-x: hidden;
+    /* Korean wraps between words (no effect on Uzbek) */
+    word-break: keep-all;
+    overflow-wrap: break-word;
 }
 
 h1, h2, h3, h4, .font-heading {
-    font-family: 'Fredoka', 'Nunito', sans-serif;
+    font-family: 'Fredoka', 'Nunito', 'Gowun Dodum', sans-serif;
 }
 
 /* ---------- stage & book ---------- */
@@ -439,7 +442,7 @@ h1, h2, h3, h4, .font-heading {
 }
 
 .page-num {
-    font-family: 'Fredoka', 'Nunito', sans-serif;
+    font-family: 'Fredoka', 'Nunito', 'Gowun Dodum', sans-serif;
     font-size: 14px;
     color: #b45309;
 }
@@ -499,7 +502,7 @@ h1, h2, h3, h4, .font-heading {
 }
 
 .word-term {
-    font-family: 'Fredoka', 'Nunito', sans-serif;
+    font-family: 'Fredoka', 'Nunito', 'Gowun Dodum', sans-serif;
     font-size: 18px;
     font-weight: 700;
     color: #1f6f45;
@@ -537,6 +540,105 @@ h1, h2, h3, h4, .font-heading {
     color: var(--ink);
 }
 
+/* Korean helper (js/stories-ko.js): 🇰🇷 shows Korean under each piece of one page */
+.head-tools {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ko-toggle {
+    min-width: 36px;
+    height: 28px;
+    padding: 0 7px;
+    border-radius: 999px;
+    border: 2px solid #f1d8a8;
+    background: #fff;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+}
+
+.ko-toggle.is-on {
+    border-color: #cd2e3a;
+    background: #fdecee;
+}
+
+.ko-toggle:focus-visible {
+    outline: 3px solid #f59e0b;
+    outline-offset: 2px;
+}
+
+.ko-line {
+    display: block;
+    margin: 1px 0 10px;
+    font-size: calc(var(--fs, 19px) * .82);
+    line-height: 1.5;
+    font-weight: 600;
+    color: #5b6472;
+}
+
+.ko-line--title {
+    margin: -4px 0 0;
+    font-size: calc(var(--fs, 19px) * .95);
+    font-weight: 700;
+}
+
+.page-text.is-ko .sent {
+    display: block;
+}
+
+.page-text.is-ko::first-letter {
+    float: none;
+    margin: 0;
+    padding: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    font-weight: inherit;
+    color: inherit;
+    background: none;
+    box-shadow: none;
+}
+
+.choice .ko-line {
+    margin: 2px 0 0;
+    font-size: .9em;
+    color: #6b7280;
+}
+
+.finale-moral .ko-toggle {
+    margin: 0 6px 0 2px;
+    vertical-align: 2px;
+}
+
+.finale-moral .ko-line {
+    margin: 6px 0 0;
+    font-size: 15px;
+}
+
+.word-ko {
+    grid-column: 1 / -1;
+    margin-top: 2px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1f4d33;
+}
+
+/* glossary words: tap to see the Korean meaning */
+.gloss {
+    text-decoration: underline dotted #10b981;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.gloss:hover {
+    background: #d1fae5;
+}
+
 /* read-along: the piece being read lights up like a highlighter pen */
 .page-title,
 .sent {
@@ -557,7 +659,7 @@ h1, h2, h3, h4, .font-heading {
 
 .page-text::first-letter {
     float: left;
-    font-family: 'Fredoka', 'Nunito', sans-serif;
+    font-family: 'Fredoka', 'Nunito', 'Gowun Dodum', sans-serif;
     font-size: calc(var(--fs) * 3.1);
     line-height: .9;
     font-weight: 700;
@@ -695,7 +797,7 @@ h1, h2, h3, h4, .font-heading {
 }
 
 .exlibris-title {
-    font-family: 'Fredoka', 'Nunito', sans-serif;
+    font-family: 'Fredoka', 'Nunito', 'Gowun Dodum', sans-serif;
     font-size: 26px;
     font-weight: 700;
     color: #7c2d12;
@@ -755,7 +857,7 @@ h1, h2, h3, h4, .font-heading {
 
 .title-opening {
     margin: 0;
-    font-family: 'Fredoka', 'Nunito', sans-serif;
+    font-family: 'Fredoka', 'Nunito', 'Gowun Dodum', sans-serif;
     font-size: 18px;
     color: #9a3412;
 }
@@ -778,7 +880,7 @@ h1, h2, h3, h4, .font-heading {
     transform: translateX(-50%) rotate(-3deg);
     padding: 6px 22px;
     border-radius: 999px;
-    font-family: 'Fredoka', 'Nunito', sans-serif;
+    font-family: 'Fredoka', 'Nunito', 'Gowun Dodum', sans-serif;
     font-size: 28px;
     font-weight: 700;
     color: #fff;

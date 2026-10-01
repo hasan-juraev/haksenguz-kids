@@ -33,6 +33,7 @@
 
             this.book = new root.BookEngine(document.getElementById('book'), {
                 onChange: (s) => {
+                    this.closeGloss();
                     this.updateControls(s);
                     this.saveProgress(s);
                     this.reader.onChange(s);
@@ -52,16 +53,24 @@
             document.addEventListener('keydown', (e) => this.onKey(e));
             document.getElementById('profileList').addEventListener('click', (e) => this.onProfileListClick(e));
             document.getElementById('avatarPicker').addEventListener('click', (e) => this.onAvatarClick(e));
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#glossCard, .gloss')) this.closeGloss();
+            });
             const profileModal = document.getElementById('profileModal');
             profileModal.addEventListener('click', (e) => {
                 if (e.target === profileModal) this.closeProfiles();
             });
 
-            if (root.Translit) root.Translit.setMode(this.store.settings.script);
+            if (root.Translit) root.Translit.set({ script: this.store.settings.script, lang: this.store.settings.lang });
             this.renderScriptBtn();
             this.renderSoundBtn();
             this.updateCategoryLabels();
             this.refreshProfile();
+            this.setupOffline();
+            this.setupInstall();
+            // A shared link (…/#zumrad) opens that book.
+            this.openFromLink();
+            root.addEventListener('hashchange', () => this.openFromLink());
         }
 
         // Everything on screen that depends on who is reading.
@@ -125,7 +134,8 @@
                             <span class="text-[11px] font-bold text-brand-700 bg-orange-100 px-2 py-0.5 rounded-lg">${esc(item.tag.split('•')[0].trim())}</span>
                             ${item.isNew ? '<span class="text-[11px] font-bold text-white bg-emerald-500 px-2 py-0.5 rounded-lg">Yangi</span>' : ''}
                         </div>
-                        <h4 class="font-bold text-gray-800 text-base leading-snug">${esc(item.title)}</h4>
+                        <h4 class="font-bold text-gray-800 text-base leading-snug" data-content>${esc(item.title)}</h4>
+                        ${this.koTitle(key)}
                         <p class="text-xs text-gray-500">📄 ${item.pages.length} sahifali rasmli kitob</p>
                         ${this.cardStatus(item, books[key])}
                     </div>`;
@@ -133,6 +143,12 @@
             });
             const heading = document.getElementById('libraryHeading');
             if (heading) heading.textContent = `${keys.length} ta interaktiv kitob`;
+        }
+
+        // With the menus in Korean, a book's Korean title (if it has Korean) under its own.
+        koTitle(key) {
+            const ko = (root.storiesKorean || {})[key];
+            return this.store.settings.lang === 'ko' && ko ? `<p class="text-sm font-bold text-gray-500 leading-snug" lang="ko">${esc(ko.title)}</p>` : '';
         }
 
         // Half-read books show how far the child got; finished ones their stars.
@@ -174,6 +190,8 @@
             this.book.stopTurn();
             this.reader.stop();
             this.studio.close();
+            this.closeGloss();
+            if (root.location.hash) root.history.replaceState(null, '', root.location.pathname + root.location.search);
             this.show('homeView');
             this.renderHero();
             this.initLibrary();
@@ -185,6 +203,8 @@
             if (!story) return;
             this.currentStoryKey = storyKey;
             this.currentStoryObj = story;
+            // The address names the open book, so it can be shared as is.
+            if (root.location.hash !== `#${storyKey}`) root.history.replaceState(null, '', `#${storyKey}`);
             this.show('storyView');
             const rec = this.store.book(storyKey);
             this.reader.use(storyKey, null);
@@ -301,6 +321,10 @@
                 }
                 return;
             }
+            if (open('glossCard') && e.key === 'Escape') {
+                this.closeGloss();
+                return;
+            }
             if (open('profileModal')) {
                 if (e.key === 'Escape') {
                     if (this.editingProfile) this.showProfileList();
@@ -364,6 +388,8 @@
 
         onBookAction(act, el) {
             if (act === 'say') this.reader.say(+el.dataset.seg); // tap a sentence to hear it
+            else if (act === 'gloss') this.showGloss(+el.dataset.gloss); // tap a word for its Korean
+            else if (act === 'share') this.share(this.currentStoryKey);
             else if (act === 'quiz') this.startMiniGame();
             else if (act === 'restart') this.book.goTo(this.book.spread ? 0 : 1);
             else if (act === 'resume') {
@@ -490,64 +516,133 @@
         startMiniGame() {
             const quiz = (this.currentStoryObj && this.currentStoryObj.quiz) || DEFAULT_QUIZ;
             this.reader.stop();
+            this.closeGloss();
             this.show('gameView');
-            document.getElementById('gameQuestion').textContent = quiz.q;
+            // Answers in a random order; `order` keeps their places in the book (and in its Korean).
+            const order = quiz.a.map((_, i) => i).sort(() => Math.random() - 0.5);
+            this.quiz = { quiz, order, ko: false };
+            this.renderQuiz();
+        }
+
+        // The book's Korean quiz ([question, ...answers]), if it has one.
+        koQuiz() {
+            const ko = (root.storiesKorean || {})[this.currentStoryKey];
+            return ko && this.currentStoryObj && this.currentStoryObj.quiz ? ko.quiz || null : null;
+        }
+
+        toggleQuizKorean() {
+            this.quiz.ko = !this.quiz.ko;
+            this.renderQuiz();
+        }
+
+        renderQuiz() {
+            const { quiz, order, ko } = this.quiz;
+            const k = this.koQuiz();
+            const koBtn = document.getElementById('gameKo');
+            koBtn.classList.toggle('hidden', !k);
+            koBtn.classList.toggle('is-on', !!(k && ko));
+            koBtn.setAttribute('aria-pressed', String(!!(k && ko)));
+            const line = (text) => (k && ko ? `<span class="ko-line" lang="ko">${esc(text)}</span>` : '');
+            document.getElementById('gameQuestion').innerHTML = `<span data-content>${esc(quiz.q)}</span>${line(k && k[0])}`;
             const container = document.getElementById('gameOptionsContainer');
             container.innerHTML = '';
-            const options = quiz.a.map((text, i) => ({ text, correct: i === quiz.ok }));
-            options.sort(() => Math.random() - 0.5);
-            options.forEach((opt) => {
+            order.forEach((i) => {
                 const btn = document.createElement('button');
                 btn.type = 'button';
                 btn.className = 'w-full min-h-[48px] p-4 rounded-2xl bg-white hover:bg-emerald-50 border-2 border-orange-100 hover:border-emerald-400 text-gray-800 font-bold transition text-left flex items-center justify-between shadow-sm';
-                btn.innerHTML = `<span>${esc(opt.text)}</span> <i class="fa-solid fa-circle-question text-gray-400"></i>`;
-                btn.onclick = () => {
-                    if (opt.correct) {
-                        // The quiz pays out once per book, however often it is retaken.
-                        const rec = this.store.book(this.currentStoryKey);
-                        const first = !rec.quiz;
-                        if (first) {
-                            rec.quiz = true;
-                            this.addPoints(QUIZ_POINTS);
-                        }
-                        this.playChime(true);
-                        this.showModal('Tabriklaymiz! 🎉', first
-                            ? `Siz to'g'ri xulosa topdingiz va ${QUIZ_POINTS} ball qo'shildi!`
-                            : "Siz to'g'ri xulosa topdingiz! Bu kitob uchun ballni avvalroq olgansiz.");
-                        setTimeout(() => {
-                            this.closeModal();
-                            this.goHome();
-                        }, 2200);
-                    } else {
-                        this.showModal("Boshqatdan urinib ko'ring! 💪", "Bu xulosa asar g'oyasiga mos kelmaydi.");
-                    }
-                };
+                btn.innerHTML = `<span data-content>${esc(quiz.a[i])}${line(k && k[i + 1])}</span> <i class="fa-solid fa-circle-question text-gray-400"></i>`;
+                btn.onclick = () => this.answerQuiz(i === quiz.ok);
                 container.appendChild(btn);
             });
         }
 
-        // ---------- script (Lotin / Кирилл) ----------
+        answerQuiz(correct) {
+            if (!correct) {
+                this.showModal("Boshqatdan urinib ko'ring! 💪", "Bu xulosa asar g'oyasiga mos kelmaydi.");
+                return;
+            }
+            // The quiz pays out once per book, however often it is retaken.
+            const rec = this.store.book(this.currentStoryKey);
+            const first = !rec.quiz;
+            if (first) {
+                rec.quiz = true;
+                this.addPoints(QUIZ_POINTS);
+            }
+            this.playChime(true);
+            this.showModal('Tabriklaymiz! 🎉', first
+                ? `Siz to'g'ri xulosa topdingiz va ${QUIZ_POINTS} ball qo'shildi!`
+                : "Siz to'g'ri xulosa topdingiz! Bu kitob uchun ballni avvalroq olgansiz.");
+            setTimeout(() => {
+                this.closeModal();
+                this.goHome();
+            }, 2200);
+        }
 
-        setScript(mode) {
-            this.store.setSetting('script', mode);
-            if (root.Translit) root.Translit.setMode(mode);
+        // ---------- Korean helper: tap a word ----------
+
+        showGloss(i) {
+            const ko = (root.storiesKorean || {})[this.currentStoryKey];
+            const word = ko && ko.words && ko.words[i];
+            if (!word) return;
+            this.glossWord = word;
+            document.getElementById('glossTerm').textContent = word[0];
+            document.getElementById('glossKo').textContent = word[1];
+            document.getElementById('glossSay').classList.toggle('hidden', !root.speechSynthesis);
+            document.getElementById('glossCard').classList.remove('hidden');
+        }
+
+        closeGloss() {
+            const card = document.getElementById('glossCard');
+            if (card.classList.contains('hidden')) return;
+            card.classList.add('hidden');
+            if (root.speechSynthesis) root.speechSynthesis.cancel();
+        }
+
+        // Says the meaning with the phone's Korean voice (every phone in Korea has one).
+        sayGloss() {
+            const synth = root.speechSynthesis;
+            if (!synth || !this.glossWord) return;
+            const voice = synth.getVoices().find((v) => /^ko/i.test(v.lang));
+            if (!voice && synth.getVoices().length) {
+                this.toast("Bu qurilmada koreyscha ovoz topilmadi");
+                return;
+            }
+            synth.cancel();
+            const u = new root.SpeechSynthesisUtterance(this.glossWord[1]);
+            u.lang = 'ko-KR';
+            if (voice) u.voice = voice;
+            u.rate = 0.9;
+            synth.speak(u);
+        }
+
+        // ---------- script and menu language (Lot / Кир / 한) ----------
+
+        // 'lat' | 'cyr': Uzbek in Latin or Cyrillic; 'ko': menus in Korean (stories stay Uzbek, in Latin).
+        setScript(choice) {
+            const script = choice === 'cyr' ? 'cyr' : 'lat';
+            const lang = choice === 'ko' ? 'ko' : 'uz';
+            this.store.setSetting('script', script);
+            this.store.setSetting('lang', lang);
+            if (root.Translit) root.Translit.set({ script, lang });
             this.renderScriptBtn();
+            this.initLibrary();
             // Redraw the open book so its text is fitted to the page in the new script.
             if (this.book.story) this.book.goTo(this.book.view);
         }
 
         renderScriptBtn() {
-            const mode = this.store.settings.script;
+            const { script, lang } = this.store.settings;
+            const current = lang === 'ko' ? 'ko' : script;
             document.querySelectorAll('#scriptToggle [data-script]').forEach((btn) => {
-                const on = btn.dataset.script === mode;
+                const on = btn.dataset.script === current;
                 btn.setAttribute('aria-pressed', String(on));
                 btn.className = `min-h-[40px] px-2 sm:px-3 rounded-lg text-xs font-bold transition ${on ? 'bg-brand-500 text-white shadow-sm' : 'text-brand-700 hover:bg-brand-200'}`;
             });
         }
 
-        // Text for native dialogs, which the page-wide Cyrillic switch can't reach.
+        // Text for native dialogs, which the page-wide display layer can't reach.
         tx(text) {
-            return root.Translit && root.Translit.mode() === 'cyr' ? root.Translit.toCyrillic(text) : text;
+            return root.Translit ? root.Translit.display(text) : text;
         }
 
         // ---------- profiles ----------
@@ -577,7 +672,7 @@
                 return `<div class="relative">
                     <button type="button" data-use="${esc(p.id)}"${on ? ' aria-current="true"' : ''} class="w-full min-h-[120px] p-3 rounded-2xl border-2 ${on ? 'border-brand-500 bg-orange-50' : 'border-orange-100 bg-white hover:bg-orange-50'} flex flex-col items-center justify-center gap-1 transition">
                         <span class="text-4xl leading-none" aria-hidden="true">${esc(p.avatar)}</span>
-                        <span class="font-bold text-gray-800 truncate max-w-full">${esc(p.name)}</span>
+                        <span class="font-bold text-gray-800 truncate max-w-full" data-content>${esc(p.name)}</span>
                         <span class="text-xs font-bold text-amber-600">⭐ ${p.points} ball</span>
                     </button>
                     <button type="button" data-edit="${esc(p.id)}" aria-label="${esc(p.name)}: tahrirlash" class="absolute top-1.5 right-1.5 w-9 h-9 rounded-xl bg-white/90 text-gray-500 hover:text-brand-600 hover:bg-white shadow-sm transition">
@@ -661,6 +756,114 @@
             this.refreshProfile();
             if (wasActive && document.getElementById('homeView').classList.contains('hidden')) this.goHome();
             this.showProfileList();
+        }
+
+        // ---------- offline, install, share ----------
+
+        // sw.js keeps the app's files for use without internet (http/https only).
+        setupOffline() {
+            if (!('serviceWorker' in root.navigator) || !/^https?:$/.test(root.location.protocol)) return;
+            const start = () => root.navigator.serviceWorker.register('sw.js')
+                .then(() => root.navigator.serviceWorker.ready)
+                .then((reg) => {
+                    if (reg.active) reg.active.postMessage({ type: 'keep', urls: this.pageFiles() });
+                })
+                .catch(() => { /* offline support is optional */ });
+            if (document.readyState === 'complete') start();
+            else root.addEventListener('load', start, { once: true });
+        }
+
+        // Every file of the app this page uses, including fonts it hasn't
+        // needed yet (the Cyrillic ones); recordings are left out.
+        pageFiles() {
+            const urls = new Set([root.location.href.split('#')[0]]);
+            root.performance.getEntriesByType('resource').forEach((e) => urls.add(e.name));
+            [...document.styleSheets].forEach((sheet) => {
+                let rules = [];
+                try {
+                    rules = [...sheet.cssRules];
+                } catch (e) {
+                    return;
+                }
+                rules.filter((r) => r.type === CSSRule.FONT_FACE_RULE).forEach((r) => {
+                    const m = /url\(["']?([^"')]+)/.exec(r.style.getPropertyValue('src'));
+                    if (m) urls.add(new URL(m[1], sheet.href || root.location.href).href);
+                });
+            });
+            return [...urls].filter((u) => {
+                const url = new URL(u, root.location.href);
+                return url.origin === root.location.origin && !/\/audio\/.+\.(m4a|webm|ogg|mp3|wav|aac)$/.test(url.pathname);
+            });
+        }
+
+        // "Telefonga o'rnatish": Android/Chrome offers its own install prompt;
+        // on iPhone and iPad it is done from Safari's share menu, so we explain.
+        setupInstall() {
+            const installed = root.matchMedia('(display-mode: standalone)').matches || root.navigator.standalone === true;
+            if (installed) return;
+            root.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                this.installPrompt = e;
+                this.showInstall(true);
+            });
+            root.addEventListener('appinstalled', () => {
+                this.installPrompt = null;
+                this.showInstall(false);
+            });
+            const apple = /iphone|ipad|ipod/i.test(root.navigator.userAgent) || (root.navigator.platform === 'MacIntel' && root.navigator.maxTouchPoints > 1);
+            if (apple) this.showInstall(true);
+        }
+
+        showInstall(on) {
+            const btn = document.getElementById('installBtn');
+            btn.classList.toggle('hidden', !on);
+            btn.classList.toggle('flex', on);
+        }
+
+        installApp() {
+            if (this.installPrompt) {
+                const prompt = this.installPrompt;
+                this.installPrompt = null;
+                this.showInstall(false);
+                prompt.prompt();
+                return;
+            }
+            this.showModal("📲 Telefonga o'rnatish",
+                "Safari'da pastdagi «Ulashish» (공유) tugmasini bosing, so'ng «Bosh ekranga qo'shish» (홈 화면에 추가) ni tanlang. Ertaklar belgisi telefoningiz ekranida paydo bo'ladi.");
+        }
+
+        // Shares the app, or one book, through the phone's share sheet
+        // (Telegram, KakaoTalk...); elsewhere the link is copied.
+        async share(key) {
+            const story = key ? this.db[key] : null;
+            const url = root.location.href.split('#')[0] + (story ? `#${key}` : '');
+            const text = this.tx(story
+                ? `«${story.title}» — o'zbek ertagi: rasmli, varaqlanadigan kitob`
+                : "Ertaklar Olami — o'zbek xalq ertaklari bolalar uchun");
+            if (root.navigator.share) {
+                try {
+                    await root.navigator.share({ title: story ? story.title : 'Ertaklar Olami', text, url });
+                    return;
+                } catch (e) {
+                    if (e.name === 'AbortError') return;
+                }
+            }
+            try {
+                await root.navigator.clipboard.writeText(`${text}\n${url}`);
+                this.toast("🔗 Havola nusxalandi — Telegram yoki KakaoTalk'ga joylang");
+            } catch (e) {
+                this.showModal('🔗 Havola', url);
+            }
+        }
+
+        openFromLink() {
+            let key = '';
+            try {
+                key = decodeURIComponent(root.location.hash.slice(1));
+            } catch (e) {
+                return;
+            }
+            if (this.db[key] && key !== this.currentStoryKey) this.startStory(key);
         }
 
         // ---------- modal ----------

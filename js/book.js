@@ -49,6 +49,9 @@
             this.turn = null;
             this.raf = 0;
             this.record = { page: 0, answers: {} };
+            this.ko = null; // this book's Korean helper text (js/stories-ko.js), if any
+            this.gloss = []; // its glossary words, as matchers
+            this.koView = null; // the view whose Korean is shown (🇰🇷), until the page turns
             this.spread = this.isSpread();
             this.reduced = root.matchMedia ? root.matchMedia('(prefers-reduced-motion: reduce)').matches : false;
 
@@ -91,6 +94,9 @@
             this.story = story;
             this.record = record || { page: 0, answers: {} };
             this.record.answers = this.record.answers || {};
+            this.ko = (root.storiesKorean || {})[key] || null;
+            this.gloss = ((this.ko && this.ko.words) || []).map(([, , forms], i) => ({ i, match: BookEngine.glossForms(forms) }));
+            this.koView = null;
             this.spread = this.isSpread();
             this.view = this.spread ? -1 : 0;
             this.el.style.setProperty('--cover', story.hue || '#7c2d12');
@@ -157,18 +163,19 @@
                 const last = st.pages[st.pages.length - 1].scene || {};
                 const scene = Object.assign({}, last, { fx: [...(last.fx || []).filter((f) => f !== 'confetti'), 'confetti'] });
                 return `<div class="sheet sheet--left sheet--end"><div class="page-pad">
-                    <div class="page-head"><span></span><span class="running-head">${esc(st.title)}</span></div>
+                    <div class="page-head"><span></span><span class="running-head" data-content>${esc(st.title)}</span></div>
                     <figure class="page-art page-art--end" data-action="poke">${this.art(scene, true, 'end')}<figcaption class="tamom-banner">Tamom!</figcaption></figure>
                     <p class="art-hint">✨ Ertak shu yerda tugadi ✨</p>
                     <div class="page-foot"><span class="page-num"></span><span>Ertaklar Olami</span></div>
                 </div></div>`;
             }
             const p = st.pages[view - 1];
+            const ko = this.koShown(view) && p.word ? this.koWord(p.word[0]) : null;
             const note = p.word
-                ? `<div class="word-card"><span class="word-label">📖 Yangi so'z</span><span class="word-term">${esc(p.word[0])}</span><span class="word-mean">${esc(p.word[1])}</span></div>`
+                ? `<div class="word-card"><span class="word-label">📖 Yangi so'z</span><span class="word-term" data-content>${esc(p.word[0])}</span><span class="word-mean" data-content>${esc(p.word[1])}</span>${ko ? `<span class="word-ko" lang="ko">🇰🇷 ${esc(ko[1])}</span>` : ''}</div>`
                 : `<p class="art-hint">👆 Rasmga bosing — qahramonlar jonlanadi!</p>`;
             return `<div class="sheet sheet--left"><div class="page-pad">
-                <div class="page-head"><span class="chapter-chip">${view}-sahifa</span><span class="running-head">${esc(st.title)}</span></div>
+                <div class="page-head"><span class="chapter-chip">${view}-sahifa</span><span class="running-head" data-content>${esc(st.title)}</span></div>
                 <figure class="page-art" data-action="poke" title="Rasmga bosing">${this.art(p.scene, true, view)}</figure>
                 ${note}
                 <div class="page-foot"><span class="page-num">${this.pageNo(view, 'left')}</span><span>Ertaklar Olami</span></div>
@@ -180,38 +187,79 @@
             if (view <= 0) return this.titleHTML();
             if (view > st.pages.length) return this.endHTML();
             const p = st.pages[view - 1];
-            // Title and sentences are separate pieces so read-along can light them up.
+            // Title and sentences are separate pieces so read-along can light them up;
+            // with 🇰🇷 on, each is followed by its Korean.
             const [title, ...sents] = BookEngine.segments(p);
-            const sentHTML = sents.map((t, i) => `<span class="sent" data-action="say" data-seg="${i + 1}">${esc(t)}</span>`).join(' ');
+            const ko = this.koShown(view);
+            const koLine = (i) => (ko ? `<span class="ko-line" lang="ko">${esc(ko.s[i] || '')}</span>` : '');
+            const sentHTML = sents.map((t, i) => `<span class="sent" data-action="say" data-seg="${i + 1}">${this.glossHTML(t)}</span>${koLine(i + 1)}`).join(ko ? '' : ' ');
             return `<div class="sheet sheet--right"><div class="page-pad">
-                <div class="page-head"><span class="running-head">${esc(st.tag.split('•')[0].trim())}</span><span class="chapter-chip">${view} / ${st.pages.length}</span></div>
+                <div class="page-head"><span class="running-head" data-content>${esc(st.tag.split('•')[0].trim())}</span><span class="head-tools">${this.koButton(view)}<span class="chapter-chip">${view} / ${st.pages.length}</span></span></div>
                 <div class="page-body" data-fit="21">
-                    <h2 class="page-title" data-action="say" data-seg="0">${esc(title)}</h2>
-                    <p class="page-text">${sentHTML}</p>
+                    <h2 class="page-title" data-content data-action="say" data-seg="0">${esc(title)}</h2>${ko ? `<p class="ko-line ko-line--title" lang="ko">${esc(ko.s[0])}</p>` : ''}
+                    <p class="page-text${ko ? ' is-ko' : ''}" data-content>${sentHTML}</p>
                     <p class="page-flourish" aria-hidden="true">❦ ❦ ❦</p>
-                    ${this.questionHTML(view, p)}
+                    ${this.questionHTML(view, p, ko)}
                 </div>
                 <div class="page-foot"><span class="turn-hint">${view < st.pages.length ? 'Varaqlang' : 'Yakun'} <b>➜</b></span><span class="page-num">${this.pageNo(view, 'right')}</span></div>
             </div></div>`;
         }
 
-        questionHTML(view, p) {
+        questionHTML(view, p, ko) {
             if (!p.question) return '';
             const state = this.record.answers[view] || {};
+            const koQ = ko && ko.q;
             const buttons = p.question.a.map((txt, i) => {
                 let cls = 'choice';
                 if (state.done && (i === p.question.ok || p.question.ok < 0) && i === state.pick) cls += ' choice--right';
                 if (state.wrong && state.wrong.includes(i)) cls += ' choice--wrong';
-                return `<button type="button" class="${cls}" data-action="answer" data-view="${view}" data-idx="${i}"${state.done ? ' disabled' : ''}>${esc(txt)}</button>`;
+                return `<button type="button" class="${cls}" data-content data-action="answer" data-view="${view}" data-idx="${i}"${state.done ? ' disabled' : ''}>${esc(txt)}${koQ ? `<span class="ko-line" lang="ko">${esc(koQ[i + 1] || '')}</span>` : ''}</button>`;
             }).join('');
             const feedback = state.done
                 ? `<p class="quiz-feedback quiz-feedback--ok">⭐ ${esc(state.praise || 'Barakalla!')} +10 ball</p>`
                 : state.wrong && state.wrong.length ? `<p class="quiz-feedback">🤔 Yana bir o'ylab ko'ring!</p>` : '';
             return `<div class="page-question">
                 <div class="question-label">💡 Bolajonlar uchun savol</div>
-                <p class="question-text">${esc(p.question.q)}</p>
+                <p class="question-text" data-content>${esc(p.question.q)}</p>${koQ ? `<p class="ko-line" lang="ko">${esc(koQ[0])}</p>` : ''}
                 <div class="choices">${buttons}</div>${feedback}
             </div>`;
+        }
+
+        // ---------- Korean helper (js/stories-ko.js) ----------
+
+        // The Korean for a view while 🇰🇷 is on for it: a story page's { s, q }, or { moral } at the end.
+        koShown(view) {
+            if (!this.ko || this.koView !== view) return null;
+            return view > this.story.pages.length ? { moral: this.ko.moral } : this.ko.pages[view - 1] || null;
+        }
+
+        koButton(view) {
+            if (!this.ko || (view <= this.story.pages.length && !this.ko.pages[view - 1])) return '';
+            const on = this.koView === view;
+            return `<button type="button" class="ko-toggle${on ? ' is-on' : ''}" data-action="korean" aria-pressed="${on}" aria-label="Koreyscha tarjima">🇰🇷</button>`;
+        }
+
+        toggleKorean() {
+            const v = this.view;
+            this.koView = this.koView === v ? null : v;
+            if (v >= 1) this.put(this.left, this.leftHTML(v));
+            this.put(this.right, this.rightHTML(Math.max(v, 0)));
+        }
+
+        // Glossary entry for a word, e.g. the "Yangi so'z" card's term.
+        koWord(word) {
+            const hit = this.gloss.find((g) => g.match(String(word).split(/\s+/)[0]));
+            return hit ? this.ko.words[hit.i] : null;
+        }
+
+        // Escaped text with glossary words wrapped so a tap shows their Korean meaning.
+        glossHTML(text) {
+            if (!this.gloss.length) return esc(text);
+            return String(text).split(/([A-Za-z'ʻʼ‘’]+)/).map((part, i) => {
+                if (i % 2 === 0) return esc(part);
+                const hit = this.gloss.find((g) => g.match(part));
+                return hit ? `<span class="gloss" data-action="gloss" data-gloss="${hit.i}">${esc(part)}</span>` : esc(part);
+            }).join('');
         }
 
         endpaperHTML() {
@@ -219,7 +267,7 @@
             return `<div class="sheet sheet--left sheet--endpaper"><div class="endpaper">
                 <div class="exlibris">
                     <span class="exlibris-top">Ushbu kitob</span>
-                    <span class="exlibris-title">${esc(st.title)}</span>
+                    <span class="exlibris-title" data-content>${esc(st.title)}</span>
                     <span class="exlibris-bottom">Ertaklar Olami kutubxonasidan</span>
                 </div>
             </div></div>`;
@@ -238,11 +286,11 @@
             const resume = this.resumePage();
             return `<div class="sheet sheet--right sheet--title"><div class="page-pad title-page">
                 <div class="title-ornament">❦</div>
-                <h1 class="title-name">${esc(st.title)}</h1>
-                <p class="title-tag">${esc(st.tag)}</p>
+                <h1 class="title-name" data-content>${esc(st.title)}</h1>
+                <p class="title-tag" data-content>${esc(st.tag)}</p>
                 <div class="title-medallion" data-action="poke">${this.art(scene, false, 'title')}</div>
                 <p class="title-meta">📄 ${st.pages.length} sahifa · ⏱ ~${mins} daqiqa</p>
-                <p class="title-opening">«Bir bor ekan, bir yo'q ekan...»</p>
+                <p class="title-opening" data-content>«Bir bor ekan, bir yo'q ekan...»</p>
                 ${resume
                     ? `<button type="button" class="btn-resume" data-action="resume">▶ Davom ettirish · ${resume}-sahifa</button>`
                     : `<p class="title-hint">Sahifa chetidan torting yoki ➜ tugmasini bosing</p>`}
@@ -251,16 +299,19 @@
 
         endHTML() {
             const st = this.story;
+            const view = this.lastView;
             const { asked, right, stars } = BookEngine.score(st, this.record.answers);
+            const ko = this.koShown(view);
             return `<div class="sheet sheet--right sheet--finale"><div class="page-pad finale">
                 <div class="title-ornament">❦</div>
                 <h2 class="finale-title">Ertak tugadi!</h2>
                 <div class="finale-stars" aria-label="${stars} yulduz">${'★'.repeat(stars)}<span>${'★'.repeat(3 - stars)}</span></div>
                 <p class="finale-score">${asked ? `Savollarga javoblar: ${right} / ${asked}` : 'Ajoyib o\'qidingiz!'}</p>
-                <div class="finale-moral"><b>Ertakdan saboq:</b> ${esc(st.moral || "Yaxshilik va ezgulik har doim g'alaba qiladi.")}</div>
+                <div class="finale-moral"><b>Ertakdan saboq:</b> ${this.ko && this.ko.moral ? this.koButton(view) : ''}<span data-content>${esc(st.moral || "Yaxshilik va ezgulik har doim g'alaba qiladi.")}</span>${ko && ko.moral ? `<span class="ko-line" lang="ko">${esc(ko.moral)}</span>` : ''}</div>
                 <div class="finale-actions">
                     <button type="button" class="btn-quiz" data-action="quiz">🏆 Bilimdon testi</button>
                     <button type="button" class="btn-reread" data-action="restart">↺ Boshidan o'qish</button>
+                    <button type="button" class="btn-reread" data-action="share">📤 Ulashish</button>
                 </div>
             </div></div>`;
         }
@@ -273,9 +324,9 @@
                     <span class="cover-corner cover-corner--tl"></span><span class="cover-corner cover-corner--tr"></span>
                     <span class="cover-corner cover-corner--bl"></span><span class="cover-corner cover-corner--br"></span>
                     <p class="cover-series">Ertaklar Olami</p>
-                    <h1 class="cover-title">${esc(st.title)}</h1>
+                    <h1 class="cover-title" data-content>${esc(st.title)}</h1>
                     <div class="cover-medallion">${this.art(scene, false, 'cover')}</div>
-                    <p class="cover-tag">${esc(st.tag)}</p>
+                    <p class="cover-tag" data-content>${esc(st.tag)}</p>
                     <p class="cover-hint">👆 Kitobni ochish uchun bosing</p>
                 </div>
             </div>`;
@@ -325,6 +376,7 @@
         // Draws the book at rest for this.view.
         renderRest() {
             const v = this.view;
+            if (this.koView !== v) this.koView = null; // 🇰🇷 is for one page at a time
             const closed = this.spread && v === -1;
             this.el.classList.toggle('is-closed', closed);
             this.el.classList.toggle('is-title', v <= 0);
@@ -490,6 +542,7 @@
             if (act === 'next') this.next();
             else if (act === 'prev') this.prev();
             else if (act === 'answer') this.answer(+a.dataset.view, +a.dataset.idx);
+            else if (act === 'korean') this.toggleKorean();
             else if (act === 'poke') this.poke(a);
             else if (this.opts.onAction) this.opts.onAction(act, a);
         }
@@ -653,6 +706,17 @@
     // What a narrator reads on a story page: its title, then each sentence.
     BookEngine.segments = function (page) {
         return [String(page.title || '').trim(), ...BookEngine.sentences(page.text)];
+    };
+
+    // Matches words against glossary forms: "sandiq" matches words that start
+    // with it ("sandiqni"), "=in" only the word "in". Case and apostrophe style don't matter.
+    BookEngine.glossForms = function (forms) {
+        const norm = (w) => String(w).toLowerCase().replace(/[ʻʼ‘’`]/g, "'");
+        const list = forms.map((f) => (f[0] === '=' ? { exact: true, f: norm(f.slice(1)) } : { exact: false, f: norm(f) }));
+        return (word) => {
+            const w = norm(word);
+            return list.some(({ exact, f }) => (exact ? w === f : w.startsWith(f)));
+        };
     };
 
     // Questions answered right out of those asked, as 1–3 stars (3 when a book asks none).

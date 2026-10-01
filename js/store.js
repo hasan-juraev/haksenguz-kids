@@ -7,7 +7,7 @@
  *   answers   page questions answered so far (see BookEngine.answer)
  *   finished  reached the last page at least once
  *   quiz      passed the final quiz (its points are given only once)
- * Settings (script, page sound) belong to the device.
+ * Settings (script, menu language, page sound) belong to the device.
  */
 (function (root) {
     'use strict';
@@ -17,7 +17,7 @@
     const AVATARS = ['🦊', '🐰', '🐻', '🦉', '🐱', '🐶', '🐴', '🐝'];
     const DEFAULT_NAME = 'Bolajon';
 
-    const blank = () => ({ v: VERSION, settings: { script: 'lat', sound: true }, active: null, profiles: {} });
+    const blank = () => ({ v: VERSION, settings: { script: 'lat', lang: 'uz', sound: true }, active: null, profiles: {} });
 
     function read() {
         try {

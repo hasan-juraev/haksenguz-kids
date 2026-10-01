@@ -273,3 +273,113 @@ tests/narration.test.js    # node tests/narration.test.js
 * The narrator's recordings: record in the studio (ideally on an iPhone), send the `.json`, then run the import tool.
 * Offline/PWA and bundling the CDN styles and fonts. (Hosting is done: Netlify publishes `main` and builds a preview for every pull request.)
 * Issue C (`page.imageUrl` artwork) as before.
+
+---
+
+## 10. Update: No CDNs, Offline, Installable, Sharing (Roadmap Phase 1, step 3)
+
+The guideline in section 6 ("Zero External CSS/JS Dependencies") now holds: the page loads nothing from other sites.
+
+### Built files (`tools/build-assets.js`, run with `npm run build` after `npm install`)
+The generated files are committed, so the site still needs no build step. Rebuild when you add Tailwind classes or icons; `npm test` fails if you forget.
+* **`css/tailwind.css`** is built by the Tailwind CLI from `index.html` and `js/**/*.js`, using `tailwind.config.js` (the old inline config: brand/fairy colours and font families) and `css/tailwind.src.css`. It is about 27 KB and replaces the ~350 KB development CDN that built the styles on every visit. It is loaded *before* `book.css`, the order the CDN effectively had, so the app's own rules win ties.
+* **`css/icons.css` + `fonts/icons.woff2`**: the build scans the code for `fa-*` icon names and cuts a font with only those Font Awesome Free (solid) icons, about 2.5 KB. An unknown icon name stops the build. Only solid icons are available.
+* **`css/fonts.css` + `fonts/*.woff2`**: Fredoka (Latin) and Nunito (Latin + Cyrillic) variable fonts from Fontsource, split by alphabet with `unicode-range`, so a page loads only the files it needs, and a Korean font (section 11). Licences are in `fonts/LICENSE-*.txt` (OFL; Font Awesome icons CC BY 4.0).
+* **`tests/assets.test.js`** checks that:
+  * nothing loads from other sites;
+  * every file `index.html` refers to exists;
+  * every icon used is built;
+  * the fonts, manifest and service worker are present;
+  * after `npm install`, `css/tailwind.css` is exactly what a fresh build gives.
+
+### Installable app
+* `manifest.webmanifest`: name "Ertaklar", standalone display, icons in `icons/`.
+  * The PNGs are rendered from `icons/icon.svg`: the header logo, i.e. Font Awesome's book on the orange gradient. There is a maskable version and a full-bleed apple-touch icon.
+* "Telefonga o'rnatish" in the banner:
+  * Android/Chrome: appears when the browser fires `beforeinstallprompt`, and opens its prompt.
+  * iPhone/iPad: always shown (outside the installed app), and explains Safari's Share → Add to Home Screen (공유 → 홈 화면에 추가).
+
+### Offline (`sw.js`)
+* Every request for the app's own files goes to the network first. After 4 s, or when offline, a kept copy is used, so updates reach users on their next visit.
+* After loading, the page sends the worker the list of files it used, plus every font in `css/fonts.css` (Cyrillic and Korean too, needed or not), so all of them are kept on the first visit.
+* Requests for part of a file (audio playback) are left to the browser: serving a kept whole file to them breaks playback on iPhones. So built-in narration needs internet; family recordings live in IndexedDB and work offline.
+* The worker only registers over http(s), not from `file://`.
+
+### Sharing and book links
+* "Ulashish" (banner) and "📤 Ulashish" (a book's last page) use the Web Share API, i.e. the phone's share sheet with Telegram and KakaoTalk. Without it, the link is copied.
+* An open book is in the address (`…/#zumrad`, via `history.replaceState`), so a shared link or a reload opens that book. `hashchange` is handled too.
+
+### Current file structure (additions)
+```text
+package.json, package-lock.json  # build tools only (Tailwind CLI, Font Awesome, Fontsource, subset-font)
+tailwind.config.js               # Tailwind theme (was inline in index.html)
+css/tailwind.src.css             # -> css/tailwind.css (built)
+css/icons.css, css/fonts.css     # built
+fonts/                           # built font files + licences
+icons/                           # app icons (icon.svg + rendered PNGs)
+manifest.webmanifest             # installable app
+sw.js                            # offline support
+tools/build-assets.js            # npm run build
+tests/assets.test.js             # part of npm test
+```
+
+### Still open
+* Built-in narration offline: a "download this book" button that saves its recordings.
+
+## 11. Update: Korean Helper and Korean Menus (Roadmap Phase 1, step 2)
+
+Korean supports the Uzbek text and never replaces it: story text is always shown in Uzbek, and its Korean appears only when asked for.
+
+### Korean text (`js/stories-ko.js`)
+* `window.storiesKorean[key]` holds a book's Korean: `title`, `tag`, `moral`, `quiz` (`[question, ...answers]`), `words` and `pages`.
+* `pages[i].s` is the page title, then each sentence, in the order `BookEngine.segments(page)` splits the Uzbek, so the Korean lines up sentence by sentence. `pages[i].q` is the page question, then its answers in the Uzbek order.
+* `words`: `[term, Korean meaning, forms]`. A form matches words in the text that start with it (`sandiq` → `sandiqni`); `=in` matches only that exact word, for short words.
+* `reviewed: false` until the bilingual reviewer has checked the book.
+* So far *Zumrad va Qimmat* and *Oltin tarvuz*. The Korean is told the way picture books are read aloud (…했대요). Names are spelled by their Uzbek sounds (Zumrad → 줌라드, Qimmat → 킴마트); greetings keep the Uzbek with the meaning in brackets.
+
+### In the book (`js/book.js`, `js/app.js`)
+* **🇰🇷 button:** on a text page (next to the page number), on the moral on the last page, and in the quiz header. It shows the Korean under each Uzbek sentence, the question and its answers. It turns off when the page changes (`koView`).
+* **Tap a word:** `glossHTML` wraps glossary words in `.gloss` spans (dotted green underline). Tapping one opens `#glossCard` with the Korean meaning. 🔊 says it with `speechSynthesis` (`ko-KR`). The card closes on a tap elsewhere, Escape, a page turn or leaving the book.
+* The "Yangi so'z" card shows the Korean meaning too while 🇰🇷 is on.
+* Elements that are always Korean carry `lang="ko"`.
+
+### Korean menus (`js/i18n.js`, `js/translit.js`)
+* The header switch has three options: Lotin, Кирилл, 한국어. `js/store.js` keeps `settings.lang` (`uz`/`ko`) and `settings.script` (`lat`/`cyr`); in Korean mode Uzbek is shown in Latin.
+* `I18n.translate(text, 'ko')`: `EXACT` maps a whole UI text to Korean; `PATTERNS` handle texts with numbers or names, each with an example of the Uzbek. Unknown texts stay as they are.
+* It runs in the display layer that already shows Cyrillic: text nodes and `title`/`aria-label`/`placeholder`/`alt` are converted when shown, the originals are kept, and switching back restores them. The page title is converted too.
+* **`data-content`** marks story content (titles, text, questions, answers, names, the moral). It is never translated, only shown in the chosen script. Anything new that shows story text needs this attribute.
+* Native dialogs (`confirm`) and share texts don't pass through the page, so the app runs them through `app.tx()`.
+* Praise words (Barakalla!, Ofarin!…) stay in Uzbek, because children learn them.
+* Library cards show the Korean title under the Uzbek one when the book has Korean.
+
+### Korean font
+* Gowun Dodum (OFL), from `@expo-google-fonts/gowun-dodum`. `tools/build-assets.js` collects every Hangul letter in `index.html` and `js/` and cuts the font down to those: `fonts/gowun-dodum-ko.woff2`, about 44 KB, with the list in `fonts/gowun-dodum-ko.txt`.
+* It comes after Fredoka and Nunito in the font stacks, since they have no Hangul. A letter missing from it falls back to the phone's own Korean font.
+* **After adding Korean text, run `npm run build`**; `npm test` names any letters that are missing.
+
+### Checking the Korean
+* `node tools/korean-review.js > korean-review.csv` (or `… zumrad`, `… menu` for part of it) makes a table with one row per sentence, question, answer, word and menu text. Its columns are ID, place, Uzbek, Korean, and two empty ones for a fix and a note. It opens in Excel or Google Sheets.
+* `tests/korean.test.js` (part of `npm test`) checks that:
+  * every book's Korean lines up with its pages, sentences, questions and quiz;
+  * all of it is Hangul, and every glossary word appears in its book;
+  * the menu texts and every library genre have Korean, and each pattern's example gets that pattern's Korean;
+  * the Korean font has every letter used;
+  * every row of the review table has Korean.
+
+### Adding Korean for another book
+1. Add its entry to `js/stories-ko.js`, split the way `BookEngine.segments` splits the page. `node tests/korean.test.js` says which page is off.
+2. Run `npm run build` for the font, then `npm test`.
+3. Send `node tools/korean-review.js <key>` to the reviewer, apply the fixes, and set `reviewed: true`.
+
+### Current file structure (additions)
+```text
+js/stories-ko.js         # Korean for books: helper text, words, quiz
+js/i18n.js               # Korean menus
+tools/korean-review.js   # side-by-side table for the reviewer
+tests/korean.test.js     # part of npm test
+fonts/gowun-dodum-ko.*   # built Korean font + the letters in it
+```
+
+### Still open
+* The reviewer's corrections for the two books.
+* Korean for the other 21 books.
