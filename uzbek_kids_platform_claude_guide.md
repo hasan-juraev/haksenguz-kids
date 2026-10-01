@@ -607,3 +607,32 @@ fonts/gowun-dodum-ko.*   # built Korean font + the letters in it
 * New items: `fil` (elephant), `sabzi` (carrots), `shar` (balloons), and the birds `chick` and `goose`.
 * `star` is now drawn as a light, above the night tint, with a soft halo, so night skies shine.
 
+## 20. Update: Mening lug'atim, the Child's Dictionary (Roadmap Phase 3, item 10)
+
+### Words (`js/dictionary.js`)
+* `Dictionary.entries(db, profile)` returns the child's cards: `{ key, book, view, term, meaning, ko, scene }`.
+  * A word counts once its page has been opened (`profile.words["book:page"]`, set in `saveProgress`), or once its book is finished.
+  * A word met in two books is one card.
+  * The cards are sorted in Uzbek alphabet order (`ALPHABET`, `compare`).
+* `letters(word)` splits a word into Uzbek letters. O', g', sh, ch and ng are one letter each; ng' is n + g'; the tutuq is a tile of its own.
+* `koMeaning(book, term)` takes the meaning from that book's Korean glossary (`js/stories-ko.js`).
+* `spellable` picks words for "build the word" (one word, 3–7 letters).
+* `tests/dictionary.test.js` covers collecting, the order, the letters and the Korean meanings.
+
+### The view (`#dictView`, `js/app.js`)
+* The banner's "📖 Mening lug'atim (n)" opens it. The view shows:
+  * the three game buttons (open from 4 words);
+  * a hint while there are fewer;
+  * the picture cards.
+* Pictures are drawn as cards scroll into view (IntersectionObserver), so a long dictionary stays quick on phones.
+* 🔊 on a card uses `wordVoice()`:
+  * an Uzbek voice if the phone has one;
+  * else the Korean voice reading the word's 가 reading (`Hangul.read`);
+  * else nothing.
+
+### Games (`js/games.js`, `css/play.css`)
+* `Games.listen`: 5 rounds. The word is said (or written, without a voice), and the child taps its picture among four. A wrong tap shows the word and says it again.
+* `Games.match`: 5 Uzbek words and their Korean meanings, shuffled; tap one of each. Only the first part of a long Korean meaning is shown ("상자").
+* `Games.spell`: 3 words. The picture and meaning show, and the child taps the letter tiles in order. Wrong tiles shake; the tiles stay in Latin (`translate="no"`).
+* A win gives +10 points, once per game per day (`profile.dictWins`).
+

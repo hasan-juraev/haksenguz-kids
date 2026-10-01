@@ -211,6 +211,36 @@
         'Kirish': '들어가기',
         "Yana bir urinib ko'ring": '다시 해 보세요',
     };
+    // Mening lug'atim: the child's dictionary and its games (js/dictionary.js, js/games.js)
+    Object.assign(EXACT, {
+        "Mening lug'atim": '나의 낱말장',
+        "📖 Mening lug'atim": '📖 나의 낱말장',
+        'Eshit va top': '듣고 찾기',
+        "So'zni eshitib, rasmini toping": '낱말을 듣고 그림을 찾아요',
+        'Juftini top': '짝 찾기',
+        "O'zbekcha va koreyscha juftlar": '우즈베크어와 한국어 짝 맞추기',
+        "So'zni yig'ing": '낱말 만들기',
+        "Harflardan so'z tuzing": '글자로 낱말을 만들어요',
+        "📚 Hali so'z yo'q. Kitob o'qing — yangi so'zlar shu yerga yig'iladi!": '📚 아직 낱말이 없어요. 책을 읽으면 새 낱말이 여기에 모여요!',
+        'Eshitish': '듣기',
+        '📖 Kitobda': '📖 책에서 보기',
+        'Bu qurilmada ovoz topilmadi': '이 기기에서 목소리를 찾지 못했어요',
+        '🔊 Eshit va top': '🔊 듣고 찾기',
+        "So'zni tinglang va uning rasmini toping.": '낱말을 듣고 알맞은 그림을 찾아요.',
+        "So'zni o'qing va uning rasmini toping.": '낱말을 읽고 알맞은 그림을 찾아요.',
+        '🔊 Yana eshitish': '🔊 다시 듣기',
+        'Rasm': '그림',
+        '🤔 Yana bir bor tinglang!': '🤔 한 번 더 들어 봐요!',
+        '🎉 Barakalla! Hammasini topdingiz!': '🎉 잘했어요! 모두 찾았어요!',
+        '🇰🇷 Juftini top': '🇰🇷 짝 찾기',
+        "O'zbekcha so'zni bosing, keyin uning koreyscha ma'nosini toping.": '우즈베크어 낱말을 누르고, 그 뜻의 한국어를 찾아요.',
+        "🤔 Bu juft emas. Yana urinib ko'ring!": '🤔 짝이 아니에요. 다시 해 봐요!',
+        '🎉 Barakalla! Hamma juftlar topildi!': '🎉 잘했어요! 짝을 모두 찾았어요!',
+        "🔤 So'zni yig'ing": '🔤 낱말 만들기',
+        "Rasmga qarang va harflarni to'g'ri tartibda bosing.": '그림을 보고 글자를 차례대로 눌러요.',
+        '🤔 Bu harf emas. Qaysi harf keladi?': '🤔 그 글자가 아니에요. 어떤 글자가 올까요?',
+        "🎉 Barakalla! So'zlarni yig'dingiz!": '🎉 잘했어요! 낱말을 다 만들었어요!',
+    });
     // Alifbo: tracing letters (js/games.js) and 가, the Korean-letter readings (js/hangul.js)
     Object.assign(EXACT, {
         "✍️ Yozib ko'r": '✍️ 따라 쓰기',
@@ -246,6 +276,8 @@
     // [pattern, Korean, an example of the Uzbek (for the reviewer and the tests)]
     const PATTERNS = [
         [/^(\d+) ta interaktiv kitob$/, '인터랙티브 책 $1권', '23 ta interaktiv kitob'],
+        [/^(\d+) ta so'z$/, '낱말 $1개', "12 ta so'z"],
+        [/^🎮 O'yinlar uchun kamida (\d+) ta so'z kerak\. Yana (\d+) ta so'z yig'ing!$/, '🎮 게임을 하려면 낱말이 $1개 이상 필요해요. $2개 더 모아요!', "🎮 O'yinlar uchun kamida 4 ta so'z kerak. Yana 3 ta so'z yig'ing!"],
         [/^🎉 (\d+) kundan keyin bayram:$/, '🎉 $1일 뒤는', '🎉 8 kundan keyin bayram:'],
         [new RegExp(`^🎉 (\\d+)-(${MONTHS.join('|')})$`), (all, d, m) => `🎉 ${MONTHS.indexOf(m) + 1}월 ${d}일`, '🎉 9-oktabr'],
         [/^📄 (\d+) sahifali rasmli kitob$/, '📄 $1쪽 그림책', '📄 12 sahifali rasmli kitob'],

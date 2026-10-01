@@ -78,6 +78,10 @@
                             <button id="installBtn" onclick="app.installApp()" class="hidden min-h-[40px] px-3.5 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl backdrop-blur-md transition items-center gap-2">
                                 <i class="fa-solid fa-mobile-screen-button"></i> Telefonga o'rnatish
                             </button>
+                            <!-- Mening lug'atim: the words this child has met (js/dictionary.js) -->
+                            <button onclick="app.openDictionary()" id="dictBtn" class="min-h-[40px] px-3.5 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl backdrop-blur-md transition flex items-center gap-2">
+                                <span aria-hidden="true">📖</span> <span>Mening lug'atim</span> <span id="dictCount"></span>
+                            </button>
                             <button onclick="app.share()" class="min-h-[40px] px-3.5 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl backdrop-blur-md transition flex items-center gap-2">
                                 <i class="fa-solid fa-share-nodes"></i> Ulashish
                             </button>
@@ -204,6 +208,23 @@
         </div>
 
         <!-- Recording studio (js/studio.js): a grown-up reads the book aloud, page by page -->
+        <!-- Mening lug'atim: picture cards of the words this child has met, and three games -->
+        <div id="dictView" class="hidden space-y-4 max-w-6xl mx-auto w-full">
+            <div class="bg-white p-3 md:p-4 rounded-3xl shadow-sm border border-orange-100 flex flex-wrap items-center gap-3">
+                <button onclick="app.goHome()" class="min-h-[40px] px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-sm transition flex items-center gap-2"><i class="fa-solid fa-arrow-left"></i> Kutubxona</button>
+                <h2 class="font-heading text-xl md:text-2xl font-bold text-gray-800">📖 Mening lug'atim</h2>
+                <span id="dictTotal" class="text-xs font-bold text-amber-800 bg-amber-100 px-3 py-1 rounded-full"></span>
+            </div>
+            <div class="dict-games" id="dictGames">
+                <button type="button" class="dict-game-btn" data-game="listen"><span class="text-2xl" aria-hidden="true">🔊</span><b>Eshit va top</b><small>So'zni eshitib, rasmini toping</small></button>
+                <button type="button" class="dict-game-btn" data-game="match"><span class="text-2xl" aria-hidden="true">🇰🇷</span><b>Juftini top</b><small>O'zbekcha va koreyscha juftlar</small></button>
+                <button type="button" class="dict-game-btn" data-game="spell"><span class="text-2xl" aria-hidden="true">🔤</span><b>So'zni yig'ing</b><small>Harflardan so'z tuzing</small></button>
+            </div>
+            <p id="dictHint" class="hidden text-sm font-bold text-amber-800 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3"></p>
+            <p id="dictEmpty" class="hidden text-center text-gray-500 font-bold py-10">📚 Hali so'z yo'q. Kitob o'qing — yangi so'zlar shu yerga yig'iladi!</p>
+            <div id="dictGrid" class="dict-grid"></div>
+        </div>
+
         <div id="studioView" class="hidden space-y-3 max-w-3xl mx-auto w-full">
             <div class="bg-white/90 backdrop-blur-md p-3 rounded-2xl shadow-sm border border-orange-100 flex items-center justify-between gap-2">
                 <button onclick="app.closeStudio()" class="min-h-[48px] px-3.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-sm transition flex items-center gap-2">
@@ -400,6 +421,7 @@
     <script src="js/levels.js"></script>
     <script src="js/holidays.js"></script>
     <script src="js/hangul.js"></script>
+    <script src="js/dictionary.js"></script>
     <script src="js/book.js"></script>
     <script src="audio/narration.js"></script>
     <script src="js/voices.js"></script>

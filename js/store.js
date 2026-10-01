@@ -89,6 +89,7 @@
                 age: cleanAge(age),
                 points: 0,
                 books: {},
+                words: {}, // "book:page" of each word card met (Mening lug'atim)
                 last: null,
                 created: Date.now(),
             };

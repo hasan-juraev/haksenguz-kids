@@ -8,6 +8,8 @@ A Korean helper supports children who read Korean best. Tapping an underlined wo
 
 For children who read Korean letters first, the 가 button on any page shows the Uzbek in Hangul, the way it sounds (*Assalomu alaykum* → 앗살로무 알라이쿰). The *Alifbo* book has one page per letter of the Uzbek alphabet, with a picture, and the child can trace each letter with a finger.
 
+Every new word a child meets in a book goes into their own dictionary, *Mening lug'atim*, as a picture card with its Korean meaning. It has three games: hear a word and find its picture, match Uzbek words to Korean, and build a word from its letters.
+
 The library has shelves by age (4–6, 7–8, 9+); a child's profile can have an age, which opens their shelf.
 
 "Ikki xalq — bir ertak": finishing *Oltin tarvuz* opens its Korean twin, 흥부와 놀부 retold in Uzbek as *Hungbu va Nolbu*, which ends with a game of finding what the two tales share and where they differ.

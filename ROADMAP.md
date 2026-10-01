@@ -262,6 +262,25 @@ reading it.
 
 10. **Mening lug'atim (my dictionary).** New words become picture cards, with
     games: listen and pick, match Uzbek to Korean, build the word from letters.
+
+    ✅ **Built.**
+    - **Collecting words.** Each "Yangi so'z" card a child meets joins their
+      own dictionary, opened from the banner ("📖 Mening lug'atim (12)"). It
+      collects when its page is opened, and all the words of a finished book
+      count too.
+    - **The cards.** Each word shows the picture of its page, its meaning
+      and its Korean meaning. 🔊 says it, and "📖 Kitobda" opens its page.
+      The cards are in Uzbek alphabet order (… z, o', g', sh, ch, ng).
+    - **🔊 Eshit va top.** The child hears a word and taps its picture.
+      - Few phones have an Uzbek voice. Without one, the Korean voice says
+        the word's 가 reading ("anor" → 아노르).
+      - With no voice at all, the child reads the word instead.
+    - **🇰🇷 Juftini top.** Match five Uzbek words to their Korean meanings.
+    - **🔤 So'zni yig'ing.** Build a word from its letters, under its picture.
+      O', g', sh, ch and ng are one tile each.
+    - The games open once a child has 4 words. Each game's first win of the
+      day is worth +10 points.
+
 11. **Culture passport and map of Uzbekistan.** Each book belongs to a region.
     Finishing it stamps the passport. Points buy stickers.
 12. **Short pieces.** Riddles, proverbs, lullabies and tongue twisters. Folk

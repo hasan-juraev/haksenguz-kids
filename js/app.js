@@ -16,6 +16,8 @@
     const QUIZ_POINTS = 50;
     const ORDER_POINTS = 30;
     const COMPARE_POINTS = 30;
+    const DICT_POINTS = 10; // a dictionary game won, once a day per game
+    const DICT_MIN = 4; // words needed before the games open
     const TRACE_POINTS = 5; // each Alifbo letter traced, the first time
 
     const esc = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
@@ -65,6 +67,7 @@
             document.getElementById('profileList').addEventListener('click', (e) => this.onProfileListClick(e));
             document.getElementById('avatarPicker').addEventListener('click', (e) => this.onAvatarClick(e));
             document.getElementById('agePicker').addEventListener('click', (e) => this.onAgeClick(e));
+            document.getElementById('dictView').addEventListener('click', (e) => this.onDictClick(e));
             document.addEventListener('click', (e) => {
                 if (!e.target.closest('#glossCard, .gloss')) this.closeGloss();
             });
@@ -96,6 +99,7 @@
             this.updateCategoryLabels();
             this.renderHero();
             this.initLibrary();
+            this.updateDictCount();
         }
 
         // ---------- library ----------
@@ -264,7 +268,7 @@
         }
 
         show(view) {
-            ['homeView', 'storyView', 'gameView', 'studioView'].forEach((id) => document.getElementById(id).classList.toggle('hidden', id !== view));
+            ['homeView', 'storyView', 'gameView', 'studioView', 'dictView'].forEach((id) => document.getElementById(id).classList.toggle('hidden', id !== view));
             root.scrollTo({ top: 0 });
         }
 
@@ -277,6 +281,7 @@
             this.show('homeView');
             this.renderHero();
             this.initLibrary();
+            this.updateDictCount();
         }
 
         // resume: jump straight to the page this child stopped on.
@@ -516,6 +521,13 @@
             } else if (s.view >= 1) {
                 rec.page = s.view;
                 this.store.profile().last = key;
+                // its "Yangi so'z" joins this child's dictionary (Mening lug'atim)
+                const p = this.db[key].pages[s.view - 1];
+                if (p && p.word) {
+                    const profile = this.store.profile();
+                    profile.words = profile.words || {};
+                    profile.words[`${key}:${s.view}`] = 1;
+                }
             } else {
                 return;
             }
@@ -810,6 +822,129 @@
                 this.closeModal();
                 this.goHome();
             }, 2200);
+        }
+
+        // ---------- Mening lug'atim (js/dictionary.js, games in js/games.js) ----------
+
+        dictEntries() {
+            return root.Dictionary ? root.Dictionary.entries(this.db, this.store.profile()) : [];
+        }
+
+        updateDictCount() {
+            const el = document.getElementById('dictCount');
+            if (el) el.textContent = `(${this.dictEntries().length})`;
+        }
+
+        openDictionary() {
+            this.reader.stop();
+            this.show('dictView');
+            this.renderDictionary();
+        }
+
+        // Picture cards in Uzbek alphabet order. Pictures are drawn as cards scroll into view.
+        renderDictionary() {
+            const list = this.dictEntries();
+            this.dictList = list;
+            document.getElementById('dictTotal').textContent = `${list.length} ta so'z`;
+            document.getElementById('dictEmpty').classList.toggle('hidden', list.length > 0);
+            const short = list.length < DICT_MIN;
+            const hint = document.getElementById('dictHint');
+            hint.classList.toggle('hidden', !short);
+            hint.textContent = short ? `🎮 O'yinlar uchun kamida ${DICT_MIN} ta so'z kerak. Yana ${DICT_MIN - list.length} ta so'z yig'ing!` : '';
+            document.querySelectorAll('#dictGames [data-game]').forEach((b) => {
+                const need = b.dataset.game === 'match' ? list.filter((e) => e.ko).length : b.dataset.game === 'spell' ? list.filter(root.Dictionary.spellable).length : list.length;
+                b.disabled = need < (b.dataset.game === 'listen' ? DICT_MIN : 3);
+            });
+            const grid = document.getElementById('dictGrid');
+            grid.innerHTML = list.map((e, i) => `
+                <article class="dict-card">
+                    <div class="dict-art" data-i="${i}"></div>
+                    <div class="dict-body">
+                        <h4 class="dict-term" data-content>${esc(e.term)}</h4>
+                        <p class="dict-mean" data-content>${esc(e.meaning)}</p>
+                        ${e.ko ? `<p class="dict-ko" lang="ko">🇰🇷 ${esc(e.ko)}</p>` : ''}
+                        <div class="dict-tools">
+                            <button type="button" class="dict-say" data-say="${i}" aria-label="Eshitish">🔊</button>
+                            <button type="button" class="dict-open" data-open="${i}">📖 Kitobda</button>
+                        </div>
+                    </div>
+                </article>`).join('');
+            const draw = (box) => {
+                const e = list[+box.dataset.i];
+                if (e && root.Art && !box.firstChild) box.innerHTML = root.Art.render(e.scene, { still: true, seed: 'dict:' + e.key });
+            };
+            if (this.dictObserver) this.dictObserver.disconnect();
+            if (root.IntersectionObserver) {
+                this.dictObserver = new root.IntersectionObserver((seen) => seen.forEach((x) => {
+                    if (!x.isIntersecting) return;
+                    draw(x.target);
+                    this.dictObserver.unobserve(x.target);
+                }), { rootMargin: '200px' });
+                grid.querySelectorAll('.dict-art').forEach((box) => this.dictObserver.observe(box));
+            } else {
+                grid.querySelectorAll('.dict-art').forEach(draw);
+            }
+        }
+
+        onDictClick(e) {
+            const say = e.target.closest('[data-say]');
+            const open = e.target.closest('[data-open]');
+            const game = e.target.closest('[data-game]');
+            if (say) {
+                if (!this.sayWord(this.dictList[+say.dataset.say].term)) this.toast("Bu qurilmada ovoz topilmadi");
+            } else if (open) {
+                const w = this.dictList[+open.dataset.open];
+                this.startStory(w.book);
+                this.book.goTo(w.view);
+            } else if (game && !game.disabled) {
+                this.dictGame(game.dataset.game);
+            }
+        }
+
+        // The phone's voice for an Uzbek word: an Uzbek voice if there is one, else
+        // the Korean voice reading its 가 reading (every phone in Korea has one).
+        wordVoice() {
+            const synth = root.speechSynthesis;
+            const voices = synth ? synth.getVoices() : [];
+            const uz = voices.find((v) => /^uz/i.test(v.lang));
+            const ko = voices.find((v) => /^ko/i.test(v.lang));
+            return uz ? { voice: uz, lang: 'uz-UZ', read: (t) => t } : ko && root.Hangul ? { voice: ko, lang: 'ko-KR', read: (t) => root.Hangul.read(t) } : null;
+        }
+
+        sayWord(term) {
+            const v = this.wordVoice();
+            if (!v) return false;
+            const synth = root.speechSynthesis;
+            synth.cancel();
+            const u = new root.SpeechSynthesisUtterance(v.read(term));
+            u.lang = v.lang;
+            u.voice = v.voice;
+            u.rate = 0.8;
+            synth.speak(u);
+            return true;
+        }
+
+        // A game with the child's words; the first win of each game each day is worth points.
+        dictGame(kind) {
+            const list = this.dictList || this.dictEntries();
+            if (!root.Games || !root.Games[kind]) return;
+            const say = this.wordVoice() ? (t) => this.sayWord(t) : null;
+            root.Games[kind]({
+                entries: list,
+                say,
+                onRight: () => this.playChime(),
+                onWrong: () => {},
+                onWin: () => {
+                    this.playChime(true);
+                    const p = this.store.profile();
+                    const today = new Date().toDateString();
+                    p.dictWins = p.dictWins || {};
+                    if (p.dictWins[kind] === today) return;
+                    p.dictWins[kind] = today;
+                    this.addPoints(DICT_POINTS);
+                    this.toast(`📖 Barakalla! +${DICT_POINTS} ball`);
+                },
+            });
         }
 
         // ---------- Korean helper: tap a word ----------

@@ -629,5 +629,182 @@
         return card;
     }
 
-    root.Games = { color, order, compare, trace, close: closeModal, toLineArt };
+    // ---------- Mening lug'atim: games with the child's own words ----------
+
+    // Steps along the bottom, a message, and the end of a game.
+    function dictFrame(title, sub, steps, body, cls) {
+        return openModal(`
+            <div class="dict-game ${cls}">
+                <div class="play-head"><h3>${title}</h3><button type="button" class="play-x" data-close aria-label="Yopish">✕</button></div>
+                <p class="play-sub">${sub}</p>
+                ${body}
+                <div class="order-steps">${Array.from({ length: steps }, (_, i) => `<span data-step="${i}">${i + 1}</span>`).join('')}</div>
+                <p class="order-result" aria-live="polite"></p>
+            </div>`, 'play-card--dict');
+    }
+
+    function shake(el) {
+        el.classList.remove('is-wrong');
+        void el.offsetWidth;
+        el.classList.add('is-wrong');
+        setTimeout(() => el.classList.remove('is-wrong'), 700);
+    }
+
+    // 🔊 Eshit va top: hear a word, tap its picture. With no voice on the
+    // phone the word is written instead, to read.
+    function listen({ entries, say, rounds = 5, onRight, onWrong, onWin }) {
+        const D = root.Dictionary;
+        const pool = D.pick(entries, Math.min(rounds, entries.length));
+        const card = dictFrame('🔊 Eshit va top', say ? "So'zni tinglang va uning rasmini toping." : "So'zni o'qing va uning rasmini toping.", pool.length,
+            `<div class="listen-word">${say ? '<button type="button" class="listen-say">🔊 Yana eshitish</button>' : ''}<span class="listen-text" data-content></span></div><div class="listen-grid"></div>`, 'listen-game');
+        const grid = card.querySelector('.listen-grid');
+        const text = card.querySelector('.listen-text');
+        const result = card.querySelector('.order-result');
+        let round = 0;
+        function show() {
+            const target = pool[round];
+            const options = D.pick([target, ...D.pick(entries.filter((e) => e !== target), 3)], 4);
+            grid.innerHTML = options.map((e) => `<button type="button" class="listen-card" data-key="${esc(e.key)}" aria-label="Rasm">${root.Art.render(e.scene, { still: true, seed: 'dict:' + e.key })}</button>`).join('');
+            text.textContent = say ? '' : target.term;
+            if (say) say(target.term);
+        }
+        grid.addEventListener('click', (e) => {
+            const b = e.target.closest('.listen-card');
+            if (!b || round >= pool.length || b.disabled) return;
+            const target = pool[round];
+            if (b.dataset.key !== target.key) {
+                shake(b);
+                text.textContent = target.term; // a wrong pick shows the word
+                result.textContent = "🤔 Yana bir bor tinglang!";
+                if (say) say(target.term);
+                if (onWrong) onWrong();
+                return;
+            }
+            b.classList.add('is-right');
+            grid.querySelectorAll('.listen-card').forEach((x) => { x.disabled = true; });
+            text.textContent = target.term;
+            card.querySelector(`[data-step="${round}"]`).classList.add('is-done');
+            round++;
+            if (round === pool.length) {
+                result.textContent = "🎉 Barakalla! Hammasini topdingiz!";
+                card.querySelector('.dict-game').classList.add('is-won');
+                if (onWin) onWin();
+            } else {
+                result.textContent = '⭐ Barakalla!';
+                if (onRight) onRight();
+                setTimeout(() => {
+                    result.textContent = '';
+                    show();
+                }, 900);
+            }
+        });
+        const again = card.querySelector('.listen-say');
+        if (again) again.addEventListener('click', () => say(pool[Math.min(round, pool.length - 1)].term));
+        show();
+        return card;
+    }
+
+    // 🇰🇷 Juftini top: match each Uzbek word to its Korean meaning.
+    function match({ entries, pairs = 5, onRight, onWrong, onWin }) {
+        const D = root.Dictionary;
+        const list = D.pick(entries.filter((e) => e.ko), pairs);
+        const short = (ko) => ko.split(/ — |\(|,/)[0].trim();
+        const card = dictFrame("🇰🇷 Juftini top", "O'zbekcha so'zni bosing, keyin uning koreyscha ma'nosini toping.", list.length,
+            `<div class="match-cols"><div class="match-col">${list.map((e) => `<button type="button" class="match-item" data-side="uz" data-key="${esc(e.key)}" data-content>${esc(e.term)}</button>`).join('')}</div>` +
+            `<div class="match-col">${D.pick(list, list.length).map((e) => `<button type="button" class="match-item" data-side="ko" data-key="${esc(e.key)}" lang="ko">${esc(short(e.ko))}</button>`).join('')}</div></div>`, 'match-game');
+        const result = card.querySelector('.order-result');
+        let chosen = null;
+        let done = 0;
+        card.querySelector('.match-cols').addEventListener('click', (e) => {
+            const b = e.target.closest('.match-item');
+            if (!b || b.disabled) return;
+            if (!chosen || chosen.dataset.side === b.dataset.side) {
+                if (chosen) chosen.classList.remove('is-picked');
+                chosen = b;
+                b.classList.add('is-picked');
+                return;
+            }
+            const a = chosen;
+            chosen = null;
+            a.classList.remove('is-picked');
+            if (a.dataset.key !== b.dataset.key) {
+                shake(a);
+                shake(b);
+                result.textContent = "🤔 Bu juft emas. Yana urinib ko'ring!";
+                if (onWrong) onWrong();
+                return;
+            }
+            [a, b].forEach((x) => {
+                x.classList.add('is-right');
+                x.disabled = true;
+            });
+            card.querySelector(`[data-step="${done}"]`).classList.add('is-done');
+            done++;
+            if (done === list.length) {
+                result.textContent = "🎉 Barakalla! Hamma juftlar topildi!";
+                card.querySelector('.dict-game').classList.add('is-won');
+                if (onWin) onWin();
+            } else {
+                result.textContent = '⭐ Barakalla!';
+                if (onRight) onRight();
+            }
+        });
+        return card;
+    }
+
+    // 🔤 So'zni yig'ing: put the word's letters in order under its picture.
+    function spell({ entries, rounds = 3, onRight, onWrong, onWin }) {
+        const D = root.Dictionary;
+        const pool = D.pick(entries.filter(D.spellable), rounds);
+        const card = dictFrame("🔤 So'zni yig'ing", "Rasmga qarang va harflarni to'g'ri tartibda bosing.", pool.length,
+            `<div class="spell-art"></div><p class="spell-mean"><span data-content></span><span class="spell-ko" lang="ko"></span></p><div class="spell-slots" translate="no"></div><div class="spell-tiles" translate="no"></div>`, 'spell-game');
+        const result = card.querySelector('.order-result');
+        let round = 0;
+        let tiles = [];
+        let next = 0;
+        function show() {
+            const e = pool[round];
+            tiles = D.letters(e.term);
+            next = 0;
+            card.querySelector('.spell-art').innerHTML = root.Art.render(e.scene, { still: true, seed: 'dict:' + e.key });
+            card.querySelector('.spell-mean span[data-content]').textContent = e.meaning;
+            card.querySelector('.spell-ko').textContent = e.ko ? `🇰🇷 ${e.ko.split(/ — /)[0]}` : '';
+            card.querySelector('.spell-slots').innerHTML = tiles.map(() => '<span class="spell-slot"></span>').join('');
+            card.querySelector('.spell-tiles').innerHTML = D.pick(tiles.map((t, i) => ({ t, i })), tiles.length).map(({ t }) => `<button type="button" class="spell-tile" data-t="${esc(t.toLowerCase())}">${esc(t.toLowerCase())}</button>`).join('');
+        }
+        card.querySelector('.spell-tiles').addEventListener('click', (e) => {
+            const b = e.target.closest('.spell-tile');
+            if (!b || b.disabled || round >= pool.length) return;
+            if (b.dataset.t !== tiles[next].toLowerCase()) {
+                shake(b);
+                result.textContent = "🤔 Bu harf emas. Qaysi harf keladi?";
+                if (onWrong) onWrong();
+                return;
+            }
+            b.disabled = true;
+            b.classList.add('is-used');
+            card.querySelectorAll('.spell-slot')[next].textContent = tiles[next].toLowerCase();
+            next++;
+            result.textContent = '';
+            if (next < tiles.length) return;
+            card.querySelector(`[data-step="${round}"]`).classList.add('is-done');
+            round++;
+            if (round === pool.length) {
+                result.textContent = "🎉 Barakalla! So'zlarni yig'dingiz!";
+                card.querySelector('.dict-game').classList.add('is-won');
+                if (onWin) onWin();
+            } else {
+                result.textContent = '⭐ Barakalla!';
+                if (onRight) onRight();
+                setTimeout(() => {
+                    result.textContent = '';
+                    show();
+                }, 900);
+            }
+        });
+        show();
+        return card;
+    }
+
+    root.Games = { color, order, compare, trace, listen, match, spell, close: closeModal, toLineArt };
 })(window);
