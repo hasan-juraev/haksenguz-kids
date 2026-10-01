@@ -237,6 +237,29 @@ reading it.
 9. **Alifbo book.** Uzbek letters, including O' G' Sh Ch Ng, one picture per
    letter from the art engine, and letter tracing. Beginners can turn on
    Korean-letter sound hints (*Assalomu alaykum* → 앗살로무 알라이쿰).
+
+   ✅ **Built.**
+   - **The book.** *Alifbo* (shelf "🔤 Alifbo") has a page for each of the 29
+     letters in their official order, and one for the tutuq belgisi.
+     - Each page has the letter big ("A a"), a word that starts with it
+       (*anor, baliq, daraxt … o'rdak, g'oz, shar, choynak*) and its picture.
+     - Ng never starts a word, so its page explains that (*dengiz, tong,
+       ming*).
+     - With the menus in Cyrillic, the letters show in Cyrillic.
+     - The book has word cards, a few questions and the Korean helper.
+   - **✍️ Yozib ko'r (tracing).** The child traces the letter with a finger,
+     first the capital, then the small letter.
+     - A trace counts once most of the letter is gone over, every part of it
+       too, without straying far outside it.
+     - +5 points per letter, the first time.
+   - **가 (sound hints).** A button on every story page, not only the Alifbo,
+     shows each sentence, question and answer in Hangul, the way it sounds.
+     - Examples: *Assalomu alaykum* → 앗살로무 알라이쿰, *Toshkent* → 토시켄트.
+     - It stays on from page to page and is remembered.
+     - 🇰🇷 still shows the meaning instead, on the page where it's tapped.
+     - The readings are made by rules (`js/hangul.js`): Uzbek spelling is
+       regular. So they work for every book, with no translation needed.
+
 10. **Mening lug'atim (my dictionary).** New words become picture cards, with
     games: listen and pick, match Uzbek to Korean, build the word from letters.
 11. **Culture passport and map of Uzbekistan.** Each book belongs to a region.

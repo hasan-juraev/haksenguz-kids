@@ -402,5 +402,232 @@
         return card;
     }
 
-    root.Games = { color, order, compare, close: closeModal, toLineArt };
+    // ---------- tracing a letter (Alifbo) ----------
+
+    // The letter is drawn pale and big; the child goes over it with a finger.
+    // A trace counts once it covers most of the letter without wandering far
+    // off it: the letter's shape is a mask, sampled on a coarse grid.
+    const TRACE_COVER = 0.6; // share of the letter that must be gone over
+    const TRACE_PART = 0.35; // ...and of each part of it (a 3 × 3 grid over the letter)
+    const TRACE_OFF = 0.5; // share of the drawing allowed outside the letter
+
+    function trace({ letters, onStroke, onDone }) {
+        const card = openModal(`
+            <div class="trace-game">
+                <div class="play-head"><h3>✍️ Harfni yozing</h3><button type="button" class="play-x" data-close aria-label="Yopish">✕</button></div>
+                <p class="play-sub">Barmog'ingiz bilan harf ustidan yurgizing.</p>
+                <div class="trace-steps">${letters.map((l, i) => `<span data-step="${i}" translate="no">${esc(l)}</span>`).join('')}</div>
+                <div class="trace-pad"><canvas class="trace-canvas" aria-label="Harf yozish maydoni"></canvas></div>
+                <div class="trace-meter" aria-hidden="true"><span></span></div>
+                <div class="trace-actions"><button type="button" class="trace-clear">🔄 Qaytadan</button></div>
+                <p class="order-result" aria-live="polite"></p>
+            </div>`, 'play-card--trace');
+        const canvas = card.querySelector('.trace-canvas');
+        const ctx = canvas.getContext('2d');
+        const meter = card.querySelector('.trace-meter span');
+        const result = card.querySelector('.order-result');
+        const dpr = Math.min(root.devicePixelRatio || 1, 2);
+        let size = 0;
+        let step = 0;
+        let fontPx = 0;
+        let brush = 0;
+        let mask = null; // Uint8Array over the grid: 1 inside the letter
+        let drawn = null; // grid cells the child has gone over
+        let cell = 0;
+        let cols = 0;
+        let last = null;
+        let done = false;
+        let waiting = false; // a letter is done; the next one isn't drawn yet
+
+        function fitFont(letter) {
+            let px = size * 0.78;
+            for (; px > 20; px -= 4) {
+                ctx.font = `800 ${px}px Nunito, Fredoka, sans-serif`;
+                const m = ctx.measureText(letter);
+                const h = (m.actualBoundingBoxAscent || px * 0.72) + (m.actualBoundingBoxDescent || 0);
+                if (m.width <= size * 0.84 && h <= size * 0.8) break;
+            }
+            return px;
+        }
+
+        function drawLetter(c2, letter, fill) {
+            c2.font = `800 ${fontPx}px Nunito, Fredoka, sans-serif`;
+            c2.textAlign = 'center';
+            c2.textBaseline = 'alphabetic';
+            const m = c2.measureText(letter);
+            const asc = m.actualBoundingBoxAscent || fontPx * 0.72;
+            const desc = m.actualBoundingBoxDescent || 0;
+            const y = size / 2 + (asc - desc) / 2;
+            c2.fillStyle = fill;
+            c2.fillText(letter, size / 2, y);
+            return y;
+        }
+
+        function setup() {
+            const letter = letters[step];
+            size = Math.round(canvas.getBoundingClientRect().width * dpr) || 600;
+            canvas.width = size;
+            canvas.height = size;
+            fontPx = fitFont(letter);
+            brush = Math.max(10, fontPx * 0.13);
+            // the guide: pale letter with a dashed edge
+            ctx.clearRect(0, 0, size, size);
+            const y = drawLetter(ctx, letter, '#f6e7c8');
+            ctx.setLineDash([size / 60, size / 60]);
+            ctx.lineWidth = Math.max(2, size / 220);
+            ctx.strokeStyle = '#d4a65a';
+            ctx.strokeText(letter, size / 2, y);
+            ctx.setLineDash([]);
+            // the mask, on a grid of cells
+            const off = document.createElement('canvas');
+            off.width = size;
+            off.height = size;
+            const o = off.getContext('2d');
+            drawLetter(o, letter, '#000');
+            const px = o.getImageData(0, 0, size, size).data;
+            cell = Math.max(2, Math.round(size / 120));
+            cols = Math.ceil(size / cell);
+            mask = new Uint8Array(cols * cols);
+            for (let gy = 0; gy < cols; gy++) {
+                for (let gx = 0; gx < cols; gx++) {
+                    const x = Math.min(size - 1, gx * cell + (cell >> 1));
+                    const yy = Math.min(size - 1, gy * cell + (cell >> 1));
+                    if (px[(yy * size + x) * 4 + 3] > 100) mask[gy * cols + gx] = 1;
+                }
+            }
+            drawn = new Uint8Array(cols * cols);
+            waiting = false;
+            meter.style.width = '0%';
+            card.querySelectorAll('.trace-steps span').forEach((s, i) => s.classList.toggle('is-now', i === step));
+        }
+
+        function mark(x, y) {
+            const r = brush / 2;
+            const g0 = Math.max(0, Math.floor((x - r) / cell));
+            const g1 = Math.min(cols - 1, Math.floor((x + r) / cell));
+            const h0 = Math.max(0, Math.floor((y - r) / cell));
+            const h1 = Math.min(cols - 1, Math.floor((y + r) / cell));
+            for (let gy = h0; gy <= h1; gy++) {
+                for (let gx = g0; gx <= g1; gx++) {
+                    const cx = gx * cell + cell / 2 - x;
+                    const cy = gy * cell + cell / 2 - y;
+                    if (cx * cx + cy * cy <= r * r) drawn[gy * cols + gx] = 1;
+                }
+            }
+        }
+
+        // How much of the letter is gone over, overall and in its weakest part
+        // (so the legs of an A count, not only its top), and how much ink is off it.
+        function score() {
+            let inLetter = 0;
+            let covered = 0;
+            let ink = 0;
+            let off = 0;
+            let x0 = cols;
+            let x1 = 0;
+            let y0 = cols;
+            let y1 = 0;
+            for (let i = 0; i < mask.length; i++) {
+                if (mask[i]) {
+                    inLetter++;
+                    const gx = i % cols;
+                    const gy = (i - gx) / cols;
+                    x0 = Math.min(x0, gx);
+                    x1 = Math.max(x1, gx);
+                    y0 = Math.min(y0, gy);
+                    y1 = Math.max(y1, gy);
+                }
+                if (drawn[i]) {
+                    ink++;
+                    if (mask[i]) covered++;
+                    else off++;
+                }
+            }
+            const parts = Array.from({ length: 9 }, () => [0, 0]);
+            for (let i = 0; i < mask.length; i++) {
+                if (!mask[i]) continue;
+                const gx = i % cols;
+                const gy = (i - gx) / cols;
+                const p = Math.min(2, Math.floor(((gx - x0) / (x1 - x0 + 1)) * 3)) + 3 * Math.min(2, Math.floor(((gy - y0) / (y1 - y0 + 1)) * 3));
+                parts[p][0]++;
+                if (drawn[i]) parts[p][1]++;
+            }
+            const weakest = Math.min(1, ...parts.filter(([n]) => n >= inLetter * 0.03).map(([n, d]) => d / n));
+            return { cover: inLetter ? covered / inLetter : 0, part: weakest, off: ink ? off / ink : 0 };
+        }
+
+        function at(e) {
+            const r = canvas.getBoundingClientRect();
+            return [((e.clientX - r.left) / r.width) * size, ((e.clientY - r.top) / r.height) * size];
+        }
+
+        function line(a, b) {
+            ctx.strokeStyle = '#f97316';
+            ctx.lineWidth = brush;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            ctx.moveTo(a[0], a[1]);
+            ctx.lineTo(b[0], b[1]);
+            ctx.stroke();
+            const n = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / (cell * 0.8)));
+            for (let i = 0; i <= n; i++) mark(a[0] + ((b[0] - a[0]) * i) / n, a[1] + ((b[1] - a[1]) * i) / n);
+        }
+
+        function check() {
+            const { cover, part, off } = score();
+            meter.style.width = `${Math.min(100, Math.round(Math.min(cover / TRACE_COVER, part / TRACE_PART) * 100))}%`;
+            meter.parentElement.dataset.score = `${cover.toFixed(2)} ${part.toFixed(2)} ${off.toFixed(2)}`; // for tests
+            if (cover >= TRACE_COVER && part >= TRACE_PART && off <= TRACE_OFF) {
+                card.querySelector(`.trace-steps [data-step="${step}"]`).classList.add('is-done');
+                if (step + 1 < letters.length) {
+                    result.textContent = '⭐ Barakalla! Endi kichik harf.';
+                    if (onStroke) onStroke();
+                    step++;
+                    waiting = true;
+                    setTimeout(setup, 700);
+                } else {
+                    done = true;
+                    result.textContent = "🎉 Barakalla! Harfni o'rgandingiz!";
+                    card.querySelector('.trace-game').classList.add('is-won');
+                    if (onDone) onDone();
+                }
+            } else if (off > TRACE_OFF) {
+                result.textContent = "🤔 Harfdan chetga chiqib ketdi. Qaytadan urinib ko'ring!";
+            } else {
+                result.textContent = "👍 Davom eting, harf ustidan yurgizing!";
+            }
+        }
+
+        canvas.addEventListener('pointerdown', (e) => {
+            if (done || waiting) return;
+            e.preventDefault();
+            canvas.setPointerCapture(e.pointerId);
+            last = at(e);
+            line(last, last);
+        });
+        canvas.addEventListener('pointermove', (e) => {
+            if (!last || waiting) return;
+            const p = at(e);
+            line(last, p);
+            last = p;
+        });
+        const end = () => {
+            if (!last) return;
+            last = null;
+            if (!waiting) check();
+        };
+        canvas.addEventListener('pointerup', end);
+        canvas.addEventListener('pointercancel', end);
+        card.querySelector('.trace-clear').addEventListener('click', () => {
+            if (done) return;
+            result.textContent = '';
+            setup();
+        });
+        const ready = document.fonts && document.fonts.load ? document.fonts.load('800 100px Nunito').catch(() => null) : Promise.resolve();
+        ready.then(() => requestAnimationFrame(setup));
+        return card;
+    }
+
+    root.Games = { color, order, compare, trace, close: closeModal, toLineArt };
 })(window);

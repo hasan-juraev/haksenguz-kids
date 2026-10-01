@@ -33,12 +33,14 @@
         '🇰🇷 Ikki xalq — bir ertak': '🇰🇷 두 나라, 한 이야기',
         '🏙️ Koreyadagi hayotim': '🏙️ 한국에서의 내 생활',
         '🎉 Bayramlar': '🎉 명절과 기념일',
+        '🔤 Alifbo': '🔤 우즈베크 알파벳',
         'Interaktiv Kitoblar Kutubxonasi': '인터랙티브 책 도서관',
         'Yangi': '새 책',
         // genre on the library cards (the part of a story's tag before "•")
         'Koreya xalq ertagi': '한국 전래동화',
         'Koreyadagi hayotim': '한국에서의 내 생활',
         'Bayramlar': '명절과 기념일',
+        'Alifbo': '우즈베크 알파벳',
         "O'zbek xalq ertagi": '우즈베크 전래동화',
         "O'zbek xalq latifalari": '우즈베크 웃음 이야기',
         'Xalq ertagi': '전래동화',
@@ -209,6 +211,19 @@
         'Kirish': '들어가기',
         "Yana bir urinib ko'ring": '다시 해 보세요',
     };
+    // Alifbo: tracing letters (js/games.js) and 가, the Korean-letter readings (js/hangul.js)
+    Object.assign(EXACT, {
+        "✍️ Yozib ko'r": '✍️ 따라 쓰기',
+        '✍️ Harfni yozing': '✍️ 글자 따라 쓰기',
+        "Barmog'ingiz bilan harf ustidan yurgizing.": '손가락으로 글자 위를 따라 그려 보세요.',
+        'Harf yozish maydoni': '글자 쓰는 곳',
+        '🔄 Qaytadan': '🔄 다시',
+        '⭐ Barakalla! Endi kichik harf.': '⭐ 잘했어요! 이제 소문자예요.',
+        "🎉 Barakalla! Harfni o'rgandingiz!": '🎉 잘했어요! 글자를 배웠어요!',
+        "🤔 Harfdan chetga chiqib ketdi. Qaytadan urinib ko'ring!": '🤔 글자 밖으로 많이 나갔어요. 다시 해 볼까요?',
+        "👍 Davom eting, harf ustidan yurgizing!": '👍 계속해요, 글자 위를 따라 그려요!',
+        "Koreys harflarida o'qilishi": '한글로 읽기',
+    });
     // The holiday shelf (js/holidays.js): holiday names and the banner's words
     // before them ("오늘은 / 내일은 / 9일 뒤는 / 지금은" + the holiday).
     Object.assign(EXACT, {

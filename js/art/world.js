@@ -1212,6 +1212,32 @@
         return s;
     });
 
+    Art.define('sabzi', (c, o) => {
+        // carrots, orange and the yellow ones that go into palov
+        const n = o.n || 3;
+        let s = '';
+        for (let i = 0; i < n; i++) {
+            const col = i % 2 ? '#f4c430' : '#f77f00';
+            s += `<g transform="translate(${n1((i - (n - 1) / 2) * 22)} 0) rotate(${(i - (n - 1) / 2) * 14})"><path d="M-7 -40 Q0 -44 7 -40 L1 0 Q0 2 -1 0Z" fill="${col}" ${S(1.6)}/>` +
+                `<path d="M-4 -30 h4 M-3 -20 h4 M-2 -11 h3" stroke="#b35400" stroke-width="1.2"/><path d="M0 -40 l-7 -14 M0 -40 l0 -16 M0 -40 l7 -14" stroke="#2d6a4f" stroke-width="3" stroke-linecap="round"/></g>`;
+        }
+        return s;
+    });
+
+    Art.define('shar', (c, o) => {
+        // balloons on strings, held together at the origin
+        const cols = ['#ef476f', '#ffd166', '#06d6a0', '#118ab2', '#9d4edd'];
+        const n = o.n || 3;
+        let s = '';
+        for (let i = 0; i < n; i++) {
+            const x = n1((i - (n - 1) / 2) * 30);
+            const y = -96 - (i % 2) * 18;
+            s += `<path d="M0 0 Q${n1(x / 2)} ${y / 2} ${x} ${y + 26}" fill="none" stroke="#6b7280" stroke-width="1.2"/>`;
+            s += `<g ${c.anim('sv-bob', 2.4, i * 0.4)}><ellipse cx="${x}" cy="${y}" rx="18" ry="22" fill="${cols[i % 5]}" ${S(1.8)}/><path d="M${x - 3} ${y + 22} l3 5 l3 -5Z" fill="${cols[i % 5]}" ${S(1.2)}/><ellipse cx="${x - 6}" cy="${y - 8}" rx="4" ry="6" fill="#fff" opacity=".6"/></g>`;
+        }
+        return s;
+    });
+
     Art.define('drawing', () => {
         // a child's drawing: Seoul's tower and blocks, Samarkand's dome, a heart between them
         let s = `<rect x="-62" y="-80" width="124" height="80" rx="3" fill="#fff" ${S(2)}/>`;

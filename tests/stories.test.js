@@ -13,6 +13,7 @@ require('../js/stories-classic.js');
 require('../js/stories-twins.js');
 require('../js/stories-korea.js');
 require('../js/stories-holiday.js');
+require('../js/stories-alifbo.js');
 require('../js/levels.js');
 require('../js/holidays.js');
 const db = window.storiesDatabase;
@@ -34,7 +35,7 @@ const goodQuestion = (q, where) => {
     check(Number.isInteger(q.ok) && q.ok < q.a.length, `${where}: the right answer (ok: ${q.ok}) is not one of the answers`);
 };
 
-const CATEGORIES = ['folk', 'classic', 'navoiy', 'modern', 'twins', 'korea', 'holiday'];
+const CATEGORIES = ['alifbo', 'folk', 'classic', 'navoiy', 'modern', 'twins', 'korea', 'holiday'];
 
 Object.entries(db).forEach(([key, st]) => {
     check(/^[a-z0-9_]+$/.test(key), `${key}: book keys are used in links (#${key}), so only a-z, 0-9 and _`);
@@ -66,6 +67,25 @@ Object.entries(db).forEach(([key, st]) => {
         check(['uz', 'ko', 'both'].every((w) => cards.some((c) => c[2] === w)), `${key}: the cards need things only in each tale and things in both`);
     }
 });
+
+// ---------- Alifbo ----------
+
+// Every letter of the Uzbek Latin alphabet, in its official order, and the tutuq belgisi.
+const ALPHABET = ['A', 'B', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'X', 'Y', 'Z', "O'", "G'", 'Sh', 'Ch', 'Ng', 'ʼ'];
+const alifbo = db.alifbo;
+check(alifbo && alifbo.category === 'alifbo', 'the Alifbo book');
+if (alifbo) {
+    const letters = alifbo.pages.map((p) => (p.letter || '').split(' ')[0]);
+    check(letters.join() === ALPHABET.join(), `Alifbo letters in order: ${letters.join(' ')}`);
+    alifbo.pages.forEach((p, i) => {
+        const [big, small] = (p.letter || '').split(' ');
+        if (big !== 'ʼ') check(small === big.toLowerCase(), `Alifbo p${i + 1}: "${p.letter}" is the capital and the small letter`);
+        check(p.word && p.text.toLowerCase().includes(p.word[0].toLowerCase()), `Alifbo p${i + 1}: its word is in its text`);
+        // the word starts with its letter (Ng never starts a word; the tutuq is inside she'r)
+        if (big !== 'Ng' && big !== 'ʼ') check(p.word[0].toLowerCase().startsWith(big.toLowerCase()) && !(big.length === 1 && /^[og]'/.test(p.word[0]) && big !== p.word[0][0].toUpperCase() + "'") && !(big === 'S' && p.word[0].startsWith('sh')) && !(big === 'C' && p.word[0].startsWith('ch')), `Alifbo p${i + 1}: "${p.word[0]}" starts with ${big}`);
+    });
+}
+check(Object.values(db).every((st) => st === alifbo || st.pages.every((p) => !p.letter)), 'only the Alifbo has letters');
 
 // ---------- shelves ----------
 

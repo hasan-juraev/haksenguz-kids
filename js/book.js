@@ -52,6 +52,9 @@
             this.ko = null; // this book's Korean helper text (js/stories-ko.js), if any
             this.gloss = []; // its glossary words, as matchers
             this.koView = null; // the view whose Korean is shown (🇰🇷), until the page turns
+            // 가: every page read out in Hangul, for children who read Korean letters first
+            // (js/hangul.js); it stays on from page to page until turned off
+            this.reading = !!opts.reading;
             this.spread = this.isSpread();
             this.reduced = root.matchMedia ? root.matchMedia('(prefers-reduced-motion: reduce)').matches : false;
 
@@ -172,7 +175,7 @@
             const p = st.pages[view - 1];
             const ko = this.koShown(view) && p.word ? this.koWord(p.word[0]) : null;
             const note = p.word
-                ? `<div class="word-card"><span class="word-label">📖 Yangi so'z</span><span class="word-term" data-content>${esc(p.word[0])}</span><span class="word-mean" data-content>${esc(p.word[1])}</span>${ko ? `<span class="word-ko" lang="ko">🇰🇷 ${esc(ko[1])}</span>` : ''}</div>`
+                ? `<div class="word-card"><span class="word-label">📖 Yangi so'z</span><span class="word-term" data-content>${esc(p.word[0])}${this.readsOut(view) ? ` <span class="word-read" lang="ko">${esc(root.Hangul.read(p.word[0]))}</span>` : ''}</span><span class="word-mean" data-content>${esc(p.word[1])}</span>${ko ? `<span class="word-ko" lang="ko">🇰🇷 ${esc(ko[1])}</span>` : ''}</div>`
                 : `<p class="art-hint">👆 Rasmga bosing — qahramonlar jonlanadi!</p>`;
             return `<div class="sheet sheet--left"><div class="page-pad">
                 <div class="page-head"><span class="chapter-chip">${view}-sahifa</span><span class="running-head" data-content>${esc(st.title)}</span></div>
@@ -191,36 +194,39 @@
             // with 🇰🇷 on, each is followed by its Korean.
             const [title, ...sents] = BookEngine.segments(p);
             const ko = this.koShown(view);
-            const koLine = (i) => (ko ? `<span class="ko-line" lang="ko">${esc(ko.s[i] || '')}</span>` : '');
-            const sentHTML = sents.map((t, i) => `<span class="sent" data-action="say" data-seg="${i + 1}">${this.glossHTML(t)}</span>${koLine(i + 1)}`).join(ko ? '' : ' ');
+            const rd = this.readsOut(view);
+            const koLine = (i) => (ko ? `<span class="ko-line" lang="ko">${esc(ko.s[i] || '')}</span>` : rd ? this.readLine(i ? sents[i - 1] : title) : '');
+            const sentHTML = sents.map((t, i) => `<span class="sent" data-action="say" data-seg="${i + 1}">${this.glossHTML(t)}</span>${koLine(i + 1)}`).join(ko || rd ? '' : ' ');
             return `<div class="sheet sheet--right"><div class="page-pad">
-                <div class="page-head"><span class="running-head" data-content>${esc(st.tag.split('•')[0].trim())}</span><span class="head-tools">${this.koButton(view)}<span class="chapter-chip">${view} / ${st.pages.length}</span></span></div>
+                <div class="page-head"><span class="running-head" data-content>${esc(st.tag.split('•')[0].trim())}</span><span class="head-tools">${this.readButton()}${this.koButton(view)}<span class="chapter-chip">${view} / ${st.pages.length}</span></span></div>
                 <div class="page-body" data-fit="21">
-                    <h2 class="page-title" data-content data-action="say" data-seg="0">${esc(title)}</h2>${ko ? `<p class="ko-line ko-line--title" lang="ko">${esc(ko.s[0])}</p>` : ''}
-                    <p class="page-text${ko ? ' is-ko' : ''}${/^\d/.test(sents[0] || '') ? ' no-cap' : ''}" data-content>${sentHTML}</p>
+                    <h2 class="page-title" data-content data-action="say" data-seg="0">${esc(title)}</h2>${ko ? `<p class="ko-line ko-line--title" lang="ko">${esc(ko.s[0])}</p>` : rd ? `<p class="read-line read-line--title" lang="ko">${esc(root.Hangul.read(title))}</p>` : ''}
+                    ${this.letterHTML(p)}
+                    <p class="page-text${ko || rd ? ' is-ko' : ''}${/^\d/.test(sents[0] || '') ? ' no-cap' : ''}" data-content>${sentHTML}</p>
                     <p class="page-flourish" aria-hidden="true">❦ ❦ ❦</p>
-                    ${this.questionHTML(view, p, ko)}
+                    ${this.questionHTML(view, p, ko, rd)}
                 </div>
                 <div class="page-foot"><span class="turn-hint">${view < st.pages.length ? 'Varaqlang' : 'Yakun'} <b>➜</b></span><span class="page-num">${this.pageNo(view, 'right')}</span></div>
             </div></div>`;
         }
 
-        questionHTML(view, p, ko) {
+        questionHTML(view, p, ko, rd) {
             if (!p.question) return '';
             const state = this.record.answers[view] || {};
             const koQ = ko && ko.q;
+            const readQ = !koQ && rd;
             const buttons = p.question.a.map((txt, i) => {
                 let cls = 'choice';
                 if (state.done && (i === p.question.ok || p.question.ok < 0) && i === state.pick) cls += ' choice--right';
                 if (state.wrong && state.wrong.includes(i)) cls += ' choice--wrong';
-                return `<button type="button" class="${cls}" data-content data-action="answer" data-view="${view}" data-idx="${i}"${state.done ? ' disabled' : ''}>${esc(txt)}${koQ ? `<span class="ko-line" lang="ko">${esc(koQ[i + 1] || '')}</span>` : ''}</button>`;
+                return `<button type="button" class="${cls}" data-content data-action="answer" data-view="${view}" data-idx="${i}"${state.done ? ' disabled' : ''}>${esc(txt)}${koQ ? `<span class="ko-line" lang="ko">${esc(koQ[i + 1] || '')}</span>` : readQ ? this.readLine(txt) : ''}</button>`;
             }).join('');
             const feedback = state.done
                 ? `<p class="quiz-feedback quiz-feedback--ok">⭐ ${esc(state.praise || 'Barakalla!')} +10 ball</p>`
                 : state.wrong && state.wrong.length ? `<p class="quiz-feedback">🤔 Yana bir o'ylab ko'ring!</p>` : '';
             return `<div class="page-question">
                 <div class="question-label">💡 Bolajonlar uchun savol</div>
-                <p class="question-text" data-content>${esc(p.question.q)}</p>${koQ ? `<p class="ko-line" lang="ko">${esc(koQ[0])}</p>` : ''}
+                <p class="question-text" data-content>${esc(p.question.q)}</p>${koQ ? `<p class="ko-line" lang="ko">${esc(koQ[0])}</p>` : readQ ? `<p class="read-line" lang="ko">${esc(root.Hangul.read(p.question.q))}</p>` : ''}
                 <div class="choices">${buttons}</div>${feedback}
             </div>`;
         }
@@ -244,6 +250,39 @@
             this.koView = this.koView === v ? null : v;
             if (v >= 1) this.put(this.left, this.leftHTML(v));
             this.put(this.right, this.rightHTML(Math.max(v, 0)));
+        }
+
+        // ---------- 가: Uzbek read out in Korean letters (js/hangul.js) ----------
+
+        // On a story page while 가 is on, unless 🇰🇷 is showing that page's Korean.
+        readsOut(view) {
+            return this.reading && !!root.Hangul && view >= 1 && view <= this.story.pages.length && !this.koShown(view);
+        }
+
+        readLine(text) {
+            return `<span class="read-line" lang="ko">${esc(root.Hangul.read(text))}</span>`;
+        }
+
+        readButton() {
+            if (!root.Hangul) return '';
+            return `<button type="button" class="read-toggle${this.reading ? ' is-on' : ''}" data-action="reading" aria-pressed="${this.reading}" aria-label="Koreys harflarida o'qilishi" title="Koreys harflarida o'qilishi" lang="ko">가</button>`;
+        }
+
+        toggleReading() {
+            this.reading = !this.reading;
+            if (this.reading) this.koView = null;
+            const v = this.view;
+            if (v >= 1) this.put(this.left, this.leftHTML(v));
+            this.put(this.right, this.rightHTML(Math.max(v, 0)));
+            if (this.opts.onReading) this.opts.onReading(this.reading);
+        }
+
+        // An Alifbo page's big letter, and the button to trace it.
+        letterHTML(p) {
+            if (!p.letter) return '';
+            const traceable = /[A-Za-z]/.test(p.letter); // the tutuq belgisi is a sign, not a letter to trace
+            return `<div class="alifbo-letter"><span class="alifbo-glyph" data-content>${esc(p.letter)}</span>` +
+                (traceable ? `<button type="button" class="btn-trace" data-action="trace" data-letter="${esc(p.letter)}">✍️ Yozib ko'r</button>` : '') + `</div>`;
         }
 
         // Glossary entry for a word, e.g. the "Yangi so'z" card's term.
@@ -556,6 +595,7 @@
             else if (act === 'prev') this.prev();
             else if (act === 'answer') this.answer(+a.dataset.view, +a.dataset.idx);
             else if (act === 'korean') this.toggleKorean();
+            else if (act === 'reading') this.toggleReading();
             else if (act === 'poke') this.poke(a);
             else if (this.opts.onAction) this.opts.onAction(act, a);
         }

@@ -322,6 +322,9 @@
             parrot: ['#2bb24c', '#ffe066', '#1f7a35'],
             peacock: ['#1f6fd1', '#8fd3ff', '#0b3d91'],
             duck: ['#efe9dc', '#ffffff', '#8d8a7a'],
+            // the Alifbo's jo'ja and g'oz
+            chick: ['#ffd84d', '#fff3b0', '#e0a800'],
+            goose: ['#f8f9fa', '#ffffff', '#adb5bd'],
         }[kind] || ['#a47148', '#f1dfc4', '#6b4424'];
         const [body, belly, dark] = o.colors || pal;
         let s = '';
@@ -348,7 +351,7 @@
         if (kind === 'peacock') s += [-3, 0, 3].map((d) => `<path d="M${8 + d} -19 l${d * 0.6} -6" stroke="${dark}" stroke-width="1"/><circle cx="${8 + d * 1.6}" cy="-25.5" r="1.6" fill="${body}"/>`).join('');
         if (kind === 'swallow') s += `<path d="M9 -10 Q12 -8 14 -11 L13 -13 Z" fill="#d64545"/>`;
         if (kind === 'parrot') s += `<path d="M13 -16.5 Q21 -17 19.5 -10 Q17 -12.5 13 -11Z" fill="#f4d35e" ${S(1.1)}/>`;
-        else if (kind === 'duck') s += `<path d="M13 -15 L23 -14 Q24.5 -11.5 22 -10.5 L13 -11.5Z" fill="#f4a261" ${S(1.1)}/>`;
+        else if (kind === 'duck' || kind === 'goose') s += `<path d="M13 -15 L23 -14 Q24.5 -11.5 22 -10.5 L13 -11.5Z" fill="#f4a261" ${S(1.1)}/>`;
         else s += `<path d="M13 -15 L${kind === 'hoopoe' ? 24 : 19} -13 L13 -11.5Z" fill="#f4a261" ${S(1.1)}/>`;
         s += eye(c, 9.5, -15, o.mood, 1.5);
         if (kind === 'hoopoe') s += `<path d="M-6 -10 L4 -10 M-6 -7 L4 -7" stroke="#111" stroke-width="1.6"/>`;
@@ -361,6 +364,21 @@
         if (o.bandage) s += `<path d="M-6 -12 L0 -4 M-2 -14 L4 -6" stroke="#fff" stroke-width="3"/><path d="M-6 -12 L0 -4 M-2 -14 L4 -6" stroke="#e63946" stroke-width="1" stroke-dasharray="1 2"/>`;
         return s;
     }, { actor: true, breath: 1.2 });
+
+    // ---------- elephant (fil), for the Alifbo ----------
+    Art.define('fil', (c, o) => {
+        const col = o.color || '#a7b4c2';
+        const dark = '#8593a3';
+        let s = `<path d="M-56 -50 q-12 8 -9 22" fill="none" stroke="${OL}" stroke-width="2.4" stroke-linecap="round"/>`;
+        for (const x of [-46, 6]) s += `<rect x="${x}" y="-36" width="18" height="36" rx="6" fill="${dark}" ${S(1.8)}/>`;
+        s += `<ellipse cx="-10" cy="-52" rx="50" ry="34" fill="${col}" ${S()}/>`;
+        for (const x of [-30, 22]) s += `<rect x="${x}" y="-36" width="18" height="36" rx="6" fill="${col}" ${S(1.8)}/>`;
+        s += `<circle cx="40" cy="-64" r="25" fill="${col}" ${S()}/>`;
+        s += `<path d="M30 -84 Q4 -88 4 -62 Q6 -38 30 -44Z" fill="${dark}" ${S(1.8)}/>`;
+        s += `<path d="M60 -58 Q72 -32 64 -10 Q62 -2 70 0" fill="none" stroke="${OL}" stroke-width="13" stroke-linecap="round"/><path d="M60 -58 Q72 -32 64 -10 Q62 -2 70 0" fill="none" stroke="${col}" stroke-width="8.6" stroke-linecap="round"/>`;
+        s += `<path d="M50 -46 q10 5 15 -2" fill="none" stroke="${OL}" stroke-width="6.4" stroke-linecap="round"/><path d="M50 -46 q10 5 15 -2" fill="none" stroke="#fffaf0" stroke-width="3.4" stroke-linecap="round"/>`;
+        return s + eye(c, 47, -70, o.mood, 2.6);
+    }, { actor: true, breath: 3.6 });
 
     // ---------- stork (laylak) ----------
     Art.define('stork', (c, o) => {

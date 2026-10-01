@@ -6,7 +6,7 @@
 (function (root) {
     'use strict';
 
-    const CATEGORIES = ['all', 'folk', 'classic', 'navoiy', 'modern', 'twins', 'korea', 'holiday'];
+    const CATEGORIES = ['all', 'alifbo', 'folk', 'classic', 'navoiy', 'modern', 'twins', 'korea', 'holiday'];
     const DEFAULT_QUIZ = {
         q: "Kitobdan olgan xulosangiz qanday?",
         a: ["Ezgulik, ilm, birdamlik va halollik har doim g'alaba qozonadi ✨", "Dangasalik va yomon niyatlar hamisha mukofotlanadi 💤", "Faqat yolg'izlik va janjallashish yaxshi natija beradi 🍃"],
@@ -16,6 +16,7 @@
     const QUIZ_POINTS = 50;
     const ORDER_POINTS = 30;
     const COMPARE_POINTS = 30;
+    const TRACE_POINTS = 5; // each Alifbo letter traced, the first time
 
     const esc = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
 
@@ -47,6 +48,12 @@
                 onAction: (act, el) => this.onBookAction(act, el),
                 onPoke: () => this.playChime(),
                 decorate: (box) => root.Translit && root.Translit.apply(box),
+                // 가 (Korean-letter readings) stays as the child left it
+                reading: !!this.store.settings.reading,
+                onReading: (on) => {
+                    this.store.settings.reading = on;
+                    this.store.save();
+                },
             });
             this.reader = new root.Narrator.ReadAlong(this.book, {
                 onState: (st) => this.renderListen(st),
@@ -531,6 +538,33 @@
             else if (act === 'order') this.openOrderGame();
             else if (act === 'twin') this.startStory(el.dataset.key);
             else if (act === 'compare') this.openCompare();
+            else if (act === 'trace') this.openTracing(el.dataset.letter);
+        }
+
+        // Alifbo: trace the page's letter, capital then small (+5 points the first time).
+        openTracing(letter) {
+            if (!letter || !root.Games || !root.Games.trace) return;
+            const key = this.currentStoryKey;
+            const cyr = root.Translit && root.Translit.mode() === 'cyr';
+            const shown = (t) => (cyr ? root.Translit.toCyrillic(t) : t);
+            const [big, small] = letter.split(' ');
+            this.reader.stop();
+            root.Games.trace({
+                letters: [shown(big), shown(small || big.toLowerCase())],
+                onStroke: () => this.playChime(),
+                onDone: () => {
+                    this.playChime(true);
+                    const rec = this.store.book(key);
+                    rec.traced = rec.traced || {};
+                    if (rec.traced[big]) {
+                        this.toast('✍️ Barakalla!');
+                        return;
+                    }
+                    rec.traced[big] = true;
+                    this.addPoints(TRACE_POINTS);
+                    this.toast(`✍️ Barakalla! +${TRACE_POINTS} ball`);
+                },
+            });
         }
 
         // ---------- play corner (js/games.js) ----------

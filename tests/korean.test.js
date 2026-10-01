@@ -17,6 +17,7 @@ require('../js/stories-classic.js');
 require('../js/stories-twins.js');
 require('../js/stories-korea.js');
 require('../js/stories-holiday.js');
+require('../js/stories-alifbo.js');
 require('../js/stories-ko.js');
 require('../js/i18n.js');
 const { hangulUsed } = require('../tools/build-assets.js');

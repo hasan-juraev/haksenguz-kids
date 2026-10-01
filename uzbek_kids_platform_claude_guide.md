@@ -563,3 +563,47 @@ fonts/gowun-dodum-ko.*   # built Korean font + the letters in it
 * Cast presets: `shirin`, `xusrav`, `kumush` and `homid`.
 * Trees: `n: 0` now means no fruit (it used to fall back to 9). *Sehrli olma*'s tree has exactly one golden apple.
 
+## 19. Update: Alifbo, Sound Hints and Tracing (Roadmap Phase 3, item 9)
+
+### Korean-letter readings (`js/hangul.js`)
+* `Hangul.read(text)` writes Uzbek in Hangul, the way it sounds. Words are converted; everything else (spaces, punctuation, numbers) is kept. The rules:
+  * Letters to sounds:
+    * sh, ch, ng, o' and g' are single sounds;
+    * q/k are ㅋ, x/h are ㅎ, v is ㅂ, and both o and o' are ㅗ;
+    * y and sh before a vowel fold into it (ya 야, sha 샤).
+  * Between two vowels:
+    * one consonant starts the next syllable;
+    * l is doubled the way Korean writes it (lola 롤라);
+    * ng is ㄴ + ㄱ (dengiz 덴기즈).
+  * A doubled consonant closes the syllable before it (Assalomu 앗살로무).
+  * n, m, l and ng may end a syllable; n before g, g', k or q is said ng (qo'ng'iroq 콩기로크).
+  * Any other consonant without a vowel gets ㅡ, or ㅣ after sh, ch and j (kitob 키토브, Toshkent 토시켄트).
+* `tests/hangul.test.js` checks the word list and reads every sentence of every book, so no Latin is left.
+
+### 가 in the book (`js/book.js`, `css/book.css`)
+* The 가 button (`.read-toggle`) sits next to 🇰🇷 on every story page.
+* While it's on, `.read-line`s show under the title, each sentence, the question and its answers, and the word card shows its reading.
+* It stays on from page to page (`settings.reading` in the store). On a page where 🇰🇷 is on, the Korean meaning shows instead.
+* The readings can be any syllable, so they use the phone's own Korean font. The bundled Gowun Dodum has only the app's fixed Korean. `tools/build-assets.js` therefore skips `js/hangul.js` when collecting letters.
+
+### The Alifbo book (`js/stories-alifbo.js`)
+* Category `alifbo`, the shelf "🔤 Alifbo" (first in the row). The script loads after the tales, so a new child is still offered *Zumrad va Qimmat* first.
+* 30 pages: the 29 letters in official order, and the tutuq belgisi.
+* Each page has `letter: "A a"` (capital and small), shown big by `letterHTML` with a ✍️ button (none for the tutuq).
+* Each page also has a word that starts with its letter, with its picture. "Ng" never starts a word, so its page says so.
+* `tests/stories.test.js` checks the alphabet's order, the letter pairs and that each word starts with its letter.
+
+### Tracing (`Games.trace` in `js/games.js`, `css/play.css`)
+* A canvas shows the letter big and pale with a dashed edge; the child draws over it.
+* The letter is also drawn on a hidden canvas as a mask, read on a grid. After each stroke the game measures:
+  * how much of the letter is covered (`TRACE_COVER` 0.6);
+  * how much of its weakest part is covered, on a 3 × 3 grid over the letter (`TRACE_PART` 0.35), so the legs of an A count;
+  * how much ink is off the letter (`TRACE_OFF` 0.5).
+* Capital first, then small. Input pauses between them, so a stroke can't count twice.
+* The app gives +5 points per letter, the first time (`record.traced`).
+* In Cyrillic the letters are traced in Cyrillic (`Translit.toCyrillic`).
+
+### Pictures
+* New items: `fil` (elephant), `sabzi` (carrots), `shar` (balloons), and the birds `chick` and `goose`.
+* `star` is now drawn as a light, above the night tint, with a soft halo, so night skies shine.
+

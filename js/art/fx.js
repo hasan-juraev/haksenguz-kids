@@ -120,7 +120,12 @@
 
     Art.define('drops', (c) => [[-10, 0], [0, -6], [10, 0]].map(([x, y], i) => `<g transform="translate(${x} ${y})"><g ${c.anim('sv-drip', 1.4, i * 0.4)}><path d="M0 0 q-3 5 0 7 q3 -2 0 -7z" fill="#7cc6ff" ${S(0.8)}/></g></g>`).join(''));
 
-    Art.define('star', (c, o) => `<g ${c.anim('sv-twinkle', 2)}>${star4(o.r || 10, o.color || '#fde047')}</g>`);
+    // A star shines: it is drawn as a light, above the night sky's tint, with a soft halo.
+    Art.define('star', (c, o) => {
+        const r = o.r || 10;
+        Art.light(c, `<circle r="${n1(r * 2.2)}" fill="${radial(c, 'starhalo', '#fff7c2', 0.5)}"/><g ${c.anim('sv-twinkle', 2)}>${star4(r, o.color || '#fde047')}</g>`);
+        return '';
+    });
 
     Art.define('crack', () => `<path d="M-30 0 l10 -4 l6 6 l10 -5 l8 5 l12 -3" fill="none" stroke="#8a6a3a" stroke-width="2"/><path d="M-16 8 l8 -3 l6 4" fill="none" stroke="#8a6a3a" stroke-width="1.6"/>`);
 

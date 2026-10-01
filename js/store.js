@@ -23,7 +23,7 @@
     // A child's age in years, or null when not given (or not believable).
     const cleanAge = (age) => (Number.isInteger(age) && age >= 2 && age <= 18 ? age : null);
 
-    const blank = () => ({ v: VERSION, settings: { script: 'lat', lang: 'uz', sound: true }, active: null, profiles: {} });
+    const blank = () => ({ v: VERSION, settings: { script: 'lat', lang: 'uz', sound: true, reading: false }, active: null, profiles: {} });
 
     function read() {
         try {

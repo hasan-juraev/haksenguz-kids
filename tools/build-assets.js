@@ -109,12 +109,14 @@ ${names.map((n) => `.fa-${n}::before { content: "\\${codes[n]}"; }`).join('\n')}
 // ---------- fonts ----------
 
 // Every Hangul letter the page can show: the menus (js/i18n.js), the Korean
-// helper (js/stories-ko.js) and the few Korean words elsewhere.
+// helper (js/stories-ko.js) and the few Korean words elsewhere. Not the 가
+// readings (js/hangul.js): they can be any syllable, so they use the phone's font.
 function hangulUsed() {
     const files = ['index.html'];
     const walk = (dir) => fs.readdirSync(path.join(ROOT, dir), { withFileTypes: true }).forEach((d) => {
         if (d.isDirectory()) walk(`${dir}/${d.name}`);
-        else if (d.name.endsWith('.js')) files.push(`${dir}/${d.name}`);
+        // js/hangul.js makes readings that use the phone's own Korean font (.read-line)
+        else if (d.name.endsWith('.js') && `${dir}/${d.name}` !== 'js/hangul.js') files.push(`${dir}/${d.name}`);
     });
     walk('js');
     const chars = new Set();
