@@ -164,7 +164,7 @@
                 const scene = Object.assign({}, last, { fx: [...(last.fx || []).filter((f) => f !== 'confetti'), 'confetti'] });
                 return `<div class="sheet sheet--left sheet--end"><div class="page-pad">
                     <div class="page-head"><span></span><span class="running-head" data-content>${esc(st.title)}</span></div>
-                    <figure class="page-art page-art--end" data-action="poke">${this.art(scene, true, 'end')}<figcaption class="tamom-banner">Tamom!</figcaption></figure>
+                    <figure class="page-art page-art--end" data-action="poke">${this.art(scene, true, 'end')}<figcaption class="tamom-banner">Tamom!</figcaption>${this.colorButton(view)}</figure>
                     <p class="art-hint">✨ Ertak shu yerda tugadi ✨</p>
                     <div class="page-foot"><span class="page-num"></span><span>Ertaklar Olami</span></div>
                 </div></div>`;
@@ -176,7 +176,7 @@
                 : `<p class="art-hint">👆 Rasmga bosing — qahramonlar jonlanadi!</p>`;
             return `<div class="sheet sheet--left"><div class="page-pad">
                 <div class="page-head"><span class="chapter-chip">${view}-sahifa</span><span class="running-head" data-content>${esc(st.title)}</span></div>
-                <figure class="page-art" data-action="poke" title="Rasmga bosing">${this.art(p.scene, true, view)}</figure>
+                <figure class="page-art" data-action="poke" title="Rasmga bosing">${this.art(p.scene, true, view)}${this.colorButton(view)}</figure>
                 ${note}
                 <div class="page-foot"><span class="page-num">${this.pageNo(view, 'left')}</span><span>Ertaklar Olami</span></div>
             </div></div>`;
@@ -262,6 +262,11 @@
             }).join('');
         }
 
+        // Opens the colouring page for this picture (js/games.js).
+        colorButton(view) {
+            return `<button type="button" class="art-btn" data-action="color" data-view="${view}" aria-label="Rasmni bo'yash" title="Rasmni bo'yash">🎨</button>`;
+        }
+
         endpaperHTML() {
             const st = this.story;
             return `<div class="sheet sheet--left sheet--endpaper"><div class="endpaper">
@@ -310,6 +315,7 @@
                 <div class="finale-moral"><b>Ertakdan saboq:</b> ${this.ko && this.ko.moral ? this.koButton(view) : ''}<span data-content>${esc(st.moral || "Yaxshilik va ezgulik har doim g'alaba qiladi.")}</span>${ko && ko.moral ? `<span class="ko-line" lang="ko">${esc(ko.moral)}</span>` : ''}</div>
                 <div class="finale-actions">
                     <button type="button" class="btn-quiz" data-action="quiz">🏆 Bilimdon testi</button>
+                    <button type="button" class="btn-game" data-action="order">🧩 Voqealar tartibi</button>
                     <button type="button" class="btn-reread" data-action="restart">↺ Boshidan o'qish</button>
                     <button type="button" class="btn-reread" data-action="share">📤 Ulashish</button>
                 </div>

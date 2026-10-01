@@ -6,6 +6,8 @@ Books can be read aloud with each sentence lit up as it is read. A grown-up reco
 
 A Korean helper supports children who read Korean best. Tapping an underlined word shows its Korean meaning, and a 🇰🇷 button shows a page's sentences in Korean under the Uzbek. The 한국어 option puts the app's menus in Korean for Korean-speaking parents and teachers, while the stories stay in Uzbek. For now the helper covers *Zumrad va Qimmat* and *Oltin tarvuz*.
 
+Any picture can become a colouring page (🎨) to colour on screen, save or print, and each book ends with a game of putting the story's pictures in order (🧩).
+
 The app can be installed on a phone's home screen and works offline after the first visit. "Ulashish" shares it, or a single book, to Telegram or KakaoTalk; a link ending in `#zumrad` opens that book.
 
 Open `index.html` in a browser; no build step is needed (recording and offline use need `https://` or `localhost`). See `uzbek_kids_platform_claude_guide.md` for the architecture and how stories, illustrations and narration work, and `ROADMAP.md` for what comes next.

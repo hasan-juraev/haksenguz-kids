@@ -112,7 +112,8 @@
     function blob(circles, fill, outline = 2.2) {
         const back = outline <= 0 ? '' : circles.map(([x, y, r]) => `<circle cx="${n1(x)}" cy="${n1(y)}" r="${n1(r + outline)}" fill="${OL}"/>`).join('');
         const front = circles.map(([x, y, r]) => `<circle cx="${n1(x)}" cy="${n1(y)}" r="${n1(r)}" fill="${fill}"/>`).join('');
-        return back + front;
+        // One group, so the colouring studio can fill a whole crown or cloud at once.
+        return `${back}<g class="fg">${front}</g>`;
     }
 
     function esc(s) {
@@ -220,12 +221,16 @@
         const c = new Ctx(seed, opts);
         let body = Art.background ? Art.background(c, sc) : '';
         body += (sc.items || []).map((it) => Art.item(c, it)).join('');
-        if (Art.tint) body += Art.tint(c, sc);
+        // Colouring pages (games.js) want line art: no time-of-day wash,
+        // weather or vignette.
+        if (Art.tint && !opts.coloring) body += Art.tint(c, sc);
         body += c.lights.join('');
-        if (Art.effects) body += Art.effects(c, sc);
-        body += `<rect y="${c.top}" width="${W}" height="${H - c.top}" fill="${c.def('vignette', (id) =>
-            `<radialGradient id="${id}" cx=".5" cy=".45" r=".75"><stop offset=".62" stop-color="#3b1d0a" stop-opacity="0"/>` +
-            `<stop offset="1" stop-color="#3b1d0a" stop-opacity=".28"/></radialGradient>`)}" pointer-events="none"/>`;
+        if (Art.effects && !opts.coloring) body += Art.effects(c, sc);
+        if (!opts.coloring) {
+            body += `<rect y="${c.top}" width="${W}" height="${H - c.top}" fill="${c.def('vignette', (id) =>
+                `<radialGradient id="${id}" cx=".5" cy=".45" r=".75"><stop offset=".62" stop-color="#3b1d0a" stop-opacity="0"/>` +
+                `<stop offset="1" stop-color="#3b1d0a" stop-opacity=".28"/></radialGradient>`)}" pointer-events="none"/>`;
+        }
         const label = opts.label ? ` role="img" aria-label="${esc(opts.label)}"` : ' aria-hidden="true"';
         return `<svg class="story-art-svg" viewBox="0 ${c.top} ${W} ${H - c.top}" preserveAspectRatio="xMidYMax slice"${label} xmlns="http://www.w3.org/2000/svg">` +
             `<defs>${[...c.defs.values()].join('')}</defs>${body}</svg>`;
