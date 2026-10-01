@@ -65,6 +65,8 @@
         pickaxe: { svg: () => `<g transform="rotate(-35)">${tube(0, 16, 0, -28, 3.2, '#9c6b3f')}<path d="M-18 -26 Q0 -36 18 -26 Q0 -31 -18 -26Z" fill="#9aa5b1" ${S(1.5)}/></g>` },
         ketmon: { svg: () => `<g transform="rotate(-25)">${tube(0, 18, 0, -30, 3.2, '#9c6b3f')}<path d="M-2 -32 L14 -34 L16 -22 L0 -24Z" fill="#9aa5b1" ${S(1.5)}/></g>` },
         shovel: { svg: () => `<g transform="rotate(20)">${tube(0, -22, 0, 18, 3, '#9c6b3f')}<path d="M-7 18 L7 18 L6 32 Q0 38 -6 32Z" fill="#9aa5b1" ${S(1.5)}/></g>` },
+        // Margilan atlas: a length of silk in rainbow ikat zigzags, hanging from both hands
+        atlas: { two: true, svg: (c) => `<path d="M-17 -2 Q0 -6 17 -2 L15 36 Q0 32 -15 36Z" fill="${c.def('atlasikat', (id) => `<pattern id="${id}" width="12" height="16" patternUnits="userSpaceOnUse">${['#e63946', '#ffd166', '#06d6a0', '#118ab2', '#9d4edd'].map((k, i) => `<path d="M0 ${i * 3.2} l6 2.2 l6 -2.2 v3.2 l-6 2.2 l-6 -2.2Z" fill="${k}"/>`).join('')}</pattern>`)}" ${S(1.5)}/>` },
         sapling: { two: true, svg: () => `<path d="M-9 2 L9 2 L6 12 L-6 12Z" fill="#b5652f" ${S(1.4)}/><path d="M0 2 L0 -18" stroke="#2d6a4f" stroke-width="2.4"/><path d="M0 -8 Q-10 -12 -12 -20 Q-3 -18 0 -8Z M0 -14 Q9 -18 12 -26 Q2 -24 0 -14Z" fill="#52b788" ${S(1.2)}/>` },
         moneybag: { svg: () => `<path d="M-10 -2 Q-16 18 0 20 Q16 18 10 -2 Q6 -6 4 -8 L-4 -8 Q-6 -6 -10 -2Z" fill="#d9a441" ${S(1.5)}/><path d="M-5 -8 Q0 -4 5 -8" fill="none" ${S(1.3)}/><text x="0" y="12" text-anchor="middle" font-size="11" font-weight="700" fill="#7a4f12">$</text>` },
         club: { svg: () => `<g transform="rotate(-20)">${tube(0, 14, 0, -8, 4, '#9c6b3f')}<rect x="-9" y="-30" width="18" height="24" rx="6" fill="#a8743f" ${S(1.6)}/><path d="M-9 -24 H9 M-9 -12 H9" stroke="#7a4f2a" stroke-width="2"/></g>` },
@@ -604,6 +606,11 @@
         kid3: { age: 'child', head: 'boy', outfit: 'shirt', color: '#06d6a0', pants: '#073b4c', shoes: '#ef476f' },
         kid4: { sex: 'f', age: 'child', pattern: 'ikat', color: '#fb5607', color2: '#ffd166', color3: '#3a86ff', head: 'girlcap', hat: '#3a86ff', pants: '#3a86ff' },
         ona: { sex: 'f', head: 'rumol', hat: '#f28482', scarfFill: '#f5cac3', pattern: 'ikat', color: '#84a59d', color2: '#f7ede2', color3: '#f28482', pants: '#f6bd60' },
+        // Farhod va Shirin; O'tkan kunlar
+        shirin: { sex: 'f', pattern: 'ikat', color: '#c9184a', color2: '#ffd166', color3: '#ff8fab', head: 'girlcap', hat: '#f4c542', hair: '#2b1d14', pants: '#ffd166' },
+        xusrav: { head: 'crown', hat: '#ffe8a3', beard: 'short', beardColor: '#2b1d14', outfit: 'royal', color: '#2a9d8f', mood: 'sly' },
+        kumush: { sex: 'f', pattern: 'ikat', color: '#7209b7', color2: '#f8f9fa', color3: '#4cc9f0', head: 'braids', hair: '#1b1b1b', pants: '#4cc9f0' },
+        homid: { head: 'salla', hat: '#6c757d', beard: 'short', beardColor: '#1b1b1b', pattern: 'stripes', color: '#3d405b', color2: '#81b29a', color3: '#1d1d1d', belt: '#9d0208', mood: 'sly' },
         // Hungbu va Nolbu (Korea): the poor brother in patched white, the rich one in a jade durumagi and gat
         hungbu: { head: 'sangtu', outfit: 'hanbok', color: '#f1ece0', trim: '#8d99ae', goreum: '#8d99ae', pants: '#e6dfcd', patches: true, shoes: '#c9a86a' },
         hungbuxotin: { sex: 'f', head: 'jjok', outfit: 'chima', color: '#7a9e7e', jacket: '#f6f0e1', trim: '#7a9e7e', goreum: '#9c6644', shoes: '#efe8d8' },

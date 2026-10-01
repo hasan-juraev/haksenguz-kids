@@ -661,7 +661,7 @@
         }
         const fruit = o.fruit || (kind === 'apple' ? '#e63946' : kind === 'gold' ? '#fbbf24' : kind === 'pomegranate' ? '#c1121f' : kind === 'mulberry' ? '#5a189a' : kind === 'apricot' ? '#f8961e' : null);
         if (fruit) {
-            const nFruit = o.n || 9;
+            const nFruit = o.n !== undefined ? o.n : 9;
             for (let i = 0; i < nFruit; i++) {
                 const fx = c.rand(-32, 32) * k;
                 const fy = c.rand(-96, -52);
@@ -1145,6 +1145,71 @@
             s += `<path d="M${n1(x)} -6 q${i % 2 ? 2 : -2} ${-h / 2} ${i % 2 ? 1 : -1} ${-h}" fill="none" stroke="${i % 3 ? '#52b788' : '#2d6a4f'}" stroke-width="2.4" stroke-linecap="round"/>`;
         }
         return s + `<path d="M-22 -10 Q0 -6 22 -10" fill="none" stroke="#e63946" stroke-width="2.4"/>`;
+    });
+
+    Art.define('mirror', (c, o) => {
+        // a round magic mirror on a carved stand; o.show: 'arman' (stone mountains and a
+        // canal, as Farhod saw them) or 'moon' (moonlight caught in it)
+        const r = 34;
+        light(c, `<circle cx="0" cy="-${r + 34}" r="${r + 30}" fill="${radial(c, 'mirrorglow', o.show === 'moon' ? '#e0f2ff' : '#fff3b0', 0.7)}"/>`);
+        let s = `<path d="M-22 0 Q-12 -14 -6 -26 L6 -26 Q12 -14 22 0Z" fill="#b8862a" ${S(1.8)}/><rect x="-5" y="-36" width="10" height="12" fill="#c99a30" ${S(1.4)}/>`;
+        s += `<circle cx="0" cy="${-r - 36}" r="${r + 6}" fill="#e9c46a" ${S(2)}/>`;
+        const clip = c.def('mirrorclip', (id) => `<clipPath id="${id}"><circle cx="0" cy="${-r - 36}" r="${r}"/></clipPath>`);
+        s += `<circle cx="0" cy="${-r - 36}" r="${r}" fill="${o.show === 'moon' ? '#1c2659' : '#cfe8ff'}"/><g clip-path="${clip}">`;
+        if (o.show === 'arman') {
+            s += `<path d="M-40 -66 L-22 -96 L-8 -78 L8 -104 L26 -80 L40 -94 V-36 H-40Z" fill="#a8a29e"/><path d="M-40 -58 Q0 -66 40 -52 V-36 H-40Z" fill="#8fbf6a"/>`;
+            s += `<path d="M-36 -48 Q0 -58 36 -46" fill="none" stroke="#5fb3e4" stroke-width="4"/><circle cx="-6" cy="-60" r="2.6" fill="#1d3557"/><circle cx="8" cy="-58" r="2.6" fill="#c9184a"/>`;
+        } else if (o.show === 'moon') {
+            s += `<circle cx="10" cy="-80" r="12" fill="#fef3c7"/><circle cx="16" cy="-84" r="10" fill="#1c2659"/>`;
+        }
+        s += `</g><path d="M-18 ${-r - 52} Q-8 ${-r - 62} 4 ${-r - 60}" fill="none" stroke="#fff" stroke-width="3" opacity=".7" stroke-linecap="round"/>`;
+        return s;
+    });
+
+    Art.define('suzani', (c, o) => {
+        // a so'zana: a hand-embroidered hanging with big red flowers, hung on the wall
+        const w = o.w || 130;
+        const h = o.h || 90;
+        let s = `<rect x="${-w / 2}" y="${-h}" width="${w}" height="${h}" rx="3" fill="#f7ecd6" ${S(1.8)}/>`;
+        s += `<rect x="${-w / 2 + 6}" y="${-h + 6}" width="${w - 12}" height="${h - 12}" fill="none" stroke="#2a9d8f" stroke-width="3" stroke-dasharray="6 4"/>`;
+        const rose = (x, y, r) => `<g transform="translate(${n1(x)} ${n1(y)})">${[0, 45, 90, 135].map((a) => `<ellipse rx="${r}" ry="${n1(r * 0.42)}" transform="rotate(${a})" fill="#d62828" ${S(1)}/>`).join('')}<circle r="${n1(r * 0.42)}" fill="#ffd166" ${S(1)}/></g>`;
+        s += rose(0, -h / 2, 17) + rose(-w / 3, -h * 0.28, 10) + rose(w / 3, -h * 0.28, 10) + rose(-w / 3, -h * 0.72, 10) + rose(w / 3, -h * 0.72, 10);
+        s += [[-w / 6, -h / 2], [w / 6, -h / 2]].map(([x, y]) => `<path d="M${n1(x)} ${n1(y - 8)} q6 8 0 16 q-6 -8 0 -16Z" fill="#2a9d8f" ${S(0.8)}/>`).join('');
+        return s;
+    });
+
+    Art.define('kosa', (c, o) => {
+        // a Rishton bowl: turquoise and blue glaze with white flowers
+        let s = `<path d="M-24 -18 Q-22 2 0 3 Q22 2 24 -18Z" fill="#0f7bbf" ${S(1.8)}/><path d="M-18 -10 Q0 -2 18 -10" fill="none" stroke="#7fd3e8" stroke-width="2.4"/>`;
+        s += [-12, 0, 12].map((x) => `<g transform="translate(${x} -8)"><circle r="2.8" fill="#fff"/><circle r="1.2" fill="#f4a261"/></g>`).join('');
+        s += `<ellipse cx="0" cy="-18" rx="24" ry="6" fill="#bde9f2" ${S(1.6)}/><ellipse cx="0" cy="-18" rx="15" ry="3.4" fill="none" stroke="#0f7bbf" stroke-width="1.6"/>`;
+        return s + `<rect x="-10" y="1" width="20" height="4" rx="1.6" fill="#0b5f94" ${S(1.2)}/>`;
+    });
+
+    Art.define('rasadxona', (c, o) => {
+        // Mirzo Ulug'bek's observatory in Samarkand: the round brick drum and, cut deep
+        // into the hill, the great arc of his sextant
+        let s = `<path d="M-110 0 Q-100 -60 0 -64 Q100 -60 110 0Z" fill="#c9a876" ${S(1.8)}/>`;
+        s += `<path d="M-70 -44 L-70 -112 Q0 -132 70 -112 L70 -44 Q0 -56 -70 -44Z" fill="#d9b27c" ${S(2)}/>`;
+        for (let x = -60; x <= 60; x += 15) s += `<path d="M${x} -50 V-114" stroke="#b8864f" stroke-width="1.4"/>`;
+        s += `<path d="M-70 -78 Q0 -92 70 -78" fill="none" stroke="#2563eb" stroke-width="5"/>`;
+        s += `<path d="M-16 -2 Q-34 -50 -12 -100 L12 -100 Q-8 -50 16 -2Z" fill="#f4efe4" ${S(1.8)}/>`;
+        for (let i = 1; i < 9; i++) {
+            const t = i / 9;
+            const y = -2 - t * 98;
+            const x = -16 + Math.sin(t * Math.PI) * -12 + t * 4;
+            s += `<path d="M${n1(x + 2)} ${n1(y)} h${n1(26 - t * 4)}" stroke="#a37b52" stroke-width="1.2"/>`;
+        }
+        return s;
+    });
+
+    Art.define('kaltaminor', (c) => {
+        // Kalta minor in Khiva: short and wide, never finished, covered in turquoise tiles
+        const tiles = c.def('kaltatile', (id) => `<pattern id="${id}" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="12" fill="#14a3a8"/><path d="M6 1 L11 6 L6 11 L1 6Z" fill="#0b6e8a"/><circle cx="6" cy="6" r="1.6" fill="#fff"/></pattern>`);
+        let s = `<path d="M-40 0 L-30 -118 L30 -118 L40 0Z" fill="${tiles}" ${S(2)}/>`;
+        [-24, -52, -80, -104].forEach((y, i) => { s += `<path d="M${-39 + i * 2.6} ${y} H${39 - i * 2.6}" stroke="#f4d58d" stroke-width="5"/>`; });
+        s += `<path d="M-32 -118 H32" stroke="#0b3d4a" stroke-width="3"/><path d="M-12 0 V-30 Q0 -40 12 -30 V0Z" fill="#7c4a1e" ${S(1.6)}/>`;
+        return s;
     });
 
     Art.define('drawing', () => {

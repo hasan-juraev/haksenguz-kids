@@ -196,8 +196,41 @@ reading it.
    - Children's Day (May 5 ↔ June 1)
    - Hayit
    - Mustaqillik kuni
-8. **Longer short books.** The 10 classic, Navoiy and modern books are 5 short
-   pages each with no word cards.
+8. **Longer short books.** The 10 classic, Navoiy and modern books were 5
+   short pages each with no word cards.
+
+   ✅ **Done for 9 of them.** Each is now an 8–9 page story with 3–5 word
+   cards, page questions and a final quiz, and new pictures.
+   - **Navoiy, retold for children:**
+     - *Farhod va Shirin*: Farhod's learning and crafts, Iskandar's mirror,
+       the canal in Arman yurti, Shirin and Xusrav's trick. The sad ending is
+       told gently (9–12).
+     - *Lison ut-tayr*: the birds' council, their excuses, Hudhud, the seven
+       valleys, and the thirty birds who find that they are the Simurg'
+       (7–12).
+   - **Qodiriy:** *O'tkan kunlar* (10–12): old Tashkent, Otabek and Kumush,
+     Homid's forged letter. The rest of the novel is left "for when you are
+     older".
+   - *Shoh va dehqon*: the old man who plants a walnut tree he will never
+     eat from ("they planted, we ate; we plant, others will eat"). It is an
+     Eastern parable, not a Navoiy work, so it moved to the classics shelf
+     (6–10).
+   - *Buvijonning sandig'i*: Malika visits buvi in Samarkand, and buvi's chest
+     holds Margilan atlas, a Chust do'ppi, a so'zana and a Rishton bowl. Back
+     in Seoul, her class holds a "Mening merosim" show.
+   - **The app's own tales:**
+     - *Sehrli olma*: an apple that multiplies when shared.
+     - *Oyqiz sirlari*: Yetti qaroqchi and Temirqoziq; mirrors send her home.
+     - *Yulduz bola*: a star that shines brighter with every kindness.
+     - *Sehrli gilam sayohati*: Registon and Ulug'bek's observatory, Minorai
+       Kalon, Kalta minor.
+   - **Left as it is: *Sariq devni minib*.** It is Xudoyberdi To'xtaboyev's
+     novel and still under copyright. Its short text also doesn't follow his
+     plot. A longer version needs either the rights holder's permission or
+     a short, faithful summary written by a person. Until then it stays at 5
+     pages.
+   - These books have no Korean helper yet; they can join the review table
+     a few at a time.
 
 ## Phase 3 — Learning and play
 

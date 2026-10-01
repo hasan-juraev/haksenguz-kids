@@ -536,3 +536,30 @@ fonts/gowun-dodum-ko.*   # built Korean font + the letters in it
   * which of a book's holidays comes first, the three-week window and the three-day Seollal;
   * a browser without lunar calendars.
 
+## 18. Update: Longer Classic, Navoiy and Modern Books (Roadmap Phase 2, item 8)
+
+### Stories (`js/stories-classic.js`)
+* Nine books went from 5 short pages to 8–9 pages, with word cards, page questions and a final `quiz`:
+  * the two Navoiy dostons and *O'tkan kunlar*, retold for children;
+  * the Eastern parable *Shoh va dehqon* (moved from `navoiy` to `classic`);
+  * *Buvijonning sandig'i*;
+  * the four modern tales written for the app.
+* Book keys didn't change, so links and saved progress still work. A saved page number may now land on a different page.
+* *Sariq devni minib* (Xudoyberdi To'xtaboyev, under copyright) is unchanged; see ROADMAP item 8.
+* Facts kept to what is well established, so children don't learn something wrong:
+  * dates: *Farhod va Shirin* 1484, *Lison ut-tayr* 1499, Ulug'bek madrasa about 600 years old;
+  * Ulug'bek's catalogue of over a thousand stars;
+  * the Kalta minor was never finished.
+* The sad endings of *Farhod va Shirin* and *O'tkan kunlar* are told gently, or left for later.
+
+### Pictures
+* Birds: `kind: 'nightingale' | 'parrot' | 'peacock' | 'duck'`. The peacock spreads a fan tail; the duck has a green head and a flat bill.
+* `mirror`: a round magic mirror on a stand. `show: 'arman'` shows the mountains and canal Farhod saw; `show: 'moon'` shows moonlight caught in the glass.
+* `suzani`: a so'zana with big red flowers, hung on the wall.
+* `kosa`: a turquoise-and-blue Rishton bowl.
+* `rasadxona`: Ulug'bek's observatory drum with the great sextant arc.
+* `kaltaminor`: the Kalta minor in turquoise tiles.
+* Held items: `atlas` (a length of rainbow ikat silk) joins `sapling`, `ketmon`, `moneybag` and the rest.
+* Cast presets: `shirin`, `xusrav`, `kumush` and `homid`.
+* Trees: `n: 0` now means no fruit (it used to fall back to 9). *Sehrli olma*'s tree has exactly one golden apple.
+

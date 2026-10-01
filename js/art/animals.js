@@ -317,10 +317,22 @@
             dove: ['#f5f5f4', '#ffffff', '#a8a29e'],
             robin: ['#8d6e63', '#ff7043', '#5d4037'],
             gold: ['#fbbf24', '#fff7d6', '#d97706'],
+            // the birds of Lison ut-tayr: bulbul, to'ti, tovus, o'rdak
+            nightingale: ['#8a6f4e', '#efe3cd', '#5a4632'],
+            parrot: ['#2bb24c', '#ffe066', '#1f7a35'],
+            peacock: ['#1f6fd1', '#8fd3ff', '#0b3d91'],
+            duck: ['#efe9dc', '#ffffff', '#8d8a7a'],
         }[kind] || ['#a47148', '#f1dfc4', '#6b4424'];
         const [body, belly, dark] = o.colors || pal;
         let s = '';
         const fly = !!o.fly;
+        // the peacock's tail, spread like a fan behind him
+        if (kind === 'peacock') {
+            for (let i = 0; i < 9; i++) {
+                const a = -168 + i * 19;
+                s += `<g transform="translate(-6 -10) rotate(${a})"><path d="M0 0 Q20 -5 34 0 Q20 5 0 0Z" fill="#2a9d8f" ${S(1.1)}/><circle cx="31" cy="0" r="4.6" fill="#ffd166" ${S(0.9)}/><circle cx="31.5" cy="0" r="2.4" fill="#1d4ed8"/></g>`;
+            }
+        }
         if (fly) {
             s += `<g ${c.anim('sv-flap', 0.5)}><path d="M-4 -10 C-12 -26 -2 -34 8 -30 C6 -22 4 -14 2 -9Z" fill="${dark}" ${S(1.5)}/></g>`;
         }
@@ -332,9 +344,12 @@
         if (kind === 'hoopoe') {
             s += [-40, -20, 0, 20, 40].map((a) => `<g transform="translate(8 -18) rotate(${a})"><path d="M0 0 L-2 -12 L2 -12Z" fill="${body}" ${S(1.2)}/><path d="M-2 -12 L2 -12 L0 -15Z" fill="#111"/></g>`).join('');
         }
-        s += `<circle cx="8" cy="-14" r="6" fill="${body}" ${S(1.8)}/>`;
+        s += `<circle cx="8" cy="-14" r="6" fill="${kind === 'duck' ? '#2d6a4f' : body}" ${S(1.8)}/>`;
+        if (kind === 'peacock') s += [-3, 0, 3].map((d) => `<path d="M${8 + d} -19 l${d * 0.6} -6" stroke="${dark}" stroke-width="1"/><circle cx="${8 + d * 1.6}" cy="-25.5" r="1.6" fill="${body}"/>`).join('');
         if (kind === 'swallow') s += `<path d="M9 -10 Q12 -8 14 -11 L13 -13 Z" fill="#d64545"/>`;
-        s += `<path d="M13 -15 L${kind === 'hoopoe' ? 24 : 19} -13 L13 -11.5Z" fill="#f4a261" ${S(1.1)}/>`;
+        if (kind === 'parrot') s += `<path d="M13 -16.5 Q21 -17 19.5 -10 Q17 -12.5 13 -11Z" fill="#f4d35e" ${S(1.1)}/>`;
+        else if (kind === 'duck') s += `<path d="M13 -15 L23 -14 Q24.5 -11.5 22 -10.5 L13 -11.5Z" fill="#f4a261" ${S(1.1)}/>`;
+        else s += `<path d="M13 -15 L${kind === 'hoopoe' ? 24 : 19} -13 L13 -11.5Z" fill="#f4a261" ${S(1.1)}/>`;
         s += eye(c, 9.5, -15, o.mood, 1.5);
         if (kind === 'hoopoe') s += `<path d="M-6 -10 L4 -10 M-6 -7 L4 -7" stroke="#111" stroke-width="1.6"/>`;
         if (fly) {
