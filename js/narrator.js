@@ -198,6 +198,8 @@
             this.clip = null;
             this.unlocked = false;
             this.audio.addEventListener('ended', () => this.finish());
+            // A file that can't be loaded (no internet, say) ends the clip with an error.
+            this.audio.addEventListener('error', () => this.finish(this.audio.error || new Error('audio')));
             this.audio.addEventListener('timeupdate', () => this.check());
         }
 
@@ -387,6 +389,7 @@
             this.highlight(-1);
             if (err) {
                 this.stop();
+                if (root.navigator.onLine === false && this.opts.toast) this.opts.toast("📶 Internet yo'q. Bu kitobni internetsiz tinglash uchun avval ⬇️ bilan saqlang.");
                 return;
             }
             const p = this.book.story.pages[view - 1];

@@ -10,7 +10,7 @@ The library has shelves by age (4–6, 7–8, 9+); a child's profile can have an
 
 Any picture can become a colouring page (🎨) to colour on screen, save or print, and each book ends with a game of putting the story's pictures in order (🧩).
 
-The app can be installed on a phone's home screen and works offline after the first visit. "Ulashish" shares it, or a single book, to Telegram or KakaoTalk; a link ending in `#zumrad` opens that book.
+The app can be installed on a phone's home screen and works offline after the first visit; a book's built-in narration can be saved for offline listening with ⬇️. "Ulashish" shares it, or a single book, to Telegram or KakaoTalk; a link ending in `#zumrad` opens that book.
 
 Open `index.html` in a browser; no build step is needed (recording and offline use need `https://` or `localhost`). See `uzbek_kids_platform_claude_guide.md` for the architecture and how stories, illustrations and narration work, and `ROADMAP.md` for what comes next.
 

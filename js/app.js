@@ -251,6 +251,7 @@
             this.reader.use(storyKey, null);
             this.voices = [];
             this.renderListen();
+            this.renderOffline();
             this.book.load(storyKey, story, rec);
             if (resume && rec.page >= 1) this.book.goTo(rec.page);
             this.loadVoices(true);
@@ -267,7 +268,57 @@
             const pick = voices.find((v) => v.id === this.store.settings.voice) || voices[0] || null;
             this.reader.use(key, pick ? pick.id : null);
             this.renderListen();
+            this.renderOffline();
             if (announce && pick && !pick.builtin) this.toast(`${pick.avatar} ${pick.name} bu ertakni o'qib bergan — 🎧 bosing!`);
+        }
+
+        // The ⬇️ next to "Tinglash", for books with built-in narration: saves its
+        // recordings on the phone so they play without internet (family
+        // recordings already live there). ✅ once saved; tapping it then removes them.
+        async renderOffline() {
+            const key = this.currentStoryKey;
+            const btn = document.getElementById('offlineBtn');
+            const total = key ? root.Voices.builtinCount(key) : 0;
+            if (!total) {
+                btn.classList.add('hidden');
+                btn.classList.remove('flex');
+                return;
+            }
+            if (this.savingBook === key) return; // the download shows its own progress
+            const saved = await root.Voices.savedCount(key).catch(() => 0);
+            if (key !== this.currentStoryKey) return;
+            const done = saved >= total;
+            btn.dataset.state = done ? 'saved' : 'none';
+            btn.innerHTML = done ? '<i class="fa-solid fa-circle-check"></i>' : '<i class="fa-solid fa-download"></i>';
+            const label = done ? "Internetsiz ham tinglasa bo'ladi" : 'Internetsiz tinglash uchun saqlash';
+            btn.setAttribute('aria-label', label);
+            btn.title = label;
+            btn.classList.remove('hidden');
+            btn.classList.add('flex');
+        }
+
+        async toggleOfflineVoice() {
+            const key = this.currentStoryKey;
+            const btn = document.getElementById('offlineBtn');
+            if (!key || this.savingBook) return;
+            if (btn.dataset.state === 'saved') {
+                if (!root.confirm(this.tx("Bu kitobning saqlangan ovozlari o'chirilsinmi? Internet bo'lsa, baribir tinglasa bo'ladi."))) return;
+                await root.Voices.unsaveBook(key);
+                this.renderOffline();
+                return;
+            }
+            this.savingBook = key;
+            btn.disabled = true;
+            try {
+                await root.Voices.saveBook(key, (done, total) => { btn.textContent = `${done}/${total}`; });
+                this.toast("✓ Endi bu kitobni internetsiz ham tinglasa bo'ladi");
+            } catch (e) {
+                this.toast("📶 Saqlab bo'lmadi. Internetni tekshirib, qaytadan urinib ko'ring.");
+            } finally {
+                this.savingBook = null;
+                btn.disabled = false;
+                this.renderOffline();
+            }
         }
 
         currentVoice() {

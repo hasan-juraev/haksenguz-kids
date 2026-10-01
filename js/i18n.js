@@ -111,6 +111,14 @@
         '🔗 Havola': '🔗 링크',
         "Ertaklar Olami — o'zbek xalq ertaklari bolalar uchun": 'Ertaklar Olami — 어린이를 위한 우즈베크 전래동화',
 
+        // built-in narration saved for offline use (js/voices.js saveBook)
+        'Internetsiz tinglash uchun saqlash': '인터넷 없이 듣도록 저장하기',
+        "Internetsiz ham tinglasa bo'ladi": '인터넷 없이도 들을 수 있어요',
+        "Bu kitobning saqlangan ovozlari o'chirilsinmi? Internet bo'lsa, baribir tinglasa bo'ladi.": '이 책에 저장한 목소리를 지울까요? 인터넷이 있으면 계속 들을 수 있어요.',
+        "✓ Endi bu kitobni internetsiz ham tinglasa bo'ladi": '✓ 이제 이 책은 인터넷 없이도 들을 수 있어요',
+        "📶 Saqlab bo'lmadi. Internetni tekshirib, qaytadan urinib ko'ring.": '📶 저장하지 못했어요. 인터넷을 확인하고 다시 해 보세요.',
+        "📶 Internet yo'q. Bu kitobni internetsiz tinglash uchun avval ⬇️ bilan saqlang.": '📶 인터넷이 없어요. 인터넷 없이 들으려면 먼저 ⬇️ 버튼으로 저장하세요.',
+
         // reading levels (js/levels.js): age shelves and a child's age
         "Yosh bo'yicha": '나이별',
         '🎈 Yoshi:': '🎈 나이:',

@@ -302,7 +302,7 @@ The generated files are committed, so the site still needs no build step. Rebuil
 ### Offline (`sw.js`)
 * Every request for the app's own files goes to the network first. After 4 s, or when offline, a kept copy is used, so updates reach users on their next visit.
 * After loading, the page sends the worker the list of files it used, plus every font in `css/fonts.css` (Cyrillic and Korean too, needed or not), so all of them are kept on the first visit.
-* Requests for part of a file (audio playback) are left to the browser: serving a kept whole file to them breaks playback on iPhones. So built-in narration needs internet; family recordings live in IndexedDB and work offline.
+* Audio files are left to the browser: playback asks for parts of a file, and serving a kept whole file breaks playback on iPhones. Family recordings live in IndexedDB and work offline; built-in narration does too once a book is saved with ⬇️ (section 14).
 * The worker only registers over http(s), not from `file://`.
 
 ### Sharing and book links
@@ -324,7 +324,7 @@ tests/assets.test.js             # part of npm test
 ```
 
 ### Still open
-* Built-in narration offline: a "download this book" button that saves its recordings.
+* Nothing from this step; built-in narration offline is in section 14.
 
 ## 11. Update: Korean Helper and Korean Menus (Roadmap Phase 1, step 2)
 
@@ -417,3 +417,11 @@ fonts/gowun-dodum-ko.*   # built Korean font + the letters in it
 
 ### Tests
 * `tests/stories.test.js` (part of `npm test`) checks every book: its key, title, category and age range, at least three pages with a title, text and picture, and questions and quizzes whose right answer exists. It also checks the shelf rules, and that each shelf has at least five books. Run it after adding or lengthening books.
+
+## 14. Update: Built-in Narration Offline
+
+* For a book with built-in narration (`audio/narration.js`), a ⬇️ button appears next to "Tinglash". It downloads the book's recordings and saves them in IndexedDB, next to the family recordings, keyed by the built-in voice (`Voices.saveBook`). It shows progress (3/12), then ✅. Tapping ✅ removes the saved copies after asking (`Voices.unsaveBook`).
+* `Voices.clip` gives a built-in clip its saved audio when there is a copy of that same recording (same file and length), so it plays without internet. A re-recorded page is downloaded again.
+* `sw.js` no longer keeps audio files, so a downloaded recording isn't stored twice. Playback still goes straight to the network as before.
+* An audio file that fails to load now ends the clip (`Player` listens for `error`). If the phone is offline, read-along says to save the book with ⬇️ first.
+* Nothing changes until the narrator's recordings are imported, because no book has built-in narration yet.

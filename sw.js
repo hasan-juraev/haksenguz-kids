@@ -4,12 +4,15 @@
  *
  * Online, the network comes first, so a new book or a fix shows up on the
  * next visit; if the network is slow (WAIT_MS) a kept copy is used instead.
- * Requests for part of a file (audio playback) are left to the browser.
+ * Audio is left to the browser: playback asks for parts of a file, and a
+ * kept whole file breaks that on iPhones. A book's built-in recordings are
+ * saved for offline use in IndexedDB instead (js/voices.js, saveBook).
  */
 'use strict';
 
 const CACHE = 'ertaklar-olami-v1';
 const WAIT_MS = 4000;
+const AUDIO = /\/audio\/.+\.(m4a|mp4|webm|ogg|opus|mp3|wav|aac)$/;
 
 self.addEventListener('install', () => self.skipWaiting());
 
@@ -41,7 +44,8 @@ function kept(req) {
 
 self.addEventListener('fetch', (e) => {
     const req = e.request;
-    if (req.method !== 'GET' || req.headers.has('range') || new URL(req.url).origin !== self.location.origin) return;
+    const url = new URL(req.url);
+    if (req.method !== 'GET' || req.headers.has('range') || url.origin !== self.location.origin || AUDIO.test(url.pathname)) return;
     e.respondWith((async () => {
         const net = fetch(req).then((res) => {
             keep(req, res);

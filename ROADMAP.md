@@ -85,7 +85,8 @@ reading it.
      iPhone it explains Safari's "Add to Home Screen" (with the Korean menu
      name).
    - **Offline:** after one visit the app opens without internet, family
-     recordings included. Built-in narration still needs internet.
+     recordings included. A book's built-in narration plays offline once
+     saved with the ⬇️ next to "Tinglash".
    - **Sharing:** "Ulashish" shares the app or a book through the phone's
      share sheet (Telegram, KakaoTalk). A link ending in `#zumrad` opens that
      book.
