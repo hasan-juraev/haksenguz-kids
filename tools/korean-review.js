@@ -18,6 +18,7 @@ require('../js/book.js');
 require('../js/stories-folk.js');
 require('../js/stories-classic.js');
 require('../js/stories-twins.js');
+require('../js/stories-korea.js');
 require('../js/stories-ko.js');
 require('../js/i18n.js');
 

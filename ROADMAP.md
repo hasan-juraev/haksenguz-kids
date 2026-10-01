@@ -54,8 +54,9 @@ reading it.
      may not play.
    - **Works on the Netlify site** (https, which phones require for the
      microphone), so a grandparent only needs the link.
-2. **Korean helper.** ✅ Built for *Zumrad va Qimmat* and *Oltin tarvuz*;
-   waiting for the reviewer.
+2. **Korean helper.** ✅ Built for *Zumrad va Qimmat*, *Oltin tarvuz*, *Hungbu
+   va Nolbu* and the three "Koreyadagi hayotim" books; waiting for the
+   reviewer.
    - **Tap a word:** words a child growing up in Korea may not know are
      underlined. Tapping one shows its Korean meaning, and 🔊 says it with the
      phone's own Korean voice (almost every phone has one).
@@ -73,7 +74,8 @@ reading it.
      Google Sheets. A book is marked `reviewed` in `js/stories-ko.js` once
      checked.
    - Korean text uses Gowun Dodum, a rounded Korean font, cut down to the
-     letters the app uses (44 KB), because Fredoka and Nunito have no Hangul.
+     letters the app uses (about 50 KB), because Fredoka and Nunito have no
+     Hangul.
    - Next: Korean for more books, a few at a time as reviews come back.
 3. **Online and offline.** ✅ Done.
    - Hosted on Netlify: `main` is the live site, and every pull request gets
@@ -131,17 +133,37 @@ reading it.
    - Next twins, in order: 콩쥐 팥쥐, 도깨비 방망이, 팥죽 할멈과 호랑이,
      봉이 김선달.
 6. **New shelf: "Koreyadagi hayotim" (my life in Korea).** Uzbek children as
-   heroes in Korean places:
-   - first day at a Korean school
-   - classmates who can't say my name (*Asal* means "honey")
-   - palov for Korean neighbours, who bring tteok back
-   - a video call with buvi in Samarkand
-   - flying from Incheon to Tashkent
-   - Navro'z in a Korean neighbourhood
-   - two languages are a superpower
+   heroes in Korean places.
 
-   New art needed: apartment, classroom, playground and Seoul backgrounds;
-   plane, phone, backpack and bus; modern clothes and a hanbok; Korean foods.
+   ✅ **Built, with three stories** on the shelf "🏙️ Koreyadagi hayotim":
+   - *Mening ismim — Asal* (5–8, 10 pages): Asal's first weeks at a Korean
+     school. Her classmates can't say her name, until she tells them that
+     *Asal* means honey, 꿀. Then they write it in both alphabets and learn
+     words from each other.
+   - *Osh va tteok* (4–7, 8 pages): Bobur takes osh to Kim halmeoni next
+     door, and the lagan comes back full of tteok. Neither people returns a
+     dish empty.
+   - *Buvijon bilan videoqo'ng'iroq* (4–7, 8 pages): Malika's Sunday video
+     call with buvi in Samarkand. They talk about the four-hour time
+     difference, the apricot tree in bloom and kimchi. Malika teaches buvi
+     to count in Korean, and buvi tells her a riddle.
+
+   They are told in the plain past tense, not the fairy-tale "-ibdi". Korean
+   words in them (annyonghaseyo, kkul, mashita, tteok, kimchi, Chusok) have
+   word cards, and all three have the Korean helper.
+
+   New pictures:
+   - Seoul streets with apartment blocks.
+   - A flat, a classroom with chalk writing, and an apartment landing with
+     the lift.
+   - Today's clothes and hairstyles.
+   - Uzbek and Korean food.
+
+   Next ideas:
+   - flying from Incheon to Tashkent for the summer
+   - two languages are a superpower
+   - Navro'z in a Korean neighbourhood (see the holiday shelf)
+
    The best story ideas will come from real families.
 7. **Holiday shelf.** Stories that fit the time of year:
    - Navro'z ↔ 설날

@@ -335,7 +335,7 @@ Korean supports the Uzbek text and never replaces it: story text is always shown
 * `pages[i].s` is the page title, then each sentence, in the order `BookEngine.segments(page)` splits the Uzbek, so the Korean lines up sentence by sentence. `pages[i].q` is the page question, then its answers in the Uzbek order.
 * `words`: `[term, Korean meaning, forms]`. A form matches words in the text that start with it (`sandiq` → `sandiqni`); `=in` matches only that exact word, for short words.
 * `reviewed: false` until the bilingual reviewer has checked the book.
-* So far *Zumrad va Qimmat* and *Oltin tarvuz*. The Korean is told the way picture books are read aloud (…했대요). Names are spelled by their Uzbek sounds (Zumrad → 줌라드, Qimmat → 킴마트); greetings keep the Uzbek with the meaning in brackets.
+* So far *Zumrad va Qimmat*, *Oltin tarvuz*, *Hungbu va Nolbu* and the three "Koreyadagi hayotim" books. The Korean is told the way picture books are read aloud (…했대요). Names are spelled by their Uzbek sounds (Zumrad → 줌라드, Qimmat → 킴마트); greetings keep the Uzbek with the meaning in brackets.
 
 ### In the book (`js/book.js`, `js/app.js`)
 * **🇰🇷 button:** on a text page (next to the page number), on the moral on the last page, and in the quiz header. It shows the Korean under each Uzbek sentence, the question and its answers. It turns off when the page changes (`koView`).
@@ -353,7 +353,7 @@ Korean supports the Uzbek text and never replaces it: story text is always shown
 * Library cards show the Korean title under the Uzbek one when the book has Korean.
 
 ### Korean font
-* Gowun Dodum (OFL), from `@expo-google-fonts/gowun-dodum`. `tools/build-assets.js` collects every Hangul letter in `index.html` and `js/` and cuts the font down to those: `fonts/gowun-dodum-ko.woff2`, about 44 KB, with the list in `fonts/gowun-dodum-ko.txt`.
+* Gowun Dodum (OFL), from `@expo-google-fonts/gowun-dodum`. `tools/build-assets.js` collects every Hangul letter in `index.html` and `js/` and cuts the font down to those: `fonts/gowun-dodum-ko.woff2`, about 50 KB, with the list in `fonts/gowun-dodum-ko.txt`.
 * It comes after Fredoka and Nunito in the font stacks, since they have no Hangul. A letter missing from it falls back to the phone's own Korean font.
 * **After adding Korean text, run `npm run build`**; `npm test` names any letters that are missing.
 
@@ -455,3 +455,36 @@ fonts/gowun-dodum-ko.*   # built Korean font + the letters in it
 ### Adding the next twin
 1. Write the tale in `js/stories-twins.js` with `twin` and `compare`. The Uzbek tale needs no change; it finds its twin.
 2. Add its Korean to `js/stories-ko.js`, then run `npm run build` (font) and `npm test`. `tests/stories.test.js` checks the twin and the cards.
+
+## 16. Update: Koreyadagi hayotim, My Life in Korea (Roadmap Phase 2, item 6)
+
+### Stories (`js/stories-korea.js`)
+* Category `korea`, the shelf "🏙️ Koreyadagi hayotim" (한국에서의 내 생활 in Korean mode).
+* The stories:
+  * *Mening ismim — Asal* (`asal_ismi`, ages 5–8)
+  * *Osh va tteok* (`osh_tteok`, ages 4–7)
+  * *Buvijon bilan videoqo'ng'iroq* (`buvijon_qongiroq`, ages 4–7)
+* They are everyday stories, so they use the plain past tense (-di), not the fairy-tale -ibdi.
+* Korean words in them have word cards. All three have their Korean in `js/stories-ko.js`.
+
+### Today's Korea in pictures (`js/art/world.js`, `js/art/people.js`)
+* Backgrounds:
+  * `seoul`: apartment blocks (apateu) with numbered gables, trees and a paved square.
+  * `flat`: a living room with a big window onto the blocks. Options: `windowX`; `clock: false` hides the clock.
+  * `classroom`: a chalkboard, a window and a clock. `board: ['안녕하세요', ...]` writes lines in chalk; Hangul uses the Korean font.
+  * `hall`: an apartment landing with the lift.
+    * The floor number is `floor`, 12 unless given. It shows on the lift and on a "12F" sign; `lift: x` moves the lift and `lift: false` removes it.
+    * Front doors are `door` items standing on the wall line at y 236, so people stand in front of them.
+* Items:
+  * `school`, `desk` (`book: true` opens a book on it), `drawing` and `slide`.
+  * `table`: a low table at home. Things on it stand at y −42 from its base, e.g. a `tablet` at y 260 on a table at 302.
+  * `tablet` on a stand, video-calling: `show: 'buvi' | 'apricot'`, with her `mood`.
+  * `door`, a flat's front door: `no`, `color`, a keypad lock, and `open: true`, which swings it open onto the lit flat.
+  * Food: `lagan` (osh), `tteok`, `kimbap`, `somsa`, `honey` and `kimchi`. Children can also hold `osh` and `tteok` (`pose: 'hold', hold: 'osh'`).
+* People:
+  * Heads `modern`, `ponytail`, `bob` and `perm` (a halmeoni's perm), and `glasses: true`.
+  * Cast presets: `asal`, `malika` and `bobur` (Uzbek children); `minjun`, `seoyeon` and `jiho` (classmates); `kimteacher`, `halmeoni` (the neighbour) and `dada`.
+
+### Adding a story
+1. Write it in `js/stories-korea.js` with `category: "korea"` and an `age`.
+2. For the Korean helper, add its Korean to `js/stories-ko.js`, then run `npm run build` (font) and `npm test`.

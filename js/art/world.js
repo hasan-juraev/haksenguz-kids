@@ -3,7 +3,10 @@
  * trees, Uzbek houses, the kulba, palace portal and minaret, so'ri, tandir,
  * qozon, sandiq, tarvuz, dasturxon, arava, flying gilam and friends; and for
  * the Korean twin tales a Korean village and madang yard, the straw-roofed
- * chogajip, the tiled giwajip, bak gourds, onggi jars and the gourd saw.
+ * chogajip, the tiled giwajip, bak gourds, onggi jars and the gourd saw;
+ * and today's Korea for "Koreyadagi hayotim": Seoul streets of apartment
+ * blocks, a flat, a classroom, a school, a tablet that video-calls buvi,
+ * palov on a lagan, tteok, kimbap, somsa, honey and kimchi.
  */
 (function (Art) {
     'use strict';
@@ -264,6 +267,121 @@
         return s;
     }
 
+    // ---------- today's Korea ----------
+
+    // Apartment blocks (apateu) with numbered gables; lit windows at night.
+    function apartments(c, baseY, night, far) {
+        let s = '';
+        const cols = far ? ['#c9d6e3', '#d5dfe9', '#bfcfdf'] : ['#eef1f4', '#e6ebf0', '#f4efe8'];
+        let x = -12;
+        let i = 0;
+        while (x < W + 10) {
+            const w = c.rand(far ? 34 : 52, far ? 50 : 72);
+            const h = c.rand(far ? 70 : 96, far ? 110 : 150);
+            const col = cols[i % cols.length];
+            s += `<rect x="${n1(x)}" y="${n1(baseY - h)}" width="${n1(w)}" height="${n1(h)}" fill="${col}" ${far ? '' : S(1.8)}/>`;
+            if (!far) {
+                s += `<rect x="${n1(x)}" y="${n1(baseY - h)}" width="${n1(w)}" height="8" fill="#9db4c8" ${S(1.4)}/>`;
+                s += `<text x="${n1(x + w / 2)}" y="${n1(baseY - h + 22)}" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="800" font-size="9" fill="#5c7a96">${101 + i}</text>`;
+            }
+            const rows = Math.floor((h - (far ? 10 : 30)) / (far ? 9 : 12));
+            for (let r = 0; r < rows; r++) {
+                for (let k = 0; k < (far ? 3 : 4); k++) {
+                    const wx = x + 6 + k * ((w - 12) / (far ? 3 : 4));
+                    const wy = baseY - h + (far ? 8 : 28) + r * (far ? 9 : 12);
+                    const lit = night && c.r() < 0.55;
+                    const win = `<rect x="${n1(wx)}" y="${n1(wy)}" width="${n1((w - 12) / (far ? 3 : 4) - 3)}" height="${far ? 4 : 6}" fill="${lit ? '#ffd36b' : night ? '#3c4a7a' : '#a8c8e6'}"/>`;
+                    if (lit && !far) light(c, win);
+                    else s += win;
+                }
+            }
+            x += w + c.rand(far ? 2 : 6, far ? 8 : 16);
+            i++;
+        }
+        return s;
+    }
+
+    function seoul(c, sc, hz, night, season) {
+        let s = hills(c, hz - 64, night ? '#4c5d8f' : '#a9bfd0', 46);
+        s += apartments(c, hz - 6, night, true);
+        s += apartments(c, hz + 6, night, false);
+        const lv = LEAVES[season] || LEAVES.summer;
+        for (let i = 0; i < 6; i++) s += `<g transform="translate(${n1(20 + i * 74 + c.rand(-8, 8))} ${hz + 14}) scale(.55)">${Art.item(c, ['tree', 0, 0, { season, still: true, leaves: lv }])}</g>`;
+        s += `<rect x="-10" y="${hz + 12}" width="${W + 20}" height="${H - hz}" fill="${night ? '#8e8a99' : '#d8d4cc'}"/>`;
+        for (let x = -10; x < W + 10; x += 26) s += `<path d="M${x} ${hz + 12} l-18 ${H - hz}" stroke="${night ? '#7d798a' : '#c4bfb5'}" stroke-width="1.4"/>`;
+        s += `<path d="M-10 ${hz + 30} H${W + 10}" stroke="${night ? '#7d798a' : '#c4bfb5'}" stroke-width="1.4"/>`;
+        return s;
+    }
+
+    // A flat: light walls, wooden floor and a big window onto the blocks outside.
+    function flat(c, sc) {
+        const night = sc.time === 'night' || sc.time === 'dusk';
+        const t = c.top;
+        let s = `<rect y="${t}" width="${W}" height="${H - t}" fill="${linear(c, 'flatwall' + t, [[0, '#f7f2ea'], [1, '#ece4d6']])}"/>`;
+        const wx = sc.windowX !== undefined ? sc.windowX : 290;
+        s += `<rect x="${wx - 80}" y="48" width="160" height="128" fill="${night ? '#1c2659' : '#bde4f7'}" ${S(2.4)}/>`;
+        s += `<g clip-path="${c.def('flatwin' + wx, (id) => `<clipPath id="${id}"><rect x="${wx - 80}" y="48" width="160" height="128"/></clipPath>`)}">`;
+        s += hills(c, 150, night ? '#2f3d73' : '#a9c4d6', 26) + apartments(c, 176, night, true) + `</g>`;
+        if (night) s += `<path d="M${wx + 44} 70 A10 10 0 1 0 ${wx + 56} 82 A8 8 0 1 1 ${wx + 44} 70Z" fill="#fef3c7"/>`;
+        s += `<path d="M${wx} 48 V176" stroke="#f4f1ea" stroke-width="6"/><rect x="${wx - 80}" y="48" width="160" height="128" fill="none" ${S(2.4)}/>`;
+        s += `<path d="M${wx - 96} 40 Q${wx - 84} 110 ${wx - 92} 186 L${wx - 70} 186 Q${wx - 76} 110 ${wx - 72} 40Z" fill="#f4a261" ${S(1.8)}/>`;
+        s += `<path d="M${wx + 96} 40 Q${wx + 84} 110 ${wx + 92} 186 L${wx + 70} 186 Q${wx + 76} 110 ${wx + 72} 40Z" fill="#f4a261" ${S(1.8)}/>`;
+        s += `<rect x="${wx - 104}" y="36" width="208" height="6" rx="3" fill="#8a5a33" ${S(1.2)}/>`;
+        if (sc.clock !== false) {
+            const cx = wx > 200 ? 70 : 330;
+            s += `<circle cx="${cx}" cy="86" r="17" fill="#fff" ${S(2)}/><path d="M${cx} 86 V75 M${cx} 86 l8 4" stroke="${OL}" stroke-width="2" stroke-linecap="round"/>`;
+        }
+        s += `<rect y="214" width="${W}" height="${H - 214}" fill="#d9b48a"/>`;
+        for (let y = 222; y < H; y += 14) s += `<path d="M0 ${y} H${W}" stroke="#c49a6c" stroke-width="1.2"/>`;
+        for (let i = 0; i < 12; i++) s += `<path d="M${n1(c.rand(0, W))} ${n1(220 + Math.floor(c.rand(0, 7)) * 14)} v14" stroke="#c49a6c" stroke-width="1.2"/>`;
+        s += `<rect y="208" width="${W}" height="8" fill="#f4f1ea" ${S(1.4)}/>`;
+        return s;
+    }
+
+    // A Korean classroom: green chalkboard (sc.board: lines of chalk writing), window, wooden floor.
+    function classroom(c, sc) {
+        const t = c.top;
+        let s = `<rect y="${t}" width="${W}" height="${H - t}" fill="${linear(c, 'classwall' + t, [[0, '#f8f1e3'], [1, '#efe4cf']])}"/>`;
+        s += `<rect x="36" y="56" width="248" height="104" rx="4" fill="#2f6d50" stroke="#8a5a33" stroke-width="7"/>`;
+        s += `<rect x="36" y="56" width="248" height="104" rx="4" fill="none" ${S(1.6)}/>`;
+        s += `<rect x="40" y="160" width="240" height="6" fill="#b07a46" ${S(1.2)}/><rect x="70" y="157" width="14" height="4" fill="#fff"/><rect x="96" y="157" width="10" height="4" fill="#ffd6e0"/>`;
+        const lines = sc.board || [];
+        lines.forEach((ln, i) => {
+            s += `<text x="160" y="${n1(117 + i * 34 - (lines.length - 1) * 17)}" text-anchor="middle" font-family="Nunito, 'Gowun Dodum', sans-serif" font-weight="800" font-size="26" fill="#f8f9fa" opacity=".92">${Art.esc(ln)}</text>`;
+        });
+        s += `<rect x="314" y="54" width="70" height="112" fill="${sc.time === 'night' ? '#1c2659' : '#bde4f7'}" ${S(2.2)}/><path d="M349 54 V166 M314 110 H384" stroke="#f4f1ea" stroke-width="4"/>`;
+        s += `<circle cx="160" cy="34" r="11" fill="#fff" ${S(1.8)}/><path d="M160 34 V27 M160 34 l5 3" stroke="${OL}" stroke-width="1.6" stroke-linecap="round"/>`;
+        s += `<rect y="210" width="${W}" height="${H - 210}" fill="#cfa77a"/>`;
+        for (let y = 218; y < H; y += 14) s += `<path d="M0 ${y} H${W}" stroke="#b98e60" stroke-width="1.2"/>`;
+        s += `<rect y="204" width="${W}" height="8" fill="#a37b52" ${S(1.2)}/>`;
+        return s;
+    }
+
+    // A landing in an apartment block: the lift with its floor number (sc.floor,
+    // 12 unless given), a sign on the wall, tiles. Front doors are 'door' items
+    // standing on the wall line, y 236, so the people stand in front of them.
+    function hall(c, sc) {
+        const t = c.top;
+        const fl = String(sc.floor || 12);
+        const lx = sc.lift !== undefined ? sc.lift : 340;
+        let s = `<rect y="${t}" width="${W}" height="${H - t}" fill="${linear(c, 'hallwall' + t, [[0, '#f3f4f1'], [1, '#e3e7e3']])}"/>`;
+        s += `<rect y="178" width="${W}" height="58" fill="#d3dcd6"/><path d="M0 178 H${W}" stroke="#aebdb4" stroke-width="3"/>`;
+        for (const x of [100, 300]) s += `<rect x="${x - 30}" y="${t + 2}" width="60" height="8" rx="4" fill="#fffbe6" ${S(1.2)}/>`;
+        if (lx !== false) {
+            s += `<rect x="${lx - 44}" y="92" width="88" height="144" fill="#b9c3cb" ${S(2)}/>`;
+            s += `<rect x="${lx - 36}" y="110" width="72" height="126" fill="${linear(c, 'liftdoor', [[0, '#d5dde3'], [0.5, '#f4f6f8'], [1, '#c9d2d9']], false)}" ${S(1.6)}/>`;
+            s += `<path d="M${lx} 110 V236" stroke="${OL}" stroke-width="1.6"/>`;
+            s += `<rect x="${lx - 15}" y="96" width="30" height="11" rx="2" fill="#1f2937"/><text x="${lx}" y="105" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="800" font-size="9" fill="#ff6b6b">${Art.esc(fl)}</text>`;
+            s += `<rect x="${lx - 60}" y="150" width="11" height="24" rx="3" fill="#e2e8ec" ${S(1.2)}/>`;
+            s += `<path d="M${lx - 54.5} 155 l-3 4 h6Z M${lx - 54.5} 169 l-3 -4 h6Z" fill="#f59f00"/>`;
+        }
+        s += `<text x="${sc.signX || 40}" y="74" text-anchor="middle" font-family="Fredoka, Nunito, sans-serif" font-weight="700" font-size="24" fill="#8aa1b3">${Art.esc(fl)}F</text>`;
+        s += `<rect y="230" width="${W}" height="6" fill="#9fb0bc"/><rect y="236" width="${W}" height="${H - 236}" fill="#cdd3d6"/>`;
+        for (let y = 252; y < H; y += 18) s += `<path d="M0 ${y} H${W}" stroke="#b7bfc4" stroke-width="1.2"/>`;
+        for (let x = -20; x < W + 60; x += 52) s += `<path d="M${x} 236 L${n1(x - (x - 200) * 0.35)} ${H}" stroke="#b7bfc4" stroke-width="1.2"/>`;
+        return s;
+    }
+
     // ---------- interiors ----------
 
     function room(c, sc) {
@@ -350,6 +468,9 @@
         if (kind === 'palace') return palaceIn(c, sc);
         if (kind === 'cave') return cave(c, sc);
         if (kind === 'inn') return inn(c, sc);
+        if (kind === 'flat') return flat(c, sc);
+        if (kind === 'classroom') return classroom(c, sc);
+        if (kind === 'hall') return hall(c, sc);
 
         let s = sky(c, sc);
         const night = time === 'night' || time === 'dusk';
@@ -358,6 +479,7 @@
         const near = night ? '#4a5896' : time === 'sunset' ? '#9c7fa8' : '#86a8cc';
         const snowy = season !== 'summer' || kind === 'mountains';
         if (kind === 'kvillage' || kind === 'kyard') return s + korea(c, sc, hz, night, season);
+        if (kind === 'seoul') return s + seoul(c, sc, hz, night, season);
 
         if (kind === 'space') {
             c.lights.push(stars(c, 60, H));
@@ -467,7 +589,7 @@
     // Time-of-day wash drawn over the whole scene (lights go on top of it).
     Art.tint = function (c, sc) {
         const t = sc.time;
-        const inner = ['room', 'hutin', 'palace', 'cave', 'inn'].includes(sc.bg);
+        const inner = ['room', 'hutin', 'palace', 'cave', 'inn', 'flat', 'classroom', 'hall'].includes(sc.bg);
         const y = c.top;
         if (t === 'night') return `<rect y="${y}" width="${W}" height="${H - y}" fill="${inner ? '#2c3570' : '#27336e'}" opacity="${inner ? 0.34 : 0.38}" style="mix-blend-mode:multiply"/>`;
         if (t === 'dusk') return `<rect y="${y}" width="${W}" height="${H - y}" fill="#6d5ba8" opacity=".28" style="mix-blend-mode:multiply"/>`;
@@ -834,6 +956,137 @@
             `<ellipse cx="0" cy="-32" rx="10" ry="3.2" fill="#55311f" ${S(1.4)}/><path d="M-12 -34 Q0 -42 12 -34 L10 -31 Q0 -36 -10 -31Z" fill="#7c4a31" ${S(1.4)}/>` +
             `<path d="M-10 -22 Q-8 -12 -9 -4" stroke="#a87458" stroke-width="2" fill="none" opacity=".6"/></g>`).join('');
     });
+
+    Art.define('school', (c, o) => {
+        // a three-storey school with a clock over the doors and a flag
+        const w = o.w || 230;
+        const h = o.h || 108;
+        const x0 = -w / 2;
+        let s = `<rect x="${x0 + w - 6}" y="${-h - 46}" width="3" height="${h + 46}" fill="#9aa5b1"/><path d="M${x0 + w - 3} ${-h - 46} h30 v18 h-30z" fill="#fff" ${S(1.4)}/><circle cx="${x0 + w + 12}" cy="${-h - 37}" r="5.5" fill="#e63946"/><path d="M${x0 + w + 6.5} ${-h - 37} a5.5 5.5 0 0 0 11 0z" fill="#1d4ed8"/>`;
+        s += `<rect x="${x0}" y="${-h}" width="${w}" height="${h}" fill="#f6e7c8" ${S(2)}/>`;
+        s += `<rect x="${x0 - 4}" y="${-h - 8}" width="${w + 8}" height="10" fill="#c2694f" ${S(1.6)}/>`;
+        for (let r = 0; r < 3; r++) {
+            for (let k = 0; k < 8; k++) {
+                if (r === 2 && (k === 3 || k === 4)) continue;
+                s += `<rect x="${n1(x0 + 10 + k * (w - 20) / 8)}" y="${-h + 10 + r * 32}" width="${n1((w - 20) / 8 - 8)}" height="20" fill="#a8d8f0" ${S(1.2)}/>`;
+            }
+        }
+        s += `<rect x="-26" y="-36" width="52" height="36" fill="#7fb7d6" ${S(1.8)}/><path d="M0 -36 V0" stroke="${OL}" stroke-width="1.6"/><rect x="-32" y="-40" width="64" height="6" fill="#c2694f" ${S(1.4)}/>`;
+        s += `<circle cx="0" cy="${-h + 2}" r="15" fill="#fff" ${S(2)}/><path d="M0 ${-h + 2} V${-h - 8} M0 ${-h + 2} l7 4" stroke="${OL}" stroke-width="2" stroke-linecap="round"/>`;
+        return s;
+    });
+
+    Art.define('desk', (c, o) => {
+        // a school desk with its chair; o.book: an open book on it
+        let s = `<rect x="18" y="-34" width="4" height="34" fill="#9aa5b1"/><rect x="40" y="-34" width="4" height="34" fill="#9aa5b1"/><rect x="14" y="-38" width="34" height="6" rx="2" fill="#e9c46a" ${S(1.4)}/><rect x="40" y="-62" width="6" height="28" rx="2" fill="#e9c46a" ${S(1.4)}/>`;
+        s += `<rect x="-30" y="-46" width="4" height="46" fill="#9aa5b1"/><rect x="22" y="-46" width="4" height="46" fill="#9aa5b1"/>`;
+        s += `<rect x="-36" y="-52" width="66" height="8" rx="2" fill="#e9c46a" ${S(1.6)}/>`;
+        if (o.book) s += `<path d="M-22 -54 L-6 -51 L10 -54 L10 -58 L-6 -55 L-22 -58Z" fill="#fff" ${S(1.2)}/>`;
+        return s;
+    });
+
+    Art.define('tablet', (c, o) => {
+        // a tablet on its stand, video-calling: o.show is 'buvi' (her face) or 'apricot' (her garden)
+        const sw = 78;
+        const sh = 56;
+        let s = `<path d="M-14 0 L-4 -20 L4 -20 L14 0Z" fill="#6c757d" ${S(1.6)}/>`;
+        s += `<rect x="${-sw / 2 - 6}" y="${-sh - 26}" width="${sw + 12}" height="${sh + 12}" rx="8" fill="#2b2d42" ${S(2)}/>`;
+        const clip = c.def('tabscreen', (id) => `<clipPath id="${id}"><rect x="${-sw / 2}" y="${-sh - 20}" width="${sw}" height="${sh}" rx="3"/></clipPath>`);
+        s += `<rect x="${-sw / 2}" y="${-sh - 20}" width="${sw}" height="${sh}" rx="3" fill="${o.show === 'apricot' ? '#cdebfa' : '#fbe7c6'}"/><g clip-path="${clip}">`;
+        if (o.show === 'apricot') {
+            s += `<rect x="${-sw / 2}" y="-34" width="${sw}" height="14" fill="#9bd06c"/><g transform="translate(0 -26) scale(.5)">${Art.parts.tree(c, { kind: 'blossom' })}</g>`;
+        } else {
+            const b = Object.assign({}, Art.cast.buvi, { mood: o.mood || 'joy' });
+            s += `<ellipse cx="0" cy="-20" rx="30" ry="18" fill="${b.color}" ${S(1.6)}/><g transform="translate(0 -52) scale(.86)">${Art.head(c, b)}</g>`;
+        }
+        s += `</g><circle cx="${sw / 2 - 6}" cy="${-sh - 14}" r="3" fill="#e63946"/>`;
+        return s;
+    });
+
+    // food on a plate, for sharing
+    const plate = (inner, rx = 30) => `<ellipse cx="0" cy="-4" rx="${rx}" ry="${n1(rx * 0.28)}" fill="#fff" ${S(1.8)}/><ellipse cx="0" cy="-5" rx="${rx - 6}" ry="${n1(rx * 0.2)}" fill="none" stroke="#5aa9e6" stroke-width="1.6" stroke-dasharray="4 3"/>${inner}`;
+
+    Art.define('lagan', (c, o) => {
+        // a lagan of osh: rice heaped with carrot and meat, steaming
+        const r = o.r || 36;
+        let s = plate(`<path d="M${-r + 8} -6 Q0 ${-r * 0.95} ${r - 8} -6Z" fill="#f4dd9a" ${S(1.8)}/>`, r);
+        for (let i = 0; i < 9; i++) s += `<path d="M${n1(c.rand(-r * 0.5, r * 0.5))} ${n1(c.rand(-r * 0.55, -10))} l6 -2" stroke="#f77f00" stroke-width="2.6" stroke-linecap="round"/>`;
+        s += `<circle cx="-6" cy="${n1(-r * 0.62)}" r="5" fill="#8c4b2a" ${S(1.2)}/><circle cx="7" cy="${n1(-r * 0.56)}" r="4.4" fill="#8c4b2a" ${S(1.2)}/>`;
+        if (o.steam !== false) s += [-10, 0, 10].map((x, i) => `<g transform="translate(${x} ${n1(-r * 0.9)})"><g ${c.anim('sv-rise', 2.6, i * 0.8)}><path d="M0 0 q4 -6 0 -12 q-4 -6 0 -12" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".8"/></g></g>`).join('');
+        return s;
+    });
+
+    Art.define('tteok', (c) => {
+        // songpyeon and other rice cakes, white, pink, green and yellow
+        let s = plate('', 30);
+        [[-14, -8, '#fff'], [0, -10, '#ffc8dd'], [14, -8, '#b7e4c7'], [-7, -15, '#ffe066'], [8, -16, '#fff']].forEach(([x, y, col]) => {
+            s += `<path d="M${x - 8} ${y} Q${x} ${y - 11} ${x + 8} ${y} Z" fill="${col}" ${S(1.4)}/>`;
+        });
+        return s;
+    });
+
+    Art.define('kimbap', (c) => {
+        let s = plate('', 30);
+        [[-14, -9], [0, -10], [14, -9], [-7, -16], [7, -16]].forEach(([x, y]) => {
+            s += `<circle cx="${x}" cy="${y}" r="6.6" fill="#1b4332" ${S(1.2)}/><circle cx="${x}" cy="${y}" r="5" fill="#fff"/><circle cx="${x - 1.5}" cy="${y - 1}" r="1.4" fill="#f77f00"/><circle cx="${x + 1.6}" cy="${y}" r="1.4" fill="#ffd166"/><circle cx="${x}" cy="${y + 1.8}" r="1.3" fill="#52b788"/>`;
+        });
+        return s;
+    });
+
+    Art.define('somsa', (c) => {
+        let s = plate('', 30);
+        [[-12, -8], [10, -8], [-1, -16]].forEach(([x, y]) => {
+            s += `<path d="M${x - 10} ${y + 4} L${x} ${y - 10} L${x + 10} ${y + 4}Z" fill="#e3a857" ${S(1.4)}/><circle cx="${x - 2}" cy="${y - 1}" r=".9" fill="#7a4f12"/><circle cx="${x + 2}" cy="${y + 1}" r=".9" fill="#7a4f12"/>`;
+        });
+        return s;
+    });
+
+    Art.define('honey', () => `<path d="M-14 0 Q-17 -14 -12 -26 L12 -26 Q17 -14 14 0Z" fill="#f2a516" ${S(1.8)}/><rect x="-14" y="-32" width="28" height="7" rx="2" fill="#c97c0a" ${S(1.4)}/>` +
+        `<rect x="-9" y="-18" width="18" height="10" rx="2" fill="#fff8e1" ${S(1)}/><path d="M-4 -13 h8" stroke="#c97c0a" stroke-width="1.6"/><path d="M-10 -22 q-2 6 1 10" stroke="#ffe08a" stroke-width="2.4" fill="none" stroke-linecap="round"/>`);
+
+    Art.define('kimchi', () => `<path d="M-18 -10 Q0 8 18 -10Z" fill="#fff" ${S(1.8)}/>` +
+        [[-9, -12], [0, -16], [9, -12], [-3, -10], [5, -9]].map(([x, y]) => `<path d="M${x - 6} ${y + 2} Q${x} ${y - 7} ${x + 6} ${y + 2}" fill="#e5383b" ${S(1.2)}/><path d="M${x - 3} ${y} q3 -3 6 0" stroke="#fff" stroke-width="1" fill="none"/>`).join(''));
+
+    Art.define('door', (c, o) => {
+        // a flat's front door with its number and keypad lock; o.open: swung
+        // open onto the lit flat inside
+        let s = `<rect x="-30" y="-120" width="60" height="120" fill="#e6ebf0" ${S(2)}/>`;
+        const leaf = o.color || '#6c8eae';
+        if (o.open) {
+            s += `<rect x="-24" y="-114" width="48" height="114" fill="#ffe7b3"/><rect x="-24" y="-30" width="48" height="30" fill="#e2b77f"/>`;
+            s += `<rect x="-24" y="-114" width="48" height="114" fill="none" ${S(1.8)}/>`;
+            s += `<path d="M24 -114 L40 -120 L40 6 L24 0Z" fill="${leaf}" ${S(1.8)}/>`;
+        } else {
+            s += `<rect x="-24" y="-114" width="48" height="114" fill="${leaf}" ${S(1.8)}/>`;
+            s += `<rect x="10" y="-84" width="11" height="16" rx="2" fill="#343a40" ${S(1)}/>`;
+            for (let r = 0; r < 3; r++) s += `<path d="M13 ${-81 + r * 4} h1.6 M17 ${-81 + r * 4} h1.6" stroke="#8de0ff" stroke-width="1.6"/>`;
+            s += `<rect x="12" y="-62" width="7" height="16" rx="2" fill="#adb5bd" ${S(1.2)}/>`;
+        }
+        // the number: on the door, or on the wall above an open one
+        const py = o.open ? -136 : -104;
+        s += `<rect x="-12" y="${py}" width="24" height="12" rx="2" fill="#fff" ${S(1.2)}/><text x="0" y="${py + 9}" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="800" font-size="9" fill="#2b2d42">${Art.esc(o.no || '1203')}</text>`;
+        return s;
+    });
+
+    Art.define('table', (c, o) => {
+        // a low wooden table at home; things stand on it at y -42
+        const w = o.w || 96;
+        let s = `<rect x="${-w / 2 + 6}" y="-36" width="7" height="36" rx="2" fill="#8a5a33" ${S(1.4)}/><rect x="${w / 2 - 13}" y="-36" width="7" height="36" rx="2" fill="#8a5a33" ${S(1.4)}/>`;
+        s += `<rect x="${-w / 2}" y="-42" width="${w}" height="8" rx="3" fill="#c08552" ${S(1.6)}/>`;
+        return s;
+    });
+
+    Art.define('drawing', () => {
+        // a child's drawing: Seoul's tower and blocks, Samarkand's dome, a heart between them
+        let s = `<rect x="-62" y="-80" width="124" height="80" rx="3" fill="#fff" ${S(2)}/>`;
+        s += `<path d="M-50 -10 V-46 H-38 V-10 M-34 -10 V-36 H-24 V-10" fill="#a8d8f0" ${S(1.4)}/><path d="M-12 -10 V-50 M-16 -50 H-8 L-12 -62Z" fill="#e63946" ${S(1.4)}/>`;
+        s += `<path d="M24 -10 V-34 H54 V-10" fill="#f4d58d" ${S(1.4)}/><path d="M24 -34 Q39 -58 54 -34Z" fill="#2a9df4" ${S(1.4)}/>`;
+        s += `<path d="M0 -24 C-10 -32 -12 -44 -4 -46 C0 -46 0 -42 0 -40 C0 -42 0 -46 4 -46 C12 -44 10 -32 0 -24Z" fill="#ef476f" ${S(1.2)}/>`;
+        return s;
+    });
+
+    Art.define('slide', () => `<path d="M-40 0 L-40 -60 M-24 0 L-24 -60" stroke="#e63946" stroke-width="5"/>${[-12, -24, -36, -48].map((y) => `<path d="M-40 ${y} H-24" stroke="#ffd166" stroke-width="3"/>`).join('')}` +
+        `<rect x="-46" y="-66" width="28" height="8" rx="3" fill="#3a86ff" ${S(1.6)}/><path d="M-20 -62 Q10 -50 24 -12 Q30 0 46 0 L46 -8 Q34 -8 30 -18 Q16 -58 -20 -70Z" fill="#ffd166" ${S(1.8)}/>`);
 
     Art.define('palace', (c) => {
         const tile = c.def('tileOut', (id) => `<pattern id="${id}" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="10" fill="#1d4ed8"/><path d="M5 0 L10 5 L5 10 L0 5Z" fill="#38bdf8"/><circle cx="5" cy="5" r="1.5" fill="#fff"/></pattern>`);

@@ -4,11 +4,16 @@
 
 Books can be read aloud with each sentence lit up as it is read. A grown-up records the reading in the app's recording studio ("Ovoz yozish"). A grandparent can record a book on their phone and send it to the family on Telegram as one file.
 
-A Korean helper supports children who read Korean best. Tapping an underlined word shows its Korean meaning, and a 🇰🇷 button shows a page's sentences in Korean under the Uzbek. The 한국어 option puts the app's menus in Korean for Korean-speaking parents and teachers, while the stories stay in Uzbek. For now the helper covers *Zumrad va Qimmat* and *Oltin tarvuz*.
+A Korean helper supports children who read Korean best. Tapping an underlined word shows its Korean meaning, and a 🇰🇷 button shows a page's sentences in Korean under the Uzbek. The 한국어 option puts the app's menus in Korean for Korean-speaking parents and teachers, while the stories stay in Uzbek. For now the helper covers *Zumrad va Qimmat*, *Oltin tarvuz*, *Hungbu va Nolbu* and the "Koreyadagi hayotim" books.
 
 The library has shelves by age (4–6, 7–8, 9+); a child's profile can have an age, which opens their shelf.
 
 "Ikki xalq — bir ertak": finishing *Oltin tarvuz* opens its Korean twin, 흥부와 놀부 retold in Uzbek as *Hungbu va Nolbu*, which ends with a game of finding what the two tales share and where they differ.
+
+On the "Koreyadagi hayotim" shelf (my life in Korea), Uzbek children live in today's Korea:
+- Asal teaches her Korean classmates what her name means.
+- Bobur takes osh to the neighbour, who sends the dish back full of tteok.
+- Malika video-calls her grandmother in Samarkand.
 
 Any picture can become a colouring page (🎨) to colour on screen, save or print, and each book ends with a game of putting the story's pictures in order (🧩).
 

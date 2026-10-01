@@ -31,10 +31,12 @@
         'Alisher Navoiy': '알리셰르 나보이',
         'Zamonaviy Sirlar': '현대 동화',
         '🇰🇷 Ikki xalq — bir ertak': '🇰🇷 두 나라, 한 이야기',
+        '🏙️ Koreyadagi hayotim': '🏙️ 한국에서의 내 생활',
         'Interaktiv Kitoblar Kutubxonasi': '인터랙티브 책 도서관',
         'Yangi': '새 책',
         // genre on the library cards (the part of a story's tag before "•")
         'Koreya xalq ertagi': '한국 전래동화',
+        'Koreyadagi hayotim': '한국에서의 내 생활',
         "O'zbek xalq ertagi": '우즈베크 전래동화',
         "O'zbek xalq latifalari": '우즈베크 웃음 이야기',
         'Xalq ertagi': '전래동화',

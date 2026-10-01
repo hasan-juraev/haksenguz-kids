@@ -60,7 +60,7 @@ function main() {
     const id = (idArg || name).toLowerCase().replace(/o'/g, 'o').replace(/g'/g, 'g').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     if (!/^[a-z0-9][a-z0-9-]{1,40}$/.test(id)) fail(`pick a voice id with --id (got "${id}")`);
 
-    const stories = Object.assign({}, ...['js/stories-folk.js', 'js/stories-classic.js', 'js/stories-twins.js'].map((f) => load(path.join(ROOT, f)).storiesDatabase));
+    const stories = Object.assign({}, ...['js/stories-folk.js', 'js/stories-classic.js', 'js/stories-twins.js', 'js/stories-korea.js'].map((f) => load(path.join(ROOT, f)).storiesDatabase));
     const data = fs.existsSync(MANIFEST) ? load(MANIFEST).narrationData || { voices: [] } : { voices: [] };
     let voice = data.voices.find((v) => v.id === id);
     if (!voice) data.voices.push(voice = { id, name, avatar: (pack.voice && pack.voice.avatar) || '🎙️', books: {} });

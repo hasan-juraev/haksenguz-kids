@@ -6,7 +6,7 @@
 (function (root) {
     'use strict';
 
-    const CATEGORIES = ['all', 'folk', 'classic', 'navoiy', 'modern', 'twins'];
+    const CATEGORIES = ['all', 'folk', 'classic', 'navoiy', 'modern', 'twins', 'korea'];
     const DEFAULT_QUIZ = {
         q: "Kitobdan olgan xulosangiz qanday?",
         a: ["Ezgulik, ilm, birdamlik va halollik har doim g'alaba qozonadi ✨", "Dangasalik va yomon niyatlar hamisha mukofotlanadi 💤", "Faqat yolg'izlik va janjallashish yaxshi natija beradi 🍃"],

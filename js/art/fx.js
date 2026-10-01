@@ -47,7 +47,7 @@
         : `<path d="M0 0 v-14 q6 2 8 6" fill="none" ${S(1.8)}/><ellipse cx="-2" cy="0" rx="3.6" ry="2.8" fill="${o.color || '#7b2cbf'}" ${S(1)}/>`));
 
     Art.define('zzz', (c, o) => {
-        const inner = rising(c, 3, 3.6, (i) => `<text x="${i * 3}" y="0" font-family="Fredoka, Nunito, sans-serif" font-weight="700" font-size="${10 + i * 3}" fill="#6c63ff" stroke="#fff" stroke-width="2" paint-order="stroke" translate="no">Z</text>`);
+        const inner = rising(c, 3, 3.6, (i) => `<text x="${i * 3}" y="0" font-family="Fredoka, Nunito, 'Gowun Dodum', sans-serif" font-weight="700" font-size="${10 + i * 3}" fill="#6c63ff" stroke="#fff" stroke-width="2" paint-order="stroke" translate="no">Z</text>`);
         if (o.x !== undefined) return `<g transform="translate(${o.x} ${o.y}) scale(${o.s || 1})">${inner}</g>`;
         return inner;
     });
@@ -64,7 +64,7 @@
             `<path d="M${n1(bx - 7)} ${h / 2 - 1} L${n1(tx)} ${n1(ty)} L${n1(bx + 7)} ${h / 2 - 1}Z" fill="#fff" ${S(2)}/>` +
             `<rect x="${n1(-w / 2)}" y="${-h / 2}" width="${n1(w)}" height="${h}" rx="${h / 2}" fill="#fff" ${S(2)}/>` +
             `<path d="M${n1(bx - 6)} ${h / 2 - 1.2} L${n1(bx + 6)} ${h / 2 - 1.2}" stroke="#fff" stroke-width="3"/>` +
-            `<text x="0" y="${n1(fs * 0.36)}" text-anchor="middle" font-family="Fredoka, Nunito, sans-serif" font-weight="700" font-size="${fs}" fill="${o.color || '#4b2e1a'}">${text}</text></g>`;
+            `<text x="0" y="${n1(fs * 0.36)}" text-anchor="middle" font-family="Fredoka, Nunito, 'Gowun Dodum', sans-serif" font-weight="700" font-size="${fs}" fill="${o.color || '#4b2e1a'}">${text}</text></g>`;
     });
 
     Art.define('think', (c, o) => {
@@ -75,7 +75,7 @@
         let s = `<g ${c.anim('sv-bob', 3)}>`;
         s += Art.blob([[-w * 0.28, 0, 16], [0, -6, 20], [w * 0.28, 0, 16], [0, 8, 16]], '#fff', 2);
         s += `<circle cx="${n1(tx * 0.55)}" cy="${n1(ty * 0.55)}" r="5" fill="#fff" ${S(1.8)}/><circle cx="${n1(tx * 0.85)}" cy="${n1(ty * 0.85)}" r="3" fill="#fff" ${S(1.6)}/>`;
-        s += `<text x="0" y="${n1(fs * 0.36)}" text-anchor="middle" font-family="Fredoka, Nunito, sans-serif" font-weight="700" font-size="${fs}" fill="${o.color || '#7b2cbf'}">${text}</text>`;
+        s += `<text x="0" y="${n1(fs * 0.36)}" text-anchor="middle" font-family="Fredoka, Nunito, 'Gowun Dodum', sans-serif" font-weight="700" font-size="${fs}" fill="${o.color || '#7b2cbf'}">${text}</text>`;
         if (o.icon) s += `<g transform="translate(0 2)">${o.icon}</g>`;
         return s + `</g>`;
     });
@@ -91,10 +91,10 @@
         }
         const text = esc(o.text || '');
         return `<g ${c.anim('sv-pulse', 0.9)}><path d="M${pts.join(' L')}Z" fill="${o.color || '#ffd166'}" ${S(2)}/>` +
-            `<text x="0" y="5" text-anchor="middle" font-family="Fredoka, Nunito, sans-serif" font-weight="700" font-size="${o.size || 13}" fill="#c1121f">${text}</text></g>`;
+            `<text x="0" y="5" text-anchor="middle" font-family="Fredoka, Nunito, 'Gowun Dodum', sans-serif" font-weight="700" font-size="${o.size || 13}" fill="#c1121f">${text}</text></g>`;
     });
 
-    Art.define('mark', (c, o) => `<g ${c.anim('sv-bob', 1.4)}><text x="0" y="0" text-anchor="middle" font-family="Fredoka, Nunito, sans-serif" font-weight="700" font-size="${o.size || 30}" fill="${o.color || '#ef476f'}" stroke="#fff" stroke-width="3" paint-order="stroke">${esc(o.ch || '!')}</text></g>`);
+    Art.define('mark', (c, o) => `<g ${c.anim('sv-bob', 1.4)}><text x="0" y="0" text-anchor="middle" font-family="Fredoka, Nunito, 'Gowun Dodum', sans-serif" font-weight="700" font-size="${o.size || 30}" fill="${o.color || '#ef476f'}" stroke="#fff" stroke-width="3" paint-order="stroke">${esc(o.ch || '!')}</text></g>`);
 
     Art.define('sound', (c, o) => `<g ${c.anim('sv-pulse', 1.2)}>` +
         [8, 16, 24].map((r) => `<path d="M0 ${-r} A${r} ${r} 0 0 1 0 ${r}" fill="none" stroke="${o.color || '#4b2e1a'}" stroke-width="2.4" stroke-linecap="round" opacity="${1 - r / 36}"/>`).join('') + `</g>`);

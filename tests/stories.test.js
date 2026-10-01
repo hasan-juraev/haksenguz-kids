@@ -11,6 +11,7 @@ require('../js/book.js');
 require('../js/stories-folk.js');
 require('../js/stories-classic.js');
 require('../js/stories-twins.js');
+require('../js/stories-korea.js');
 require('../js/levels.js');
 const db = window.storiesDatabase;
 const { SHELVES, AGES, shelfFor, fits, label, ageLabel } = window.Levels;
@@ -31,7 +32,7 @@ const goodQuestion = (q, where) => {
     check(Number.isInteger(q.ok) && q.ok < q.a.length, `${where}: the right answer (ok: ${q.ok}) is not one of the answers`);
 };
 
-const CATEGORIES = ['folk', 'classic', 'navoiy', 'modern', 'twins'];
+const CATEGORIES = ['folk', 'classic', 'navoiy', 'modern', 'twins', 'korea'];
 
 Object.entries(db).forEach(([key, st]) => {
     check(/^[a-z0-9_]+$/.test(key), `${key}: book keys are used in links (#${key}), so only a-z, 0-9 and _`);
