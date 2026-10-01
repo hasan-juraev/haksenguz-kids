@@ -924,3 +924,588 @@
     }
 }
 
+
+/* ---------- culture passport (js/passport.js) ---------- */
+
+.pass-card {
+    padding: 12px;
+    border-radius: 28px;
+    background: #fff;
+    border: 1px solid #ffedd5;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+}
+
+.uzmap {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 20px;
+}
+
+.uzmap text {
+    font-family: Nunito, sans-serif;
+    font-weight: 800;
+    text-anchor: middle;
+    paint-order: stroke;
+    stroke: #fff;
+    stroke-width: 4px;
+    stroke-linejoin: round;
+}
+
+.uzmap .map-sea {
+    fill: #cfe7f2;
+}
+
+.uzmap .map-land {
+    fill: #ebe5d8;
+    stroke: #cfc3aa;
+    stroke-width: 1.2;
+}
+
+.uzmap .map-shadow {
+    fill: rgba(91, 58, 26, .14);
+}
+
+.uzmap .map-border {
+    fill: none;
+    stroke: #b07a3c;
+    stroke-width: 3.2;
+    stroke-linejoin: round;
+    pointer-events: none;
+}
+
+.uzmap .map-region {
+    fill: #fffaf0;
+    stroke: #dcc49c;
+    stroke-width: 1.6;
+    stroke-linejoin: round;
+    cursor: pointer;
+    transition: fill .3s;
+}
+
+.uzmap .map-region:hover {
+    fill: #fff1d0;
+}
+
+.uzmap .map-region.is-stamped {
+    fill: var(--fill);
+    stroke: #fff;
+    stroke-width: 2.4;
+}
+
+.uzmap .map-outline {
+    fill: none;
+    stroke: #7c2d12;
+    stroke-width: 4;
+    stroke-linejoin: round;
+    pointer-events: none;
+}
+
+.uzmap .map-star {
+    fill: #e63946;
+    stroke: #fff;
+    stroke-width: 2.4;
+    paint-order: stroke;
+    pointer-events: none;
+}
+
+.uzmap .map-label {
+    cursor: pointer;
+}
+
+.uzmap .map-name {
+    font-size: 17px;
+    fill: #5b3a1a;
+}
+
+.uzmap .map-label.is-selected .map-name {
+    fill: #9a3412;
+    font-size: 20px;
+}
+
+.uzmap .map-mark {
+    fill: var(--ink);
+    stroke: #fff;
+    stroke-width: 2.6;
+}
+
+.uzmap .map-tick {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.uzmap .map-country,
+.uzmap .map-sea-name {
+    font-size: 15px;
+    font-style: italic;
+    letter-spacing: 1px;
+    pointer-events: none;
+}
+
+.uzmap .map-country {
+    fill: #a39577;
+    stroke: #ebe5d8;
+}
+
+.uzmap .map-sea-name {
+    fill: #4f86a8;
+    stroke: #cfe7f2;
+}
+
+.uzmap .map-korea {
+    cursor: pointer;
+}
+
+.uzmap .map-inset {
+    fill: #eef6fb;
+    stroke: #8fb8ea;
+    stroke-width: 2.4;
+    stroke-dasharray: 9 6;
+}
+
+.uzmap .map-korea.is-selected .map-inset {
+    stroke: #7c2d12;
+    stroke-dasharray: none;
+}
+
+.uzmap .map-inset-title {
+    stroke: #eef6fb;
+}
+
+.uzmap .map-city {
+    font-size: 14px;
+    fill: #1e3a8a;
+    text-anchor: end;
+    stroke: #eef6fb;
+}
+
+.uzmap .map-flight {
+    fill: none;
+    stroke: #1e40af;
+    stroke-width: 2.6;
+    stroke-dasharray: 1 8;
+    stroke-linecap: round;
+    opacity: .75;
+}
+
+.uzmap .map-km {
+    font-size: 15px;
+    fill: #1e40af;
+    stroke: #ebe5d8;
+}
+
+/* On a phone the map is small: only the chosen place keeps its name. */
+@media (max-width: 640px) {
+    .uzmap .map-name,
+    .uzmap .map-country,
+    .uzmap .map-sea-name,
+    .uzmap .map-city,
+    .uzmap .map-km {
+        display: none;
+    }
+
+    .uzmap .map-label.is-selected .map-name,
+    .uzmap .map-inset-title {
+        display: block;
+        font-size: 38px;
+        stroke-width: 8px;
+    }
+
+    .uzmap .map-inset-title {
+        font-size: 30px;
+        transform: translateY(14px);
+    }
+}
+
+.pass-hint {
+    margin: 8px 4px 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: #8a6d45;
+}
+
+.pass-price {
+    margin: -6px 4px 10px;
+}
+
+.pass-title {
+    margin: 4px 4px 10px;
+    font-size: 18px;
+    font-weight: 800;
+    color: #7c2d12;
+}
+
+.pass-stamps {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+    gap: 12px;
+}
+
+.pass-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 10px 6px 12px;
+    border: 2px solid #f6e7c8;
+    border-radius: 22px;
+    background:
+        repeating-linear-gradient(135deg, rgba(214, 190, 140, .07) 0 2px, transparent 2px 9px),
+        #fffaf0;
+    cursor: pointer;
+    transition: transform .2s, box-shadow .2s;
+}
+
+.pass-slot:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px -10px rgba(124, 45, 18, .45);
+}
+
+.pass-slot .stamp-svg {
+    width: 104px;
+    height: 104px;
+}
+
+.pass-slot-name {
+    font-weight: 800;
+    color: #5b3a1a;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.pass-slot-ko {
+    font-size: 12px;
+    font-weight: 700;
+    color: #6b7280;
+}
+
+.pass-slot-meta {
+    font-size: 12px;
+    font-weight: 800;
+    color: #a16207;
+}
+
+.pass-album {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+    gap: 10px;
+}
+
+.pass-sticker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 6px 10px;
+    border-radius: 18px;
+    border: 2px dashed #ecdcb8;
+    background: #fffdf7;
+    text-align: center;
+    cursor: pointer;
+}
+
+.pass-sticker.is-mine {
+    border-style: solid;
+    border-color: #fde68a;
+    background: #fffbeb;
+}
+
+.pass-sticker .sticker-svg {
+    width: 88px;
+    height: 88px;
+}
+
+.pass-sticker:not(.is-mine) .sticker-svg {
+    filter: grayscale(1) opacity(.28);
+}
+
+.pass-sticker b {
+    font-size: 12px;
+    line-height: 1.2;
+    color: #5b3a1a;
+}
+
+.pass-sticker small {
+    font-size: 11px;
+    font-weight: 700;
+    color: #9a7b4f;
+}
+
+/* a place's card: stamp, fact, books and stickers */
+.play-card--region {
+    width: min(640px, 100%);
+}
+
+.region-top {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+}
+
+.region-top .stamp-svg {
+    flex: 0 0 auto;
+    width: 112px;
+    height: 112px;
+}
+
+.region-city {
+    margin: 0 0 4px;
+    font-weight: 800;
+    color: #92400e;
+}
+
+.region-fact {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.55;
+    color: #3f3a33;
+}
+
+.region-fact-ko {
+    margin: 6px 0 0;
+    font-size: 14px;
+    line-height: 1.55;
+    color: #1e40af;
+}
+
+.region-h {
+    margin: 16px 0 8px;
+    font-size: 15px;
+    font-weight: 800;
+    color: #7c2d12;
+}
+
+.region-books {
+    display: grid;
+    gap: 8px;
+}
+
+.region-book {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 6px;
+    border: 2px solid #fde7c4;
+    border-radius: 16px;
+    background: #fff;
+    text-align: left;
+    cursor: pointer;
+}
+
+.region-book:hover {
+    background: #fff7ed;
+}
+
+.region-book .thumb-art {
+    flex: 0 0 auto;
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.region-book b {
+    display: block;
+    color: #3f2a14;
+}
+
+.region-book small {
+    font-weight: 700;
+    color: #8a7a62;
+}
+
+.region-book small.is-done {
+    color: #15803d;
+}
+
+.region-book small.is-reading {
+    color: #b45309;
+}
+
+.region-stickers {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.region-sticker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 8px;
+    border-radius: 18px;
+    background: #fffaf0;
+    border: 2px solid #f6e7c8;
+    text-align: center;
+}
+
+.region-sticker .sticker-svg {
+    width: 110px;
+    height: 110px;
+}
+
+.region-sticker:not(.is-mine) .sticker-svg {
+    filter: grayscale(.85) opacity(.45);
+}
+
+.region-sticker.is-new .sticker-svg {
+    animation: stickerPop .6s cubic-bezier(.2, 1.6, .4, 1);
+}
+
+@keyframes stickerPop {
+    0% { transform: scale(.4) rotate(-12deg); }
+    100% { transform: none; }
+}
+
+.region-sticker b {
+    color: #5b3a1a;
+    line-height: 1.2;
+}
+
+.region-sticker small {
+    font-size: 12px;
+    font-weight: 700;
+    color: #6b7280;
+}
+
+.btn-buy {
+    min-height: 40px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 12px;
+    font-weight: 800;
+    color: #fff;
+    background: linear-gradient(135deg, #f59e0b, #ea580c);
+    box-shadow: 0 3px 0 #9a3412;
+    cursor: pointer;
+}
+
+.btn-buy:disabled {
+    background: #e7dcc8;
+    color: #8a7a62;
+    box-shadow: none;
+    cursor: default;
+}
+
+.region-mine {
+    font-weight: 800;
+    color: #15803d;
+}
+
+.region-note {
+    margin: 10px 0 0;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: #fef3c7;
+    font-size: 13px;
+    font-weight: 700;
+    color: #92400e;
+}
+
+/* the end of a book: the place it took the child to, stamped in the page's corner */
+.finale-stamp {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 96px;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    transform: rotate(5deg);
+}
+
+.finale-stamp .stamp-svg {
+    width: 86px;
+    height: 86px;
+    animation: stampDown .55s cubic-bezier(.3, 1.5, .5, 1) .35s both;
+}
+
+.finale-stamp small {
+    margin-top: -4px;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: #eff6ff;
+    font-size: 11px;
+    font-weight: 800;
+    color: #1d4ed8;
+    white-space: nowrap;
+}
+
+.finale-stamp:hover .stamp-svg,
+.finale-stamp:focus-visible .stamp-svg {
+    transform: scale(1.06);
+}
+
+@keyframes stampDown {
+    0% { transform: scale(1.9); opacity: 0; }
+    60% { transform: scale(.92); opacity: 1; }
+    100% { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .finale-stamp .stamp-svg {
+        animation: none;
+    }
+}
+
+/* A narrow page (a phone, or a tablet held upright): a smaller stamp, clear of the title. */
+.sheet--finale .page-pad {
+    container-type: inline-size;
+}
+
+@media (max-width: 640px) {
+    .finale-stamp {
+        top: 6px;
+        right: 6px;
+        width: 56px;
+    }
+
+    .finale-stamp .stamp-svg {
+        width: 56px;
+        height: 56px;
+    }
+
+    .finale-stamp small {
+        display: none;
+    }
+}
+
+@container (max-width: 420px) {
+    .finale-stamp {
+        top: 6px;
+        right: 6px;
+        width: 56px;
+    }
+
+    .finale-stamp .stamp-svg {
+        width: 56px;
+        height: 56px;
+    }
+
+    .finale-stamp small {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .region-top {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .region-sticker .sticker-svg {
+        width: 88px;
+        height: 88px;
+    }
+}

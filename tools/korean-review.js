@@ -4,7 +4,8 @@
  * bilingual reviewer. It opens in Excel, Google Sheets or Numbers:
  *
  *   node tools/korean-review.js > korean-review.csv
- *   node tools/korean-review.js zumrad > zumrad.csv     (one book; "menu" for the menus)
+ *   node tools/korean-review.js zumrad > zumrad.csv     (one book; "menu" for the menus,
+ *                                                        "pasport" for the culture passport)
  *
  * One row per title, sentence, question, answer, word and menu text. The
  * reviewer writes a better Korean in the "To'g'risi / 수정" column, or a note
@@ -23,15 +24,16 @@ require('../js/stories-holiday.js');
 require('../js/stories-alifbo.js');
 require('../js/stories-ko.js');
 require('../js/i18n.js');
+require('../js/passport.js');
 
 const { segments } = window.BookEngine;
 const db = window.storiesDatabase;
 const { EXACT, PATTERNS, translate } = window.I18n;
 const only = process.argv.slice(2);
 const want = (key) => !only.length || only.includes(key);
-const unknown = only.filter((key) => key !== 'menu' && !window.storiesKorean[key]);
+const unknown = only.filter((key) => key !== 'menu' && key !== 'pasport' && !window.storiesKorean[key]);
 if (unknown.length) {
-    console.error(`No Korean for: ${unknown.join(', ')}. Books with Korean: ${Object.keys(window.storiesKorean).join(', ')}, or "menu".`);
+    console.error(`No Korean for: ${unknown.join(', ')}. Books with Korean: ${Object.keys(window.storiesKorean).join(', ')}, or "menu", or "pasport".`);
     process.exit(1);
 }
 
@@ -62,6 +64,18 @@ Object.entries(window.storiesKorean).filter(([key]) => want(key)).forEach(([key,
 if (want('menu')) {
     Object.entries(EXACT).forEach(([uz, ko], i) => add(`menyu ${i + 1}`, 'Menyu, tugma / 메뉴, 버튼', uz, ko));
     PATTERNS.forEach(([, , example], i) => add(`menyu* ${i + 1}`, 'Menyu, raqam yoki ism bilan / 메뉴 (숫자나 이름 포함)', example, translate(example, 'ko')));
+}
+
+// The culture passport (js/passport.js): places, what the child learns about them, stickers, the map's names.
+if (want('pasport')) {
+    const P = window.Passport;
+    P.REGIONS.forEach((r) => {
+        add(`pasport ${r.id}`, 'Pasport: joy nomi / 여권: 지역 이름', r.name, r.ko);
+        if (r.city && r.city !== r.name) add(`pasport ${r.id} shahar`, 'Pasport: shahar / 여권: 도시', r.city, r.koCity);
+        add(`pasport ${r.id} haqida`, 'Pasport: joy haqida / 여권: 지역 이야기', r.fact, r.koFact);
+        r.stickers.forEach((x) => add(`pasport ${x.id}`, 'Pasport: stiker / 여권: 스티커', x.name, x.ko));
+    });
+    Object.entries(P.NAMES).forEach(([k, [uz, ko]]) => add(`pasport ${k}`, 'Pasport: xaritadagi nom / 여권: 지도의 이름', uz, ko));
 }
 
 // CSV that Excel opens as UTF-8 (the byte-order mark) with Korean intact.

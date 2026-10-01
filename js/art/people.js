@@ -610,6 +610,8 @@
         shirin: { sex: 'f', pattern: 'ikat', color: '#c9184a', color2: '#ffd166', color3: '#ff8fab', head: 'girlcap', hat: '#f4c542', hair: '#2b1d14', pants: '#ffd166' },
         xusrav: { head: 'crown', hat: '#ffe8a3', beard: 'short', beardColor: '#2b1d14', outfit: 'royal', color: '#2a9d8f', mood: 'sly' },
         kumush: { sex: 'f', pattern: 'ikat', color: '#7209b7', color2: '#f8f9fa', color3: '#4cc9f0', head: 'braids', hair: '#1b1b1b', pants: '#4cc9f0' },
+        // the poet Alisher Navoiy (culture passport): an old man in a white salla, reading his poem
+        navoiy: { age: 'old', head: 'salla', beard: 'long', beardColor: '#d9d3c7', pattern: 'stripes', color: '#1b4332', color2: '#52b788', color3: '#081c15', belt: '#e9c46a', hold: 'scroll', pose: 'hold' },
         homid: { head: 'salla', hat: '#6c757d', beard: 'short', beardColor: '#1b1b1b', pattern: 'stripes', color: '#3d405b', color2: '#81b29a', color3: '#1d1d1d', belt: '#9d0208', mood: 'sly' },
         // Hungbu va Nolbu (Korea): the poor brother in patched white, the rich one in a jade durumagi and gat
         hungbu: { head: 'sangtu', outfit: 'hanbok', color: '#f1ece0', trim: '#8d99ae', goreum: '#8d99ae', pants: '#e6dfcd', patches: true, shoes: '#c9a86a' },

@@ -3,10 +3,12 @@
  * device (localStorage); nothing is sent anywhere.
  *
  * Each child has a profile with their own points, an optional age (it picks
- * their shelf in the library, see js/levels.js) and, per book:
+ * their shelf in the library, see js/levels.js), the words they have met
+ * (Mening lug'atim), the passport stickers they have bought and, per book:
  *   page      last story page they were on (0 = nothing to continue)
  *   answers   page questions answered so far (see BookEngine.answer)
- *   finished  reached the last page at least once
+ *   finished  reached the last page at least once (finishedAt: when, the
+ *             first time; it dates the passport stamp, see js/passport.js)
  *   quiz      passed the final quiz (its points are given only once)
  *   order     solved the story-order game (likewise paid once)
  *   compare   sorted a twin tale's "find the differences" cards (likewise)
@@ -90,6 +92,7 @@
                 points: 0,
                 books: {},
                 words: {}, // "book:page" of each word card met (Mening lug'atim)
+                stickers: {}, // passport stickers bought: id -> when (js/passport.js)
                 last: null,
                 created: Date.now(),
             };
@@ -128,6 +131,15 @@
             this.profile().points += n;
             this.save();
             return this.profile().points;
+        }
+
+        // Spends points (a passport sticker); false, and nothing spent, if there aren't enough.
+        spendPoints(n) {
+            const p = this.profile();
+            if (!(n > 0) || p.points < n) return false;
+            p.points -= n;
+            this.save();
+            return true;
         }
     }
 

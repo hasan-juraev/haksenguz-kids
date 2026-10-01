@@ -18,6 +18,7 @@ Object.assign(window.storiesDatabase, {
         title: "Hungbu va Nolbu",
         category: "twins",
         age: [5, 8],
+        region: "koreya",
         tag: "Koreya xalq ertagi • Ikki xalq — bir ertak",
         hue: "#2a6f97",
         twin: "oltin_tarvuz",

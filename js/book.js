@@ -353,6 +353,7 @@
                 ? `<button type="button" class="btn-twin" data-action="twin" data-key="${esc(twin)}"><span>🇰🇷 Egizak ertak ochildi!</span> <b data-content>${esc(db[twin].title)}</b></button>`
                 : st.compare ? `<button type="button" class="btn-twin" data-action="compare">🔍 Farqlarni toping</button>` : '';
             return `<div class="sheet sheet--right sheet--finale"><div class="page-pad finale">
+                ${this.passportHTML()}
                 <div class="title-ornament">❦</div>
                 <h2 class="finale-title">Ertak tugadi!</h2>
                 <div class="finale-stars" aria-label="${stars} yulduz">${'★'.repeat(stars)}<span>${'★'.repeat(3 - stars)}</span></div>
@@ -366,6 +367,15 @@
                     <button type="button" class="btn-reread" data-action="share">📤 Ulashish</button>
                 </div>
             </div></div>`;
+        }
+
+        // Culture passport (js/passport.js): the place this book took the child to, with its stamp.
+        passportHTML() {
+            const P = root.Passport;
+            const r = P && P.regionOf(this.story);
+            if (!r) return '';
+            const where = `📍 Bu ertak seni ${P.dative(r.name)} olib bordi!`;
+            return `<button type="button" class="finale-stamp" data-action="passport" data-region="${esc(r.id)}" aria-label="${esc(where)}" title="${esc(where)}">${P.stampSVG(r)}<small>🗺️ Pasport</small></button>`;
         }
 
         coverHTML() {

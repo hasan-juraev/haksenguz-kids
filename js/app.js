@@ -68,6 +68,8 @@
             document.getElementById('avatarPicker').addEventListener('click', (e) => this.onAvatarClick(e));
             document.getElementById('agePicker').addEventListener('click', (e) => this.onAgeClick(e));
             document.getElementById('dictView').addEventListener('click', (e) => this.onDictClick(e));
+            document.getElementById('passView').addEventListener('click', (e) => this.onPassClick(e));
+            document.querySelector('#playModal .play-card').addEventListener('click', (e) => this.onRegionClick(e));
             document.addEventListener('click', (e) => {
                 if (!e.target.closest('#glossCard, .gloss')) this.closeGloss();
             });
@@ -100,6 +102,7 @@
             this.renderHero();
             this.initLibrary();
             this.updateDictCount();
+            this.updatePassCount();
         }
 
         // ---------- library ----------
@@ -268,7 +271,7 @@
         }
 
         show(view) {
-            ['homeView', 'storyView', 'gameView', 'studioView', 'dictView'].forEach((id) => document.getElementById(id).classList.toggle('hidden', id !== view));
+            ['homeView', 'storyView', 'gameView', 'studioView', 'dictView', 'passView'].forEach((id) => document.getElementById(id).classList.toggle('hidden', id !== view));
             root.scrollTo({ top: 0 });
         }
 
@@ -277,11 +280,17 @@
             this.reader.stop();
             this.studio.close();
             this.closeGloss();
-            if (root.location.hash) root.history.replaceState(null, '', root.location.pathname + root.location.search);
+            this.clearLink();
             this.show('homeView');
             this.renderHero();
             this.initLibrary();
             this.updateDictCount();
+            this.updatePassCount();
+        }
+
+        // Leaving the book: the address no longer names it (so a reload doesn't reopen it).
+        clearLink() {
+            if (root.location.hash) root.history.replaceState(null, '', root.location.pathname + root.location.search);
         }
 
         // resume: jump straight to the page this child stopped on.
@@ -516,8 +525,18 @@
             if (s.end) {
                 const twin = !rec.finished && Object.keys(this.db).find((k) => this.db[k].twin === key);
                 if (twin) this.toast(`🔓 Yangi ertak ochildi: «${this.db[twin].title}»!`);
+                // the first time: the book's place gets its stamp in the passport (js/passport.js)
+                const P = root.Passport;
+                const place = !rec.finished && P && P.regionOf(this.db[key]);
+                const fresh = place && !(place.id in P.stamps(this.db, this.store.profile()));
+                if (!rec.finished) rec.finishedAt = Date.now();
                 rec.finished = true;
                 rec.page = 0;
+                if (fresh) {
+                    const msg = `🗺️ Yangi muhr: ${place.name}!`;
+                    if (twin) setTimeout(() => this.toast(msg), 2000);
+                    else this.toast(msg);
+                }
             } else if (s.view >= 1) {
                 rec.page = s.view;
                 this.store.profile().last = key;
@@ -551,6 +570,7 @@
             else if (act === 'twin') this.startStory(el.dataset.key);
             else if (act === 'compare') this.openCompare();
             else if (act === 'trace') this.openTracing(el.dataset.letter);
+            else if (act === 'passport') this.openPassport(el.dataset.region);
         }
 
         // Alifbo: trace the page's letter, capital then small (+5 points the first time).
@@ -837,6 +857,7 @@
 
         openDictionary() {
             this.reader.stop();
+            this.clearLink();
             this.show('dictView');
             this.renderDictionary();
         }
@@ -947,6 +968,173 @@
             });
         }
 
+        // ---------- Madaniyat pasporti (js/passport.js, map in js/uzmap.js) ----------
+
+        updatePassCount() {
+            const el = document.getElementById('passCount');
+            const P = root.Passport;
+            if (el && P) el.textContent = `(${Object.keys(P.stamps(this.db, this.store.profile())).length}/${P.REGIONS.length})`;
+        }
+
+        // region: open that place's card too (from the end of a book)
+        openPassport(region) {
+            if (!root.Passport) return;
+            this.book.stopTurn();
+            this.reader.stop();
+            this.closeGloss();
+            this.clearLink();
+            this.passRegion = region || null;
+            this.show('passView');
+            this.renderPassport();
+            if (region) this.showRegion(region);
+        }
+
+        // The map, a stamp (or an empty place) for each place, and the sticker album.
+        renderPassport() {
+            const P = root.Passport;
+            const p = this.store.profile();
+            const stamps = P.stamps(this.db, p);
+            const mine = p.stickers || {};
+            const ko = this.store.settings.lang === 'ko';
+            document.getElementById('passStamped').textContent = `${Object.keys(stamps).length} / ${P.REGIONS.length} muhr`;
+            document.getElementById('passPrice').textContent = `Har bir stiker — ${P.PRICE} ball. Viloyat stikerlari uning muhri bosilgach ochiladi.`;
+            this.renderPassMap();
+            document.getElementById('passStamps').innerHTML = P.REGIONS.map((r) => {
+                const on = r.id in stamps;
+                const have = r.stickers.filter((x) => mine[x.id]).length;
+                return `<button type="button" class="pass-slot${on ? ' is-stamped' : ''}" data-region="${r.id}">
+                    ${on ? P.stampSVG(r, { date: stamps[r.id] }) : P.emptySVG(r)}
+                    <span class="pass-slot-name" data-content>${esc(r.name)}</span>
+                    <span class="pass-slot-ko" lang="ko">${esc(r.ko)}</span>
+                    <span class="pass-slot-meta" data-meta>📚 ${P.books(this.db, r.id).length} · 🎁 ${have}/${r.stickers.length}</span>
+                </button>`;
+            }).join('');
+            document.getElementById('passAlbum').innerHTML = P.STICKERS.map((x) => `
+                <button type="button" class="pass-sticker" data-region="${x.region}" data-sticker="${x.id}">
+                    ${P.stickerSVG(x)}<b data-content>${esc(x.name)}</b>${ko ? `<small lang="ko">${esc(x.ko)}</small>` : `<small data-content>${esc(P.region(x.region).name)}</small>`}
+                </button>`).join('');
+            this.updatePassStickers();
+        }
+
+        // The map alone (it changes when a place is opened), with that place outlined.
+        renderPassMap() {
+            const P = root.Passport;
+            const lang = this.store.settings.lang === 'ko' ? 'ko' : 'uz';
+            document.getElementById('passMap').innerHTML = P.mapSVG({ stamped: P.stamps(this.db, this.store.profile()), selected: this.passRegion, lang });
+        }
+
+        // Sticker counts and the album, updated in place (a place's card may be open over them).
+        updatePassStickers() {
+            const P = root.Passport;
+            const mine = this.store.profile().stickers || {};
+            document.getElementById('passOwned').textContent = `${P.STICKERS.filter((x) => mine[x.id]).length} / ${P.STICKERS.length} stiker`;
+            document.querySelectorAll('#passAlbum [data-sticker]').forEach((b) => b.classList.toggle('is-mine', !!mine[b.dataset.sticker]));
+            P.REGIONS.forEach((r) => {
+                const meta = document.querySelector(`#passStamps [data-region="${r.id}"] [data-meta]`);
+                if (meta) meta.textContent = `📚 ${P.books(this.db, r.id).length} · 🎁 ${r.stickers.filter((x) => mine[x.id]).length}/${r.stickers.length}`;
+            });
+        }
+
+        onPassClick(e) {
+            const el = e.target.closest('[data-region]');
+            if (el && root.Passport.region(el.dataset.region)) this.showRegion(el.dataset.region);
+        }
+
+        // A place's card: its stamp, a fact, the books that go there and its stickers.
+        showRegion(id, fresh) {
+            const P = root.Passport;
+            const r = P && P.region(id);
+            if (!r || !root.Games) return;
+            this.passRegion = id;
+            const p = this.store.profile();
+            const stamps = P.stamps(this.db, p);
+            const ko = this.store.settings.lang === 'ko';
+            const on = id in stamps;
+            const where = r.capital ? ['📍 Poytaxti:', r.city, r.koCity] : r.city ? ['📍 Markazi:', r.city, r.koCity] : ["📍 O'zbekistonning poytaxti", '', ''];
+            const books = P.books(this.db, id).map((k) => {
+                const st = this.db[k];
+                const rec = p.books[k];
+                const [status, cls] = this.isLocked(k) ? [`🔒 «${this.db[st.twin].title}»ni o'qib tugating`, '']
+                    : rec && rec.finished ? ["✓ O'qildi", 'is-done']
+                        : rec && rec.page ? [`📖 ${rec.page} / ${st.pages.length}`, 'is-reading'] : ["Hali o'qilmagan", ''];
+                const art = root.Art ? root.Art.render(st.cover || st.pages[0].scene, { still: true, seed: k + ':thumb' }) : '';
+                return `<button type="button" class="region-book" data-book="${esc(k)}"><span class="thumb-art">${art}</span><span><b data-content>${esc(st.title)}</b><small class="${cls}">${status}</small></span></button>`;
+            }).join('');
+            const stickers = r.stickers.map((x) => {
+                const state = P.stickerState(this.db, p, x.id);
+                const need = P.PRICE - p.points;
+                const action = state === 'have'
+                    ? `<span class="region-mine">✓ Sizniki</span>`
+                    : `<button type="button" class="btn-buy" data-buy="${x.id}"${state === 'ok' ? '' : ' disabled'}><span>🎁 Olish</span> <span>⭐ ${P.PRICE} ball</span></button>` +
+                      (state === 'points' ? `<small>Yana ${need} ball kerak</small>` : '');
+                return `<div class="region-sticker${state === 'have' ? ' is-mine' : ''}${fresh === x.id ? ' is-new' : ''}">${P.stickerSVG(x)}<b data-content>${esc(x.name)}</b><small lang="ko">${esc(x.ko)}</small>${action}</div>`;
+            }).join('');
+            const html = `<div class="region-card">
+                <div class="play-head"><h3><span data-content>${esc(r.name)}</span> <small class="pass-slot-ko" lang="ko">${esc(r.ko)}</small></h3><button type="button" class="play-x" data-close aria-label="Yopish">✕</button></div>
+                <div class="region-top">${on ? P.stampSVG(r, { date: stamps[id] }) : P.emptySVG(r)}
+                    <div><p class="region-city"><span>${where[0]}</span> ${where[1] ? `<b data-content>${esc(where[1])}</b>${ko ? ` <span lang="ko">(${esc(where[2])})</span>` : ''}` : ''}</p>
+                    <p class="region-fact" data-content>${esc(r.fact)}</p>${ko ? `<p class="region-fact-ko" lang="ko">${esc(r.koFact)}</p>` : ''}</div>
+                </div>
+                <h4 class="region-h">📚 Bu yerga olib boradigan kitoblar</h4>
+                <div class="region-books">${books}</div>
+                <h4 class="region-h">🎁 Stikerlar</h4>
+                <div class="region-stickers">${stickers}</div>
+                ${on ? '' : `<p class="region-note">🔒 Stikerlar muhr bosilgach ochiladi: bu yerga olib boradigan kitobni oxirigacha o'qing!</p>`}
+            </div>`;
+            // Already open (a sticker was just bought): redraw it in place, keeping where focus returns to.
+            const modal = document.getElementById('playModal');
+            const card = modal.querySelector('.play-card');
+            if (!modal.classList.contains('hidden') && card.querySelector('.region-card')) {
+                card.innerHTML = html;
+                const btn = card.querySelector('.region-sticker.is-new');
+                if (btn) btn.scrollIntoView({ block: 'nearest' });
+                const close = card.querySelector('[data-close]');
+                if (close) close.focus();
+            } else {
+                root.Games.open(html, 'play-card--region');
+            }
+            // the map shows which place is open
+            if (!document.getElementById('passView').classList.contains('hidden')) this.renderPassMap();
+        }
+
+        // Clicks inside a place's card (it lives in the play corner's modal, js/games.js).
+        onRegionClick(e) {
+            if (!e.target.closest('.region-card')) return;
+            const buy = e.target.closest('[data-buy]');
+            const book = e.target.closest('[data-book]');
+            if (buy && !buy.disabled) this.buySticker(buy.dataset.buy);
+            else if (book) {
+                root.Games.close();
+                const key = book.dataset.book;
+                if (this.isLocked(key)) this.showLocked(key);
+                else this.startStory(key, true);
+            }
+        }
+
+        buySticker(id) {
+            const P = root.Passport;
+            const x = P.sticker(id);
+            const p = this.store.profile();
+            const state = P.stickerState(this.db, p, id);
+            if (state === 'stamp') {
+                this.toast("🔒 Avval bu yerga sayohat qiling: kitobini oxirigacha o'qing!");
+                return;
+            }
+            if (state === 'points') {
+                this.toast(`⭐ Ball yetmaydi: yana ${P.PRICE - p.points} ball kerak`);
+                return;
+            }
+            if (state !== 'ok' || !this.store.spendPoints(P.PRICE)) return;
+            p.stickers = p.stickers || {};
+            p.stickers[id] = Date.now();
+            this.store.save();
+            document.getElementById('userPoints').textContent = `${p.points} ball`;
+            this.playChime(true);
+            this.toast(`🎁 Yangi stiker: ${x.name}!`);
+            this.showRegion(x.region, id);
+            if (!document.getElementById('passView').classList.contains('hidden')) this.updatePassStickers();
+        }
+
         // ---------- Korean helper: tap a word ----------
 
         showGloss(i) {
@@ -995,6 +1183,11 @@
             if (root.Translit) root.Translit.set({ script, lang });
             this.renderScriptBtn();
             this.initLibrary();
+            // The passport's map and cards have Korean names with the Korean menus.
+            if (!document.getElementById('passView').classList.contains('hidden')) {
+                this.renderPassport();
+                if (this.passRegion && !document.getElementById('playModal').classList.contains('hidden')) this.showRegion(this.passRegion);
+            }
             // Redraw the open book so its text is fitted to the page in the new script.
             if (this.book.story) this.book.goTo(this.book.view);
         }

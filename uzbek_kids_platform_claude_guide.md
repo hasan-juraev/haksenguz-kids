@@ -636,3 +636,49 @@ fonts/gowun-dodum-ko.*   # built Korean font + the letters in it
 * `Games.spell`: 3 words. The picture and meaning show, and the child taps the letter tiles in order. Wrong tiles shake; the tiles stay in Latin (`translate="no"`).
 * A win gives +10 points, once per game per day (`profile.dictWins`).
 
+## 21. Update: Madaniyat Pasporti, the Culture Passport (Roadmap Phase 3, item 11)
+
+### Places (`js/passport.js`)
+* `Passport.REGIONS` holds the 14 regions and Korea. Each place has:
+  * `name` and `ko`;
+  * its centre `city`, with its `[lat, lon]` in `at`;
+  * a `fact` and a `koFact`;
+  * an ink colour for its stamp and a fill colour for the map;
+  * two `stickers`, each with art-engine items (`art`).
+* Every story names its place: `region: "xorazm"` in `js/stories-*.js`. The Alifbo has none.
+* `stamps(db, profile)` lists the places of finished books. Each stamp is dated by the first book finished there (`record.finishedAt`, set in `saveProgress`). Books finished before the passport existed stamp without a date.
+* `stickerState(...)` returns one of:
+  * `have`;
+  * `stamp` (its place not visited yet);
+  * `points` (fewer than `PRICE`, 50);
+  * `ok`.
+  `Store.spendPoints` pays, and `profile.stickers` remembers.
+* Pictures:
+  * `stampSVG(region)` draws a rubber stamp: the name around the edge, the first sticker's picture inked in the middle, the date, and worn ink (an SVG filter). Korea's stamp is square.
+  * `stickerSVG(sticker)` draws a sticker with `Art.sticker`.
+  * `mapSVG({ stamped, selected, lang })` draws the map.
+* `tests/passport.test.js` checks:
+  * the places, their facts and Korean;
+  * that every book has a place;
+  * stamps and stickers;
+  * each region's centre city lies inside it on the map;
+  * the Korean menus.
+
+### The map (`js/uzmap.js`, built by `tools/build-map.js`)
+* Region borders come from Natural Earth (public domain), via the datamaps package; neighbouring countries and Korea come via world-atlas.
+* They are simplified and projected (Lambert conformal conic), then written as compact SVG paths with label spots: about 19 KB.
+* The packages aren't dependencies. To rebuild, see the command at the top of `tools/build-map.js`.
+* On a phone the region names are hidden, except the open place's.
+
+### The view (`#passView`, `js/app.js`)
+* The banner's "🗺️ Pasportim (n/15)" opens it. It shows the map, the 15 stamp places and the sticker album.
+* Tapping a place on the map, a stamp or a sticker opens the place's card in the play-corner modal (`Games.open`). Buying a sticker redraws the card in place, so focus still returns where it was.
+* The last page of a book has the place's stamp in its corner (`.finale-stamp`, `BookEngine.passportHTML`). It is smaller on narrow pages (a container query), and tapping it opens the passport at that place.
+* Opening the passport (or the dictionary) clears the book from the address, so a reload doesn't reopen it.
+
+### Pictures
+* `Art.sticker(items, { box, cut, attrs })` draws parts without a background, cut out with a white edge and a shadow (`feMorphology`).
+* New parts in `js/art/landmarks.js`: `oqsaroy`, `zurmala`, `teleminora`, `metro`, `chimyon`, `archa`, `paxta`, `qovun`, `non`, `doppi`, `atlas`, `mashina`, `kitob`, `sarmishsoy`.
+* New animals: `tuya` (a two-humped camel) and `qoplon` (a snow leopard).
+* A new person preset, `navoiy` (the poet with his scroll).
+

@@ -254,6 +254,27 @@
         "👍 Davom eting, harf ustidan yurgizing!": '👍 계속해요, 글자 위를 따라 그려요!',
         "Koreys harflarida o'qilishi": '한글로 읽기',
     });
+    // Madaniyat pasporti: the map, stamps and stickers (js/passport.js). Place
+    // names come in Korean from js/passport.js itself.
+    Object.assign(EXACT, {
+        'Pasportim': '나의 여권',
+        '🗺️ Mening pasportim': '🗺️ 나의 여권',
+        '👆 Viloyatni bosing: u yerning muhri, kitoblari va stikerlari ochiladi.': '👆 지역을 눌러 보세요. 그곳의 도장과 책, 스티커가 나와요.',
+        '🛂 Muhrlar': '🛂 도장',
+        '🎁 Stikerlar albomi': '🎁 스티커 앨범',
+        '📍 Markazi:': '📍 중심 도시:',
+        '📍 Poytaxti:': '📍 수도:',
+        "📍 O'zbekistonning poytaxti": '📍 우즈베키스탄의 수도',
+        '📚 Bu yerga olib boradigan kitoblar': '📚 이곳으로 데려가는 책',
+        '🎁 Stikerlar': '🎁 스티커',
+        '🎁 Olish': '🎁 받기',
+        '✓ Sizniki': '✓ 내 스티커',
+        "✓ O'qildi": '✓ 다 읽었어요',
+        "Hali o'qilmagan": '아직 안 읽었어요',
+        "🔒 Stikerlar muhr bosilgach ochiladi: bu yerga olib boradigan kitobni oxirigacha o'qing!": '🔒 도장을 받으면 스티커가 열려요. 이곳으로 데려가는 책을 끝까지 읽어 보세요!',
+        "🔒 Avval bu yerga sayohat qiling: kitobini oxirigacha o'qing!": '🔒 먼저 이곳으로 여행을 떠나요. 책을 끝까지 읽어 보세요!',
+        '🗺️ Pasport': '🗺️ 여권',
+    });
     // The holiday shelf (js/holidays.js): holiday names and the banner's words
     // before them ("오늘은 / 내일은 / 9일 뒤는 / 지금은" + the holiday).
     Object.assign(EXACT, {
@@ -273,12 +294,27 @@
     });
     const MONTHS = ['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avgust', 'sentabr', 'oktabr', 'noyabr', 'dekabr'];
 
+    // A place's or a sticker's Korean name (js/passport.js), or the Uzbek one if unknown.
+    const place = (find, uz) => {
+        const P = root.Passport;
+        const hit = P && find(P);
+        return hit ? hit.ko : uz;
+    };
+
     // [pattern, Korean, an example of the Uzbek (for the reviewer and the tests)]
     const PATTERNS = [
         [/^(\d+) ta interaktiv kitob$/, '인터랙티브 책 $1권', '23 ta interaktiv kitob'],
         [/^(\d+) ta so'z$/, '낱말 $1개', "12 ta so'z"],
         [/^🎮 O'yinlar uchun kamida (\d+) ta so'z kerak\. Yana (\d+) ta so'z yig'ing!$/, '🎮 게임을 하려면 낱말이 $1개 이상 필요해요. $2개 더 모아요!', "🎮 O'yinlar uchun kamida 4 ta so'z kerak. Yana 3 ta so'z yig'ing!"],
         [/^🎉 (\d+) kundan keyin bayram:$/, '🎉 $1일 뒤는', '🎉 8 kundan keyin bayram:'],
+        [/^📍 Bu ertak seni (.+) olib bordi!$/, (all, to) => `📍 이 이야기를 따라 ${place((P) => P.byDative(to), to)}에 다녀왔어요!`, '📍 Bu ertak seni Xorazmga olib bordi!'],
+        [/^🗺️ Yangi muhr: (.+)!$/, (all, name) => `🗺️ 새 도장: ${place((P) => P.byName(name), name)}!`, '🗺️ Yangi muhr: Xorazm!'],
+        [/^🎁 Yangi stiker: (.+)!$/, (all, name) => `🎁 새 스티커: ${place((P) => P.STICKERS.find((x) => x.name === name), name)}!`, '🎁 Yangi stiker: Kalta minor!'],
+        [/^(\d+) \/ (\d+) muhr$/, '도장 $1 / $2개', '3 / 15 muhr'],
+        [/^(\d+) \/ (\d+) stiker$/, '스티커 $1 / $2개', '2 / 30 stiker'],
+        [/^Har bir stiker — (\d+) ball\. Viloyat stikerlari uning muhri bosilgach ochiladi\.$/, '스티커는 하나에 $1점이에요. 지역의 도장을 받으면 그곳 스티커가 열려요.', 'Har bir stiker — 50 ball. Viloyat stikerlari uning muhri bosilgach ochiladi.'],
+        [/^Yana (\d+) ball kerak$/, '$1점 더 필요해요', 'Yana 20 ball kerak'],
+        [/^⭐ Ball yetmaydi: yana (\d+) ball kerak$/, '⭐ 점수가 모자라요. $1점 더 필요해요', '⭐ Ball yetmaydi: yana 20 ball kerak'],
         [new RegExp(`^🎉 (\\d+)-(${MONTHS.join('|')})$`), (all, d, m) => `🎉 ${MONTHS.indexOf(m) + 1}월 ${d}일`, '🎉 9-oktabr'],
         [/^📄 (\d+) sahifali rasmli kitob$/, '📄 $1쪽 그림책', '📄 12 sahifali rasmli kitob'],
         [/^(\d+) yulduz$/, '별 $1개', '3 yulduz'],

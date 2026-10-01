@@ -806,5 +806,5 @@
         return card;
     }
 
-    root.Games = { color, order, compare, trace, listen, match, spell, close: closeModal, toLineArt };
+    root.Games = { color, order, compare, trace, listen, match, spell, open: openModal, close: closeModal, toLineArt };
 })(window);

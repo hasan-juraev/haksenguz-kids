@@ -283,6 +283,29 @@ reading it.
 
 11. **Culture passport and map of Uzbekistan.** Each book belongs to a region.
     Finishing it stamps the passport. Points buy stickers.
+
+    ✅ **Built.**
+    - **Places.** Every book takes the child to one of the 14 regions or to
+      Korea, their second home. The link is real where it can be: *Afandi*
+      to Buxoro, Navoiy's books to Navoiy, the melon field of *Oltin tarvuz*
+      to Xorazm, Malika's grandmother to Samarqand, the stars of *Oyqiz* to
+      the Maydanak observatory in Qashqadaryo.
+    - **Stamps.** Finishing a book stamps its place, with the date, and
+      says so ("🗺️ Yangi muhr: Xorazm!"). The book's last page carries the
+      stamp in its corner; tapping it opens the passport.
+    - **🗺️ Pasportim.** It opens from the banner and has three parts:
+      - **The map.** A real map of Uzbekistan's regions (Natural Earth
+        borders), each coloured once it is stamped. Korea sits in a corner,
+        with the way from Tashkent (4,900 km).
+      - **Muhrlar.** A page of 15 stamps.
+      - **Stikerlar albomi.** The album of 30 stickers.
+    - **A place's card.** It has a true fact about the place, the books that
+      go there and its two stickers. The fact is also in Korean with the
+      Korean menus.
+    - **Stickers.** Each costs 50 points, once its place is stamped. They are
+      drawn by the art engine and cut out with a white edge: Registon, the
+      Kalta minor, a Chust do'ppi, the Tashkent metro, a snow leopard,
+      Marg'ilon atlas, and more.
 12. **Short pieces.** Riddles, proverbs, lullabies and tongue twisters. Folk
     material is free to use; modern authors need permission.
 13. **Colouring mode.** ✅ Built. Any story picture becomes a colouring page,

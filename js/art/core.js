@@ -236,6 +236,28 @@
             `<defs>${[...c.defs.values()].join('')}</defs>${body}</svg>`;
     };
 
+    // A sticker (js/passport.js): parts on their own, no background, cut out
+    // with a white edge and a soft shadow. box: the viewBox [x, y, w, h];
+    // cut: false leaves out the edge; attrs: more attributes for the <svg>
+    // (to place it inside another picture).
+    Art.sticker = function (items, opts = {}) {
+        const c = new Ctx(hash(opts.seed || JSON.stringify(items)), { still: true });
+        const body = items.map((it) => Art.item(c, it)).join('');
+        const edge = opts.edge || 5;
+        const cut = opts.cut === false ? null : c.def('cut', (id) =>
+            `<filter id="${id}" x="-15%" y="-15%" width="130%" height="130%">` +
+            `<feMorphology in="SourceAlpha" operator="dilate" radius="${edge}" result="grow"/>` +
+            `<feGaussianBlur in="grow" stdDeviation="${edge / 2}" result="soft"/>` +
+            `<feOffset in="soft" dy="${edge / 2}" result="drop"/>` +
+            `<feFlood flood-color="#3b1d0a" flood-opacity=".3"/><feComposite in2="drop" operator="in" result="shadow"/>` +
+            `<feFlood flood-color="#fff"/><feComposite in2="grow" operator="in" result="white"/>` +
+            `<feMerge><feMergeNode in="shadow"/><feMergeNode in="white"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`);
+        const [x, y, w, h] = opts.box || [-60, -110, 120, 120];
+        const label = opts.label ? ` role="img" aria-label="${esc(opts.label)}"` : ' aria-hidden="true"';
+        return `<svg class="sticker-svg" viewBox="${x} ${y} ${w} ${h}"${label}${opts.attrs ? ' ' + opts.attrs : ''} xmlns="http://www.w3.org/2000/svg">` +
+            `<defs>${[...c.defs.values()].join('')}</defs><g${cut ? ` filter="${cut}"` : ''}>${body}</g>${c.lights.join('')}</svg>`;
+    };
+
     Object.assign(Art, { S, tube, ptube, blob, esc, radial, linear, fabric, n1, hash, TALL });
     root.Art = Art;
 })(window);

@@ -1,7 +1,7 @@
 /*
  * Every book is complete and well formed: pages with a title, text and a
- * picture, questions whose right answer exists, and an age range that puts
- * it on the library's shelves (js/levels.js).
+ * picture, questions whose right answer exists, an age range that puts it on
+ * the library's shelves (js/levels.js) and a place in the culture passport.
  * Run with: node tests/stories.test.js
  */
 'use strict';
@@ -16,6 +16,7 @@ require('../js/stories-holiday.js');
 require('../js/stories-alifbo.js');
 require('../js/levels.js');
 require('../js/holidays.js');
+require('../js/passport.js');
 const db = window.storiesDatabase;
 const { SHELVES, AGES, shelfFor, fits, label, ageLabel } = window.Levels;
 const { sentences } = window.BookEngine;
@@ -58,6 +59,9 @@ Object.entries(db).forEach(([key, st]) => {
     const days = st.holidays || [];
     check((st.category === 'holiday') === days.length > 0, `${key}: the holiday shelf's books, and only they, have holidays`);
     days.forEach((id) => check(!!window.Holidays.DAYS[id], `${key}: unknown holiday "${id}" (see js/holidays.js)`));
+    // Every story takes the child to a place of the culture passport (js/passport.js); the Alifbo doesn't.
+    if (st.category === 'alifbo') check(!st.region, `${key}: the Alifbo has no place in the passport`);
+    else check(!!window.Passport.region(st.region), `${key}: region "${st.region}" is not a place in js/passport.js`);
     // A Korean twin tale opens after its Uzbek tale, and ends with sorting cards.
     if (st.twin) {
         check(!!db[st.twin] && !db[st.twin].twin, `${key}: twin "${st.twin}" must be an existing Uzbek tale`);
