@@ -20,6 +20,13 @@ The "Qisqa va qiziq" shelf (short and fun) has four small books:
 
 At bedtime, "🌙 Uxlash vaqti" offers a calm book and how many pages to read tonight. The screen goes dark and warm, the questions rest, and a recorded voice reads on by itself. "Xayrli tun" (good night) ends the reading and fades to dark, and the book goes on from there tomorrow.
 
+With "✍️ Ertak yozish" a child writes their own picture book. First they make their own heroes, in Uzbek clothes, everyday clothes or a hanbok. Then they make each page:
+- who stands where, from their heroes and 68 people, animals and things;
+- in which of 20 places (a meadow, a palace, Seoul, space...) and at what time of day;
+- what happens, with buttons for "Bir bor ekan..." and for the characters' names.
+
+Their books stand on their own shelf and read like the others. A grown-up can send one to the family as a link.
+
 The library has shelves by age (4–6, 7–8, 9+); a child's profile can have an age, which opens their shelf.
 
 "Ikki xalq — bir ertak": finishing *Oltin tarvuz* opens its Korean twin, 흥부와 놀부 retold in Uzbek as *Hungbu va Nolbu*, which ends with a game of finding what the two tales share and where they differ.

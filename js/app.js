@@ -6,7 +6,7 @@
 (function (root) {
     'use strict';
 
-    const CATEGORIES = ['all', 'alifbo', 'folk', 'classic', 'navoiy', 'modern', 'twins', 'korea', 'holiday', 'kichik'];
+    const CATEGORIES = ['all', 'alifbo', 'folk', 'classic', 'navoiy', 'modern', 'twins', 'korea', 'holiday', 'kichik', 'mine'];
     const DEFAULT_QUIZ = {
         q: "Kitobdan olgan xulosangiz qanday?",
         a: ["Ezgulik, ilm, birdamlik va halollik har doim g'alaba qozonadi ✨", "Dangasalik va yomon niyatlar hamisha mukofotlanadi 💤", "Faqat yolg'izlik va janjallashish yaxshi natija beradi 🍃"],
@@ -66,6 +66,7 @@
             });
             this.studio = new root.Studio(this);
             this.bedtime = root.Bedtime ? new root.Bedtime(this) : null;
+            this.maker = root.StoryMaker ? new root.StoryMaker(this) : null; // Ertak yozamiz
 
             document.addEventListener('keydown', (e) => this.onKey(e));
             document.getElementById('profileList').addEventListener('click', (e) => this.onProfileListClick(e));
@@ -96,6 +97,7 @@
         // Everything on screen that depends on who is reading.
         refreshProfile() {
             const p = this.store.profile();
+            if (this.maker) this.maker.sync(); // this child's own books join the library
             document.getElementById('profileAvatar').textContent = p.avatar;
             document.getElementById('profileName').textContent = p.name;
             document.getElementById('userPoints').textContent = `${p.points} ball`;
@@ -158,7 +160,7 @@
         suggestedBook() {
             const p = this.store.profile();
             const shelf = root.Levels ? root.Levels.shelfFor(p.age) : null;
-            const keys = Object.keys(this.db).filter((k) => !this.isLocked(k));
+            const keys = Object.keys(this.db).filter((k) => !this.isLocked(k) && !this.db[k].mine);
             const fits = (k) => !shelf || root.Levels.fits(this.db[k], shelf);
             const unread = (k) => !(p.books[k] && p.books[k].finished);
             const H = root.Holidays;
@@ -168,8 +170,10 @@
         }
 
         // Books in a category ('all' for every one) on the chosen age shelf.
+        // The child's own books (Ertak yozamiz) stand only on their own shelf.
         shelfKeys(cat) {
-            return Object.keys(this.db).filter((k) => (cat === 'all' || this.db[k].category === cat) && (!root.Levels || root.Levels.fits(this.db[k], this.activeShelf)));
+            if (cat === 'mine') return Object.keys(this.db).filter((k) => this.db[k].mine && !this.db[k].guest);
+            return Object.keys(this.db).filter((k) => !this.db[k].mine && (cat === 'all' || this.db[k].category === cat) && (!root.Levels || root.Levels.fits(this.db[k], this.activeShelf)));
         }
 
         updateCategoryLabels() {
@@ -204,6 +208,13 @@
             grid.innerHTML = '';
             const books = this.store.profile().books;
             const keys = this.shelfKeys(this.activeCategory);
+            if (this.activeCategory === 'mine' && this.maker) {
+                // their heroes, a card to start a book, and the books they made
+                document.getElementById('libraryEmpty').classList.add('hidden');
+                document.getElementById('libraryHeading').textContent = '✍️ Mening ertaklarim';
+                this.maker.renderShelf(grid);
+                return;
+            }
             document.getElementById('libraryEmpty').classList.toggle('hidden', keys.length > 0);
             keys.forEach((key) => {
                 const item = this.db[key];
@@ -279,11 +290,19 @@
         }
 
         show(view) {
-            ['homeView', 'storyView', 'gameView', 'studioView', 'dictView', 'passView'].forEach((id) => document.getElementById(id).classList.toggle('hidden', id !== view));
+            ['homeView', 'storyView', 'gameView', 'studioView', 'dictView', 'passView', 'makerView'].forEach((id) => document.getElementById(id).classList.toggle('hidden', id !== view));
             root.scrollTo({ top: 0 });
         }
 
+        // "✍️ Ertak yozish": the child's own shelf, in view.
+        openMaker() {
+            this.filterCategory('mine');
+            const bar = document.getElementById('cat-mine');
+            if (bar && bar.parentElement.scrollIntoView) bar.parentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
         goHome() {
+            if (this.maker) this.maker.leave();
             if (this.bedtime) this.bedtime.stop();
             this.book.stopTurn();
             this.reader.stop();
@@ -292,6 +311,7 @@
             this.clearLink();
             this.show('homeView');
             this.renderHero();
+            this.updateCategoryLabels(); // a book made or kept since
             this.initLibrary();
             this.updateDictCount();
             this.updatePassCount();
@@ -309,8 +329,10 @@
             if (this.bedtime && this.bedtime.on && this.bedtime.key !== storyKey) this.bedtime.stop();
             this.currentStoryKey = storyKey;
             this.currentStoryObj = story;
-            // The address names the open book, so it can be shared as is.
-            if (root.location.hash !== `#${storyKey}`) root.history.replaceState(null, '', `#${storyKey}`);
+            // The address names the open book, so it can be shared as is
+            // (a book from a link keeps that link: it is the book).
+            const tag = `#${story.link || storyKey}`;
+            if (root.location.hash !== tag) root.history.replaceState(null, '', tag);
             this.show('storyView');
             const rec = this.store.book(storyKey);
             this.reader.use(storyKey, null);
@@ -447,6 +469,12 @@
         nextPage() {
             if (this.book.isBusy()) return;
             const s = this.book.state();
+            if (s.end && this.currentStoryObj && this.currentStoryObj.mine) {
+                // a book a child made has no quiz: back to their shelf
+                this.goHome();
+                this.filterCategory('mine');
+                return;
+            }
             if (s.end) {
                 this.startMiniGame();
                 return;
@@ -523,6 +551,7 @@
             document.getElementById('prevPageBtn').disabled = !s.canPrev;
             const next = document.getElementById('nextPageBtn');
             if (s.closed) next.innerHTML = `<span>Kitobni ochish</span> <i class="fa-solid fa-book-open"></i>`;
+            else if (s.end && this.currentStoryObj && this.currentStoryObj.mine) next.innerHTML = `<span>✍️ Mening ertaklarim</span>`;
             else if (s.end) next.innerHTML = `<span>Bilimdon Testi</span> <i class="fa-solid fa-award"></i>`;
             else next.innerHTML = `<span>Keyingi</span> <i class="fa-solid fa-chevron-right"></i>`;
         }
@@ -566,7 +595,10 @@
         onBookAction(act, el) {
             if (act === 'say') this.reader.say(+el.dataset.seg); // tap a sentence to hear it
             else if (act === 'gloss') this.showGloss(+el.dataset.gloss); // tap a word for its Korean
+            else if (act === 'share' && this.currentStoryObj.mine && !this.currentStoryObj.guest) this.maker.share(this.currentStoryObj.made);
             else if (act === 'share') this.share(this.currentStoryKey);
+            else if (act === 'edit') this.maker.edit(this.currentStoryObj.made);
+            else if (act === 'keep') this.maker.keepGuest();
             else if (act === 'quiz') this.startMiniGame();
             else if (act === 'restart') this.book.goTo(this.book.spread ? 0 : 1);
             else if (act === 'resume') {
@@ -1451,6 +1483,13 @@
         }
 
         openFromLink() {
+            // a book a child made, sent in a link (js/maker.js): the whole book is in it
+            const shared = root.Maker && this.maker && root.Maker.fromHash(root.location.hash);
+            if (shared) {
+                const open = this.db[root.StoryMaker.GUEST];
+                if (!(open && open.link === root.Maker.LINK + shared && this.currentStoryKey === root.StoryMaker.GUEST)) this.maker.openShared(shared);
+                return;
+            }
             let key = '';
             try {
                 key = decodeURIComponent(root.location.hash.slice(1));

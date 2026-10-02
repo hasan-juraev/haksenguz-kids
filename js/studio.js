@@ -79,12 +79,14 @@
 
         // ---------- grown-ups gate ----------
 
-        gate(then) {
+        // why: what the grown-up is let into (the recording studio, unless said).
+        gate(then, why) {
             if (Date.now() < this.gateUntil) {
                 then();
                 return;
             }
             this.afterGate = then;
+            $('gateWhy').textContent = why || "Ovoz yozish bo'limiga kirish uchun hisoblang:";
             this.newSum();
             $('gateModal').classList.remove('hidden');
             $('gateAnswer').focus();

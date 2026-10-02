@@ -1,0 +1,863 @@
+/* Ertak yozamiz: the story maker (js/maker-ui.js) */
+
+/* ---------- the shelf "✍️ Mening ertaklarim" ---------- */
+
+.mk-shelf-heroes {
+    grid-column: 1 / -1;
+    padding: 12px;
+    border: 1px solid #ffedd5;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+}
+
+.mk-shelf-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 10px;
+    color: #7c2d12;
+}
+
+.mk-shelf-head small {
+    font-weight: 700;
+    color: #6d28d9;
+}
+
+.mk-shelf-row {
+    display: flex;
+    gap: 10px;
+    padding: 8px 2px 2px;
+    overflow-x: auto;
+}
+
+.mk-shelf-hero {
+    flex: 0 0 auto;
+    width: 88px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 6px 4px;
+    border: 2px solid #fde68a;
+    border-radius: 16px;
+    background: #fffbeb;
+    font-size: 12px;
+    font-weight: 800;
+    color: #5b3a1a;
+    cursor: pointer;
+}
+
+.mk-shelf-hero > span:last-child {
+    max-width: 100%;
+    overflow: hidden;
+    line-height: 1.15;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+.mk-shelf-hero--new {
+    border-style: dashed;
+    border-color: #c4b5fd;
+    background: #f5f3ff;
+    color: #4c1d95;
+}
+
+.mk-shelf-art {
+    width: 64px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    color: #8b5cf6;
+}
+
+.mk-shelf-art svg,
+.mk-slot-art svg,
+.mk-pick-art svg {
+    width: 100%;
+    height: 100%;
+}
+
+.mk-new-book {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 120px;
+    padding: 12px;
+    border: 3px dashed #c4b5fd;
+    border-radius: 16px;
+    background: #f5f3ff;
+    color: #4c1d95;
+    text-align: left;
+    cursor: pointer;
+    transition: transform .15s;
+}
+
+.mk-new-book:hover {
+    transform: translateY(-2px);
+}
+
+.mk-new-plus {
+    flex: 0 0 auto;
+    width: 76px;
+    height: 76px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 18px;
+    background: #ede9fe;
+    font-size: 38px;
+}
+
+.mk-new-book b {
+    display: block;
+    font-size: 17px;
+}
+
+.mk-new-book small {
+    font-weight: 700;
+    color: #6d28d9;
+}
+
+.mk-book-card {
+    display: flex;
+    align-items: stretch;
+    min-width: 0;
+    border: 1px solid #ffedd5;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+}
+
+.mk-book-open {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+    padding: 12px;
+    border: 0;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+}
+
+.mk-book-thumb {
+    flex: 0 0 auto;
+    display: block;
+    width: 92px;
+    height: 92px;
+    border-radius: 16px;
+    box-shadow: 0 0 0 3px #8b5cf6;
+}
+
+.mk-book-info {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.mk-book-info b {
+    font-size: 16px;
+    line-height: 1.25;
+    color: #1f2937;
+}
+
+.mk-book-info small {
+    font-size: 12px;
+    font-weight: 700;
+    color: #6b7280;
+}
+
+.mk-book-edit {
+    flex: 0 0 auto;
+    width: 52px;
+    border: 0;
+    border-left: 1px solid #ffedd5;
+    border-radius: 0 16px 16px 0;
+    background: #fffbeb;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* ---------- the editor ---------- */
+
+.mk-card {
+    padding: 14px;
+    border: 1px solid #ffedd5;
+    border-radius: 24px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .04);
+}
+
+.mk-bookline,
+.mk-endline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.mk-field {
+    flex: 1 1 180px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.mk-field--title {
+    flex: 3 1 260px;
+}
+
+.mk-row-label {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 800;
+    color: #7c2d12;
+}
+
+.mk-input {
+    width: 100%;
+    min-height: 46px;
+    padding: 8px 12px;
+    border: 2px solid #fde68a;
+    border-radius: 14px;
+    background: #fffdf7;
+    font: inherit;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.mk-input:focus {
+    outline: none;
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, .25);
+}
+
+.mk-input.is-missing {
+    border-color: #f43f5e;
+}
+
+.mk-text {
+    min-height: 150px;
+    resize: vertical;
+    font-size: 17px;
+    line-height: 1.55;
+}
+
+.mk-pagebar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+}
+
+.mk-pages {
+    flex: 1 1 260px;
+    display: flex;
+    gap: 8px;
+    min-width: 0;
+    padding: 4px 2px;
+    overflow-x: auto;
+}
+
+.mk-page {
+    flex: 0 0 auto;
+    width: 84px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 4px;
+    border: 3px solid transparent;
+    border-radius: 14px;
+    background: #fff;
+    font-weight: 800;
+    color: #7c2d12;
+    cursor: pointer;
+}
+
+.mk-page.is-on {
+    border-color: #f59e0b;
+    background: #fffbeb;
+}
+
+.mk-page-art {
+    display: block;
+    width: 72px;
+    height: 58px;
+    border-radius: 10px;
+}
+
+.mk-page--add {
+    border: 3px dashed #fcd34d;
+    color: #b45309;
+}
+
+.mk-page--add > span {
+    height: 58px;
+    font-size: 30px;
+    line-height: 58px;
+}
+
+.mk-pagetools {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mk-pagetools b {
+    margin-right: 4px;
+    color: #7c2d12;
+}
+
+.mk-icon {
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 12px;
+    background: #fef3c7;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.mk-icon:disabled {
+    opacity: .35;
+    cursor: default;
+}
+
+.mk-hint {
+    flex-basis: 100%;
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: #b45309;
+}
+
+.mk-editor {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 16px;
+}
+
+.mk-art {
+    position: relative;
+    aspect-ratio: 400 / 320;
+    overflow: hidden;
+    border: 3px solid #fde68a;
+    border-radius: 18px;
+    background: #e9f7ff;
+}
+
+.mk-art svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.mk-slots {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.mk-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    min-width: 0;
+    padding: 6px 4px 8px;
+    border: 2px solid #fde68a;
+    border-radius: 16px;
+    background: #fffbeb;
+    cursor: pointer;
+}
+
+.mk-slot.is-empty {
+    border-style: dashed;
+    background: #fff;
+}
+
+.mk-slot-art {
+    width: 60px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    color: #f59e0b;
+}
+
+.mk-slot small {
+    font-size: 11px;
+    font-weight: 800;
+    color: #b45309;
+}
+
+.mk-slot b {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    color: #1f2937;
+}
+
+.mk-scene {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.mk-place {
+    min-height: 44px;
+    padding: 0 14px;
+    border: 2px solid #c4b5fd;
+    border-radius: 999px;
+    background: #f5f3ff;
+    font-weight: 800;
+    color: #4c1d95;
+    cursor: pointer;
+}
+
+.mk-times {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.mk-time {
+    min-height: 40px;
+    padding: 0 10px;
+    border: 2px solid #fde68a;
+    border-radius: 999px;
+    background: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    color: #7c2d12;
+    cursor: pointer;
+}
+
+.mk-time[aria-pressed='true'] {
+    border-color: #f59e0b;
+    background: #f59e0b;
+    color: #fff;
+}
+
+.mk-words {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.mk-words .mk-field {
+    flex: 0 0 auto;
+}
+
+.mk-count {
+    margin: -4px 0 0;
+    text-align: right;
+    font-size: 12px;
+    font-weight: 700;
+    color: #9ca3af;
+}
+
+.mk-wordrow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+#makerNamesRow {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#makerNamesRow.hidden {
+    display: none;
+}
+
+.mk-word {
+    min-height: 38px;
+    padding: 0 12px;
+    border: 2px solid #bae6fd;
+    border-radius: 999px;
+    background: #f0f9ff;
+    font-size: 13px;
+    font-weight: 800;
+    color: #075985;
+    cursor: pointer;
+}
+
+.mk-word--name {
+    border-color: #fbcfe8;
+    background: #fdf2f8;
+    color: #9d174d;
+}
+
+.mk-tool {
+    min-height: 44px;
+    padding: 0 14px;
+    border: 2px solid #fde68a;
+    border-radius: 14px;
+    background: #fff;
+    font-weight: 800;
+    color: #7c2d12;
+    cursor: pointer;
+}
+
+.mk-tool[aria-pressed='true'] {
+    border-color: #8b5cf6;
+    color: #4c1d95;
+}
+
+.mk-tool--done {
+    border-color: #10b981;
+    background: #10b981;
+    color: #fff;
+}
+
+.mk-tool--danger {
+    border-color: #fecdd3;
+    background: #fff1f2;
+    color: #be123c;
+}
+
+@media (max-width: 860px) {
+    .mk-editor {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* ---------- in the play modal: who stands here, the places, the hero maker ---------- */
+
+.play-card--maker {
+    width: min(820px, 100%);
+}
+
+.mk-tabs {
+    display: flex;
+    gap: 6px;
+    margin: 10px 0;
+    overflow-x: auto;
+}
+
+.mk-tab {
+    flex: 0 0 auto;
+    min-height: 42px;
+    padding: 0 14px;
+    border: 2px solid #fde68a;
+    border-radius: 999px;
+    background: #fff;
+    font-weight: 800;
+    color: #7c2d12;
+    cursor: pointer;
+}
+
+.mk-tab[aria-selected='true'] {
+    border-color: #f59e0b;
+    background: #f59e0b;
+    color: #fff;
+}
+
+.mk-picks {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.mk-pick {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 6px 4px;
+    border: 3px solid transparent;
+    border-radius: 16px;
+    background: #fdf6e3;
+    font-size: 12px;
+    font-weight: 800;
+    color: #5b3a1a;
+    cursor: pointer;
+}
+
+.mk-pick[aria-pressed='true'] {
+    border-color: #10b981;
+    background: #ecfdf5;
+}
+
+.mk-pick-art {
+    width: 72px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    color: #8b5cf6;
+}
+
+.mk-pick-name {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.mk-pick--new .mk-pick-name {
+    line-height: 1.15;
+    white-space: normal;
+    text-align: center;
+}
+
+.mk-pick--new {
+    border: 3px dashed #c4b5fd;
+    background: #f5f3ff;
+    color: #4c1d95;
+}
+
+.mk-pick-wrap {
+    position: relative;
+}
+
+.mk-pick-edit {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .18);
+    cursor: pointer;
+}
+
+.mk-tools {
+    position: sticky;
+    bottom: -16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 12px -16px -16px;
+    padding: 10px 16px 14px;
+    border-top: 2px solid #fde68a;
+    background: #fffdf7;
+}
+
+.mk-moods {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+}
+
+.mk-tools-label {
+    margin-right: 4px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #7c2d12;
+}
+
+.mk-mood {
+    width: 44px;
+    height: 44px;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    background: #fef3c7;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.mk-mood[aria-pressed='true'] {
+    border-color: #f59e0b;
+    background: #fff;
+}
+
+.mk-tools-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.mk-tools-row .mk-tool--done {
+    margin-left: auto;
+}
+
+.mk-place-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.mk-place-pick {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 4px;
+    border: 3px solid transparent;
+    border-radius: 16px;
+    background: #fdf6e3;
+    font-weight: 800;
+    color: #5b3a1a;
+    cursor: pointer;
+}
+
+.mk-place-pick .thumb-art {
+    display: block;
+    aspect-ratio: 400 / 320;
+    border-radius: 12px;
+}
+
+.mk-place-pick[aria-pressed='true'] {
+    border-color: #8b5cf6;
+    background: #f5f3ff;
+}
+
+.mk-hero-grid {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: 16px;
+    margin-top: 10px;
+}
+
+.mk-hero-preview {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    aspect-ratio: 124 / 158;
+    border-radius: 20px;
+    background: radial-gradient(circle at 50% 40%, #fff7d6, #fde68a);
+}
+
+.mk-hero-preview svg {
+    width: 100%;
+    height: 100%;
+}
+
+.mk-hero-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+}
+
+.mk-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.mk-row-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.mk-chip {
+    min-height: 40px;
+    padding: 0 12px;
+    border: 2px solid #fde68a;
+    border-radius: 999px;
+    background: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    color: #7c2d12;
+    cursor: pointer;
+}
+
+.mk-chip[aria-pressed='true'] {
+    border-color: #8b5cf6;
+    background: #8b5cf6;
+    color: #fff;
+}
+
+.mk-swatch {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px #e5e7eb;
+    cursor: pointer;
+}
+
+.mk-swatch[aria-pressed='true'] {
+    box-shadow: 0 0 0 3px #8b5cf6;
+}
+
+.mk-hero-actions {
+    position: sticky;
+    bottom: -16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 14px -16px -16px;
+    padding: 10px 16px 14px;
+    border-top: 2px solid #fde68a;
+    background: #fffdf7;
+}
+
+@media (max-width: 560px) {
+    .mk-slot-art {
+        width: 46px;
+        height: 50px;
+    }
+
+    .mk-slot b {
+        font-size: 11px;
+    }
+
+    .mk-picks {
+        grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+    }
+
+    .mk-pick-art {
+        width: 60px;
+        height: 60px;
+    }
+
+    .mk-place-grid {
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    }
+
+    .mk-swatch {
+        width: 34px;
+        height: 34px;
+    }
+
+    /* the hero stays in sight above the choices */
+    .mk-hero-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .mk-hero-preview {
+        z-index: 2;
+        top: -12px;
+        height: 150px;
+        aspect-ratio: auto;
+        margin: 0 -12px;
+        border-radius: 0 0 20px 20px;
+    }
+
+    .mk-tools,
+    .mk-hero-actions {
+        bottom: -12px;
+        margin: 12px -12px -12px;
+        padding: 10px 12px 12px;
+    }
+}

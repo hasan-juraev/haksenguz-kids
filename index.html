@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="css/art.css">
     <link rel="stylesheet" href="css/studio.css">
     <link rel="stylesheet" href="css/play.css">
+    <link rel="stylesheet" href="css/maker.css">
 </head>
 <body class="h-full bg-gradient-to-br from-brand-50 via-amber-50 to-orange-100 text-gray-800 flex flex-col antialiased">
 
@@ -82,6 +83,10 @@
                             <button onclick="app.bedtime.open()" id="bedBtn" class="min-h-[40px] px-3.5 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl backdrop-blur-md transition flex items-center gap-2">
                                 <span aria-hidden="true">🌙</span> <span>Uxlash vaqti</span>
                             </button>
+                            <!-- Ertak yozamiz: the child's own heroes and books (js/maker.js, js/maker-ui.js) -->
+                            <button onclick="app.openMaker()" id="makerBtn" class="min-h-[40px] px-3.5 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl backdrop-blur-md transition flex items-center gap-2">
+                                <span aria-hidden="true">✍️</span> <span>Ertak yozish</span>
+                            </button>
                             <!-- Mening lug'atim: the words this child has met (js/dictionary.js) -->
                             <button onclick="app.openDictionary()" id="dictBtn" class="min-h-[40px] px-3.5 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl backdrop-blur-md transition flex items-center gap-2">
                                 <span aria-hidden="true">📖</span> <span>Mening lug'atim</span> <span id="dictCount"></span>
@@ -113,6 +118,7 @@
                 <button onclick="app.filterCategory('korea')" id="cat-korea" class="px-4 py-2 bg-white text-gray-600 hover:bg-brand-50 text-sm font-bold rounded-xl border border-orange-100 whitespace-nowrap transition">🏙️ Koreyadagi hayotim <span data-count></span></button>
                 <button onclick="app.filterCategory('holiday')" id="cat-holiday" class="px-4 py-2 bg-white text-gray-600 hover:bg-brand-50 text-sm font-bold rounded-xl border border-orange-100 whitespace-nowrap transition">🎉 Bayramlar <span data-count></span></button>
                 <button onclick="app.filterCategory('kichik')" id="cat-kichik" class="px-4 py-2 bg-white text-gray-600 hover:bg-brand-50 text-sm font-bold rounded-xl border border-orange-100 whitespace-nowrap transition">🧩 Qisqa va qiziq <span data-count></span></button>
+                <button onclick="app.filterCategory('mine')" id="cat-mine" class="px-4 py-2 bg-white text-gray-600 hover:bg-brand-50 text-sm font-bold rounded-xl border border-orange-100 whitespace-nowrap transition">✍️ Mening ertaklarim <span data-count></span></button>
             </div>
 
             <!-- Age shelves (js/levels.js); a child's age picks theirs -->
@@ -258,6 +264,58 @@
                 <p id="passPrice" class="pass-hint pass-price"></p>
                 <div id="passAlbum" class="pass-album"></div>
             </section>
+        </div>
+
+        <!-- Ertak yozamiz: a child's own book, made one page at a time (js/maker-ui.js) -->
+        <div id="makerView" class="hidden space-y-4 max-w-6xl mx-auto w-full">
+            <div class="bg-white p-3 md:p-4 rounded-3xl shadow-sm border border-orange-100 flex flex-wrap items-center gap-3">
+                <button type="button" data-mk="back" class="min-h-[40px] px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-sm transition flex items-center gap-2"><i class="fa-solid fa-arrow-left"></i> Mening ertaklarim</button>
+                <h2 class="font-heading text-xl md:text-2xl font-bold text-gray-800">✍️ Ertak yozamiz</h2>
+                <span id="makerSaved" class="text-xs font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full" aria-live="polite">✓ Saqlandi</span>
+                <div class="flex flex-wrap gap-2 ml-auto">
+                    <button type="button" data-mk="share" class="min-h-[40px] px-3 bg-white border border-orange-200 hover:bg-orange-50 text-gray-700 rounded-xl font-bold text-sm transition flex items-center gap-2"><i class="fa-solid fa-share-nodes"></i> Ulashish</button>
+                    <button type="button" data-mk="read" class="min-h-[40px] px-4 bg-brand-500 hover:bg-brand-600 text-white rounded-xl font-bold text-sm shadow-sm transition flex items-center gap-2"><i class="fa-solid fa-book-open"></i> O'qib ko'rish</button>
+                </div>
+            </div>
+            <div class="mk-card mk-bookline">
+                <label class="mk-field mk-field--title"><span class="mk-row-label">📕 Ertak nomi</span><input id="makerTitle" class="mk-input" type="text" maxlength="40" autocomplete="off" placeholder="Mening ertagim" data-content></label>
+                <label class="mk-field"><span class="mk-row-label">✍️ Muallif</span><input id="makerAuthor" class="mk-input" type="text" maxlength="24" autocomplete="off" data-content></label>
+            </div>
+            <div class="mk-pagebar">
+                <div id="makerPages" class="mk-pages" role="group" aria-label="Sahifalar"></div>
+                <div class="mk-pagetools">
+                    <b id="makerPageNo"></b>
+                    <button type="button" id="makerLeft" class="mk-icon" data-mk="move" data-d="-1" aria-label="Sahifani chapga surish" title="Sahifani chapga surish">◀</button>
+                    <button type="button" id="makerRight" class="mk-icon" data-mk="move" data-d="1" aria-label="Sahifani o'ngga surish" title="Sahifani o'ngga surish">▶</button>
+                    <button type="button" id="makerDelPage" class="mk-icon" data-mk="del-page" aria-label="Sahifani o'chirish" title="Sahifani o'chirish">🗑️</button>
+                </div>
+                <p id="makerFull" class="mk-hint hidden">📄 Bir ertakda ko'pi bilan 8 sahifa bo'ladi.</p>
+            </div>
+            <div class="mk-editor">
+                <section class="mk-card mk-stagecard">
+                    <div id="makerArt" class="mk-art"></div>
+                    <div id="makerSlots" class="mk-slots"></div>
+                    <div class="mk-scene">
+                        <button type="button" id="makerPlace" class="mk-place" data-mk="place"></button>
+                        <div id="makerTimes" class="mk-times" role="group" aria-label="Qachon?"></div>
+                    </div>
+                </section>
+                <section class="mk-card mk-words">
+                    <label class="mk-field"><span class="mk-row-label">🏷️ Sahifa nomi</span><input id="makerPageTitle" class="mk-input" type="text" maxlength="40" autocomplete="off" data-content></label>
+                    <label class="mk-field mk-field--text"><span class="mk-row-label">📝 Nima bo'ldi? Yozing:</span><textarea id="makerText" class="mk-input mk-text" maxlength="320" rows="6" placeholder="Bir bor ekan, bir yo'q ekan..." data-content></textarea></label>
+                    <p class="mk-count"><span id="makerCount"></span></p>
+                    <p class="mk-row-label">💡 Shunday boshlang:</p>
+                    <div id="makerStarters" class="mk-wordrow"></div>
+                    <div id="makerNamesRow">
+                        <p class="mk-row-label">👥 Kimlar bor:</p>
+                        <div id="makerNames" class="mk-wordrow"></div>
+                    </div>
+                </section>
+            </div>
+            <div class="mk-card mk-endline">
+                <label class="mk-field mk-field--title"><span class="mk-row-label">🌟 Ertakdan saboq</span><input id="makerMoral" class="mk-input" type="text" maxlength="140" autocomplete="off" placeholder="Yaxshilik va ezgulik har doim g'alaba qiladi." data-content></label>
+                <button type="button" data-mk="del-book" class="mk-tool mk-tool--danger">🗑️ Ertakni o'chirish</button>
+            </div>
         </div>
 
         <div id="studioView" class="hidden space-y-3 max-w-3xl mx-auto w-full">
@@ -437,7 +495,7 @@
         <form class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 text-center" onsubmit="app.studio.checkGate(event)">
             <div class="w-14 h-14 bg-rose-100 text-rose-600 rounded-2xl mx-auto flex items-center justify-center text-2xl"><i class="fa-solid fa-user-shield"></i></div>
             <h4 id="gateTitle" class="text-xl font-bold text-gray-900">Kattalar uchun</h4>
-            <p class="text-sm text-gray-600">Ovoz yozish bo'limiga kirish uchun hisoblang:</p>
+            <p id="gateWhy" class="text-sm text-gray-600">Ovoz yozish bo'limiga kirish uchun hisoblang:</p>
             <p id="gateQuestion" class="text-3xl font-bold text-gray-900" translate="no"></p>
             <input id="gateAnswer" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" required aria-labelledby="gateQuestion" class="w-32 mx-auto block px-4 py-3 rounded-2xl border-2 border-orange-100 focus:border-rose-400 outline-none text-2xl font-bold text-center">
             <p id="gateHint" class="min-h-[1.25rem] text-sm font-bold text-rose-600" aria-live="polite"></p>
@@ -471,6 +529,7 @@
     <script src="js/dictionary.js"></script>
     <script src="js/uzmap.js"></script>
     <script src="js/passport.js"></script>
+    <script src="js/maker.js"></script>
     <script src="js/book.js"></script>
     <script src="audio/narration.js"></script>
     <script src="js/voices.js"></script>
@@ -478,6 +537,7 @@
     <script src="js/studio.js"></script>
     <script src="js/games.js"></script>
     <script src="js/bedtime.js"></script>
+    <script src="js/maker-ui.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

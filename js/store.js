@@ -4,7 +4,8 @@
  *
  * Each child has a profile with their own points, an optional age (it picks
  * their shelf in the library, see js/levels.js), the words they have met
- * (Mening lug'atim), the passport stickers they have bought and, per book:
+ * (Mening lug'atim), the passport stickers they have bought, the heroes and
+ * books they made themselves (Ertak yozamiz, js/maker.js) and, per book:
  *   page      last story page they were on (0 = nothing to continue)
  *   answers   page questions answered so far (see BookEngine.answer)
  *   finished  reached the last page at least once (finishedAt: when, the
@@ -94,6 +95,8 @@
                 books: {},
                 words: {}, // "book:page" of each word card met (Mening lug'atim)
                 stickers: {}, // passport stickers bought: id -> when (js/passport.js)
+                heroes: [], // heroes made in the hero maker (js/maker.js)
+                myBooks: {}, // books this child wrote: id -> book (js/maker.js)
                 last: null,
                 created: Date.now(),
             };
@@ -132,6 +135,19 @@
             this.profile().points += n;
             this.save();
             return this.profile().points;
+        }
+
+        // Ertak yozamiz (js/maker.js): the heroes this child made, and their books.
+        heroes() {
+            const p = this.profile();
+            if (!Array.isArray(p.heroes)) p.heroes = [];
+            return p.heroes;
+        }
+
+        myBooks() {
+            const p = this.profile();
+            if (!p.myBooks || typeof p.myBooks !== 'object') p.myBooks = {};
+            return p.myBooks;
         }
 
         // Spends points (a passport sticker); false, and nothing spent, if there aren't enough.

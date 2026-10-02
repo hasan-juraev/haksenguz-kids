@@ -55,6 +55,7 @@
             this.p = 'art' + (++seq);
             this.defs = new Map();
             this.lights = [];
+            this.behind = null; // see sc.lightsBehind in Art.render
             this.r = prng(seed);
             this.now = (root.performance ? root.performance.now() : Date.now()) / 1000;
             this.still = !!opts.still;
@@ -219,7 +220,12 @@
         const sc = scene || {};
         const seed = hash(opts.seed || JSON.stringify(sc));
         const c = new Ctx(seed, opts);
+        // sc.lightsBehind: the background's own lights (far windows) stay
+        // behind the figures in front of them, instead of shining through.
+        c.behind = sc.lightsBehind ? [] : null;
         let body = Art.background ? Art.background(c, sc) : '';
+        if (c.behind) body += c.behind.join('');
+        c.behind = null;
         body += (sc.items || []).map((it) => Art.item(c, it)).join('');
         // Colouring pages (games.js) want line art: no time-of-day wash,
         // weather or vignette.

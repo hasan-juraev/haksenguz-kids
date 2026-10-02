@@ -339,7 +339,8 @@ reading it.
     picture opens it; colour on screen, save it as a picture, or print it
     blank. Also built: **Voqealar tartibi**, a game at the end of each book
     where four pictures from the story are put in order (+30 points once).
-14. **Later:** bedtime mode, a character maker, "make your own story".
+14. **Bedtime mode, a character maker, "make your own story".** ✅ All
+    three built.
 
     ✅ **Bedtime mode built ("🌙 Uxlash vaqti").** A grown-up picks one of 12
     calm books (no monsters, snakes or wolves in their pictures) and
@@ -355,6 +356,33 @@ reading it.
       - A book read to the end counts as read, and its passport stamp
         shows on the good-night screen.
 
+    ✅ **Character maker and "make your own story" built ("✍️ Ertak
+    yozish").** Each child's own shelf, "✍️ Mening ertaklarim", holds their
+    heroes and the books they wrote.
+    - **Heroes.** The hero maker shows the hero as they are made:
+      - a boy, a girl, a man, a woman, a grandfather or a grandmother;
+      - a do'ppi, braids, a daenggi, a gat, a crown...;
+      - Uzbek clothes, everyday clothes or a hanbok, in atlas, stripes or
+        dots and 8 colours;
+      - skin and hair colour, and something to hold (a book, a flower, a
+        nay...).
+    - **Pages.** A book has up to 8 pages. On each, the child chooses:
+      - who stands on the left, in the middle and on the right, and what
+        flies in the sky: their heroes, or 68 people, animals, things and
+        things that fly, each with a mood and turned either way;
+      - one of 20 places, from a meadow and a hovli to Seoul, a classroom
+        and space, and the time of day (morning, day, evening, night,
+        winter, a rainbow);
+      - a title and up to 320 letters of text. Buttons add sentence
+        starters ("Bir bor ekan...") and the names of who is on the page.
+    - **Reading.** A made book reads like any other. Its author's name
+      shows at the end, with "✏️ Tahrirlash" to go on writing. It has no
+      quiz or story-order game, so it earns no points.
+    - **Sharing.** After the grown-ups' sum, "📤 Ulashish" sends the book
+      as a link. The whole book is in the address, with no server. On
+      another phone it opens as a gift, and "📥 Javonimga qo'shish" keeps
+      it on that child's shelf.
+
 ## Privacy
 
 Korean law (PIPA) requires a guardian's consent to collect personal data from
@@ -364,3 +392,6 @@ children under 14. The app avoids the question entirely:
   recordings in IndexedDB).
 - Recordings leave the device only when a grown-up sends the file themselves.
 - The recording studio sits behind a small sum, so children don't wander in.
+- A book a child writes leaves the device only in a link a grown-up sends,
+  after the same sum. The book travels inside the link itself and is never
+  stored on a server.

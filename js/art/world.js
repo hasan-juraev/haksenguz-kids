@@ -484,7 +484,7 @@
         if (kind === 'seoul') return s + seoul(c, sc, hz, night, season);
 
         if (kind === 'space') {
-            c.lights.push(stars(c, 60, H));
+            (c.behind || c.lights).push(stars(c, 60, H));
             if (c.top) c.lights.push(stars(c, 12, 0, c.top + 6));
             s += `<g transform="translate(90 90)"><circle r="30" fill="#ffb4a2" ${S(2)}/><ellipse rx="50" ry="9" fill="none" stroke="#e5989b" stroke-width="4" transform="rotate(-18)"/></g>`;
             s += `<circle cx="330" cy="240" r="16" fill="#90e0ef" ${S(2)}/>`;
@@ -612,7 +612,7 @@
     // Adds a light (glow, window, flame) that must stay bright at night. The
     // item wrapper sets c.xf to the current item transform.
     function light(c, markup) {
-        c.lights.push(`<g transform="${c.xf || ''}">${markup}</g>`);
+        (c.behind || c.lights).push(`<g transform="${c.xf || ''}">${markup}</g>`);
     }
     Art.light = light;
 

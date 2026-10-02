@@ -5,7 +5,8 @@
  *
  *   node tools/korean-review.js > korean-review.csv
  *   node tools/korean-review.js zumrad > zumrad.csv     (one book; "menu" for the menus,
- *                                                        "pasport" for the culture passport)
+ *                                                        "pasport" for the culture passport,
+ *                                                        "ertak" for the story maker)
  *
  * One row per title, sentence, question, answer, word and menu text. The
  * reviewer writes a better Korean in the "To'g'risi / 수정" column, or a note
@@ -26,15 +27,17 @@ require('../js/stories-alifbo.js');
 require('../js/stories-ko.js');
 require('../js/i18n.js');
 require('../js/passport.js');
+require('../js/maker.js');
 
 const { segments } = window.BookEngine;
 const db = window.storiesDatabase;
 const { EXACT, PATTERNS, translate } = window.I18n;
 const only = process.argv.slice(2);
 const want = (key) => !only.length || only.includes(key);
-const unknown = only.filter((key) => key !== 'menu' && key !== 'pasport' && !window.storiesKorean[key]);
+const SECTIONS = ['menu', 'pasport', 'ertak'];
+const unknown = only.filter((key) => !SECTIONS.includes(key) && !window.storiesKorean[key]);
 if (unknown.length) {
-    console.error(`No Korean for: ${unknown.join(', ')}. Books with Korean: ${Object.keys(window.storiesKorean).join(', ')}, or "menu", or "pasport".`);
+    console.error(`No Korean for: ${unknown.join(', ')}. Books with Korean: ${Object.keys(window.storiesKorean).join(', ')}, or "menu", "pasport" or "ertak".`);
     process.exit(1);
 }
 
@@ -62,8 +65,10 @@ Object.entries(window.storiesKorean).filter(([key]) => want(key)).forEach(([key,
     (book.words || []).forEach(([term, meaning]) => add(`${key} so'z: ${term}`, "So'z (bosilganda) / 낱말 (누르면 나옴)", term, meaning));
 });
 
+// The story maker's names are in EXACT too (js/maker.js adds them); they get their own section.
+const makerNames = window.Maker.koreanNames();
 if (want('menu')) {
-    Object.entries(EXACT).forEach(([uz, ko], i) => add(`menyu ${i + 1}`, 'Menyu, tugma / 메뉴, 버튼', uz, ko));
+    Object.entries(EXACT).filter(([uz]) => !(uz in makerNames)).forEach(([uz, ko], i) => add(`menyu ${i + 1}`, 'Menyu, tugma / 메뉴, 버튼', uz, ko));
     PATTERNS.forEach(([, , example], i) => add(`menyu* ${i + 1}`, 'Menyu, raqam yoki ism bilan / 메뉴 (숫자나 이름 포함)', example, translate(example, 'ko')));
 }
 
@@ -77,6 +82,20 @@ if (want('pasport')) {
         r.stickers.forEach((x) => add(`pasport ${x.id}`, 'Pasport: stiker / 여권: 스티커', x.name, x.ko));
     });
     Object.entries(P.NAMES).forEach(([k, [uz, ko]]) => add(`pasport ${k}`, 'Pasport: xaritadagi nom / 여권: 지도의 이름', uz, ko));
+}
+
+// The story maker (js/maker.js): who and what a child can put in a picture, the places, times and moods,
+// and the hero maker's choices.
+if (want('ertak')) {
+    const M = window.Maker;
+    const lists = [
+        ['Ertak yozamiz: joy / 이야기 쓰기: 장소', M.PLACES], ['Ertak yozamiz: vaqt / 이야기 쓰기: 때', M.TIMES],
+        ['Ertak yozamiz: rasmdagi joy / 이야기 쓰기: 그림 속 자리', M.SLOTS], ['Ertak yozamiz: kayfiyat / 이야기 쓰기: 기분', M.MOODS],
+        ['Ertak yozamiz: guruh / 이야기 쓰기: 묶음', M.GROUPS], ['Ertak yozamiz: kim yoki nima / 이야기 쓰기: 등장인물과 물건', M.ITEMS],
+        ['Qahramon: kim / 주인공: 누구', M.WHO], ['Qahramon: bosh kiyim, soch / 주인공: 모자와 머리', Object.entries(M.HEADS).map(([id, x]) => Object.assign({ id }, x))],
+        ['Qahramon: kiyim / 주인공: 옷', M.WEARS], ['Qahramon: naqsh / 주인공: 무늬', M.PATTERNS], ['Qahramon: rang / 주인공: 색', M.COLORS], ["Qahramon: qo'lida / 주인공: 손에 든 것", M.HOLDS],
+    ];
+    lists.forEach(([where, list]) => list.forEach((x) => add(`ertak ${x.id}`, where, x.label, x.ko)));
 }
 
 // CSV that Excel opens as UTF-8 (the byte-order mark) with Korean intact.

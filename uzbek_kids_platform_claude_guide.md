@@ -732,3 +732,65 @@ fonts/gowun-dodum-ko.*   # built Korean font + the letters in it
 * `stop()` (also from `goHome`, or when another book opens) puts everything back.
 * At bedtime the page-turn sound plays at a third of its volume and the chimes are silent. In the evening (19:00–05:00) the banner button glows.
 
+## 24. Update: Ertak Yozamiz, the Story Maker (Roadmap item 14)
+
+### The pieces (`js/maker.js`, `window.Maker`)
+* It has no DOM, so `tests/maker.test.js` runs it in node.
+* `SLOTS`: left, middle and right on the ground (x 92, 200, 308), and the sky (128, 100).
+* `PLACES` (20). Each has its `bg` and `at`, the page title used when the child leaves it empty ("O'rmonda"). It may also have:
+  * `y`, its ground;
+  * `inner`, indoors: only day and night;
+  * `times`, `scene`, `skyAt`;
+  * `decor`, drawn behind the characters (the bazaar's stalls).
+* `TIMES` (6): day, morning, evening, night, winter (`season: 'winter'` and snow) and a rainbow.
+* `MOODS` (9). Each sets a face, and for people an arm pose (`joy` → `cheer`, `angry` → `hips`...), unless their hands are busy.
+* `ITEMS` (68) in the `GROUPS` people, animals, things and sky. Each is an Art part or an `Art.cast` preset, with:
+  * `s`, its size;
+  * `turn`: it faces one way, so on the right it is flipped to face in;
+  * `feel`: it shows a mood;
+  * `dy`, and `box`, its frame as a sticker (`boxOf()`; children get a smaller one).
+* The hero maker's choices:
+  * `WHO`, with the heads each can have, and `HEADS`;
+  * `WEARS` (milliy, modern, hanbok) and `PATTERNS`;
+  * `COLORS`, five colours each: main, second, third, trousers and headscarf;
+  * `SKINS`, `HAIRS`, and `HOLDS` with the pose that holds each thing.
+* `heroOpts(look, mood)` turns a look into the person part's options. `cleanLook()` sets anything unknown back to a default.
+* A page is `{ title, text, place, time, cast }`. A slot is `null` or `{ k, mood, f }`, where `k` is a catalogue id or `h:<hero id>`.
+* `sceneOf(page, heroes)` draws a page: the decor, the sky, then the ground from the sides in. It sets `lightsBehind` (see Pictures).
+* `toStory(book, heroes, { guest })` makes a story for the BookEngine:
+  * `category: 'mine'`, `mine: true`, `made` (the book's id), `author` and `order: false`;
+  * no questions or words, so nothing in it gives points.
+* `cleanBook()` and `cleanPage()` check everything kept or received:
+  * only text, with no control characters or `<>`, within `LIMITS`;
+  * at most 8 pages;
+  * only known places, times, moods and catalogue ids, and heroes that exist.
+* Links:
+  * `encode(book, heroes)` packs the book, and the heroes in it, as base64url JSON;
+  * `decode()` unpacks it, gives the heroes new ids and cleans it all;
+  * `fromHash()` finds it after `#ertak=`.
+* At load it adds its names to `I18n.EXACT` (`koreanNames()`), so the Korean menus know them.
+
+### The screens (`js/maker-ui.js`, `app.maker`)
+* Kept on the profile (`js/store.js`): `store.heroes()` and `store.myBooks()`. They are created on first use, also for profiles made earlier.
+* `sync()` puts the active child's books into `app.db` as `my_<id>`; `refreshProfile()` calls it.
+  * Made books stand only on their own shelf (`shelfKeys('mine')`). They are not in "Barchasi", not suggested, and not offered at bedtime.
+* `renderShelf(grid)` draws the 'mine' shelf: the heroes, "Yangi ertak yozish" and the books (tap to read, ✏️ to edit).
+* The editor (`#makerView`) has:
+  * the book's title and author;
+  * the strip of pages (add, move, remove; at most 8);
+  * the picture, with a button under it for each slot, then the place picker and the times;
+  * the page's title (its placeholder is the place) and text, with sentence starters and the names on the page (`Maker.names`).
+  * Typing saves after 400 ms; every other change saves at once.
+* The chooser, the place picker and the hero maker open in the play-corner modal (`Games.open`). They redraw in place, keeping their scroll.
+  * A new hero made from the chooser goes straight into its slot.
+  * Removing a hero takes them off every page.
+* In the book (`js/book.js`, `js/app.js`):
+  * the end shows the author instead of stars, and "✏️ Tahrirlash" instead of the quiz;
+  * the next button at the end goes back to the shelf.
+* Sharing: `share(id)` asks the grown-ups' sum first, then shares or copies the link. `studio.gate(then, why)` now says what the sum is for.
+  * `openFromLink()` sees `#ertak=…` and calls `openShared()`. The book opens as `ertak_mehmon` with `story.link`, so the address keeps the book and a reload reopens it.
+  * Its end has "📥 Javonimga qo'shish" (`keepGuest()`), which copies the book and its heroes to this child's shelf.
+* `tools/korean-review.js ertak` lists the maker's names for the bilingual reviewer.
+
+### Pictures
+* `Art.render` takes `sc.lightsBehind`. With it, a background's own lights are drawn right after the background, so a figure standing in front covers them: far windows at night, Seoul's lit windows, the stars of space. The story books don't set it, so their pictures are as before.
