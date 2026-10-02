@@ -52,6 +52,13 @@
             this.ko = null; // this book's Korean helper text (js/stories-ko.js), if any
             this.gloss = []; // its glossary words, as matchers
             this.koView = null; // the view whose Korean is shown (🇰🇷), until the page turns
+            // 가: every page read out in Hangul, for children who read Korean letters first
+            // (js/hangul.js); it stays on from page to page until turned off
+            this.reading = !!opts.reading;
+            // Bedtime (js/bedtime.js): `limit` is the last page that may be reached
+            // (turning on calls opts.onLimit instead), and `calm` rests the questions.
+            this.limit = null;
+            this.calm = false;
             this.spread = this.isSpread();
             this.reduced = root.matchMedia ? root.matchMedia('(prefers-reduced-motion: reduce)').matches : false;
 
@@ -97,6 +104,8 @@
             this.ko = (root.storiesKorean || {})[key] || null;
             this.gloss = ((this.ko && this.ko.words) || []).map(([, , forms], i) => ({ i, match: BookEngine.glossForms(forms) }));
             this.koView = null;
+            this.limit = null;
+            this.calm = false;
             this.spread = this.isSpread();
             this.view = this.spread ? -1 : 0;
             this.el.style.setProperty('--cover', story.hue || '#7c2d12');
@@ -112,7 +121,11 @@
         }
 
         canNext() {
-            return !!this.story && this.view < this.lastView;
+            return !!this.story && this.view < this.lastView && !this.atLimit();
+        }
+
+        atLimit() {
+            return !!this.limit && this.view >= this.limit;
         }
 
         canPrev() {
@@ -124,7 +137,11 @@
         }
 
         next() {
-            if (this.turn || !this.canNext()) return false;
+            if (this.turn) return false;
+            if (!this.canNext()) {
+                if (this.story && this.atLimit() && this.opts.onLimit) this.opts.onLimit();
+                return false;
+            }
             if (!this.spread) return this.slide(1);
             this.beginTurn('fwd');
             this.animateTo(1, this.turn.cover ? COVER_MS : FLIP_MS, easeInOut);
@@ -170,16 +187,41 @@
                 </div></div>`;
             }
             const p = st.pages[view - 1];
-            const ko = this.koShown(view) && p.word ? this.koWord(p.word[0]) : null;
-            const note = p.word
-                ? `<div class="word-card"><span class="word-label">📖 Yangi so'z</span><span class="word-term" data-content>${esc(p.word[0])}</span><span class="word-mean" data-content>${esc(p.word[1])}</span>${ko ? `<span class="word-ko" lang="ko">🇰🇷 ${esc(ko[1])}</span>` : ''}</div>`
-                : `<p class="art-hint">👆 Rasmga bosing — qahramonlar jonlanadi!</p>`;
             return `<div class="sheet sheet--left"><div class="page-pad">
                 <div class="page-head"><span class="chapter-chip">${view}-sahifa</span><span class="running-head" data-content>${esc(st.title)}</span></div>
-                <figure class="page-art" data-action="poke" title="Rasmga bosing">${this.art(p.scene, true, view)}${this.colorButton(view)}</figure>
-                ${note}
+                <figure class="page-art" data-action="poke" title="Rasmga bosing">${this.art(this.sceneOf(view), true, view)}${this.colorButton(view)}</figure>
+                ${this.noteHTML(view, p)}
                 <div class="page-foot"><span class="page-num">${this.pageNo(view, 'left')}</span><span>Ertaklar Olami</span></div>
             </div></div>`;
+        }
+
+        // A riddle's page shows its hidden answer (`reveal.scene`) once it is guessed.
+        sceneOf(view) {
+            const p = this.story.pages[view - 1];
+            if (!p) return null;
+            return p.reveal && this.solved(view) ? p.reveal.scene : p.scene;
+        }
+
+        solved(view) {
+            const st = this.record && this.record.answers[view];
+            return !!(st && st.done);
+        }
+
+        // Under the picture: the page's new word, a proverb's Korean twin, a tongue
+        // twister's sounds, a riddle's "guess first" or the poke hint.
+        noteHTML(view, p) {
+            if (p.proverbKo) {
+                return `<div class="word-card proverb-card"><span class="word-label">🇰🇷 Koreyada ham shunday deyishadi:</span>` +
+                    `<span class="proverb-ko" lang="ko">${esc(p.proverbKo[0])}</span><span class="word-mean" data-content>«${esc(p.proverbKo[1])}»</span></div>`;
+            }
+            if (p.sounds) {
+                return `<div class="word-card twister-card"><span class="word-label">🔁 Uch marta, tez-tez ayting!</span>` +
+                    `<span class="twister-sounds" data-content>${p.sounds.map(esc).join(' · ')}</span></div>`;
+            }
+            if (p.reveal && !this.solved(view)) return `<p class="art-hint">🤔 Javobini toping — rasm ochiladi!</p>`;
+            if (!p.word) return `<p class="art-hint">👆 Rasmga bosing — qahramonlar jonlanadi!</p>`;
+            const ko = this.koShown(view) ? this.koWord(p.word[0]) : null;
+            return `<div class="word-card"><span class="word-label">📖 Yangi so'z</span><span class="word-term" data-content>${esc(p.word[0])}${this.readsOut(view) ? ` <span class="word-read" lang="ko">${esc(root.Hangul.read(p.word[0]))}</span>` : ''}</span><span class="word-mean" data-content>${esc(p.word[1])}</span>${ko ? `<span class="word-ko" lang="ko">🇰🇷 ${esc(ko[1])}</span>` : ''}</div>`;
         }
 
         rightHTML(view) {
@@ -191,36 +233,40 @@
             // with 🇰🇷 on, each is followed by its Korean.
             const [title, ...sents] = BookEngine.segments(p);
             const ko = this.koShown(view);
-            const koLine = (i) => (ko ? `<span class="ko-line" lang="ko">${esc(ko.s[i] || '')}</span>` : '');
-            const sentHTML = sents.map((t, i) => `<span class="sent" data-action="say" data-seg="${i + 1}">${this.glossHTML(t)}</span>${koLine(i + 1)}`).join(ko ? '' : ' ');
+            const rd = this.readsOut(view);
+            const koLine = (i) => (ko ? `<span class="ko-line" lang="ko">${esc(ko.s[i] || '')}</span>` : rd ? this.readLine(i ? sents[i - 1] : title) : '');
+            const sentHTML = sents.map((t, i) => `<span class="sent" data-action="say" data-seg="${i + 1}">${this.glossHTML(t)}</span>${koLine(i + 1)}`).join(ko || rd ? '' : ' ');
             return `<div class="sheet sheet--right"><div class="page-pad">
-                <div class="page-head"><span class="running-head" data-content>${esc(st.tag.split('•')[0].trim())}</span><span class="head-tools">${this.koButton(view)}<span class="chapter-chip">${view} / ${st.pages.length}</span></span></div>
+                <div class="page-head"><span class="running-head" data-content>${esc(st.tag.split('•')[0].trim())}</span><span class="head-tools">${this.readButton()}${this.koButton(view)}<span class="chapter-chip">${view} / ${st.pages.length}</span></span></div>
                 <div class="page-body" data-fit="21">
-                    <h2 class="page-title" data-content data-action="say" data-seg="0">${esc(title)}</h2>${ko ? `<p class="ko-line ko-line--title" lang="ko">${esc(ko.s[0])}</p>` : ''}
-                    <p class="page-text${ko ? ' is-ko' : ''}" data-content>${sentHTML}</p>
+                    <h2 class="page-title" data-content data-action="say" data-seg="0">${esc(title)}</h2>${ko ? `<p class="ko-line ko-line--title" lang="ko">${esc(ko.s[0])}</p>` : rd ? `<p class="read-line read-line--title" lang="ko">${esc(root.Hangul.read(title))}</p>` : ''}
+                    ${this.letterHTML(p)}
+                    <p class="page-text${ko || rd ? ' is-ko' : ''}${st.verse ? ' is-verse' : ''}${/^\d/.test(sents[0] || '') ? ' no-cap' : ''}" data-content>${sentHTML}</p>
                     <p class="page-flourish" aria-hidden="true">❦ ❦ ❦</p>
-                    ${this.questionHTML(view, p, ko)}
+                    ${this.questionHTML(view, p, ko, rd)}
                 </div>
                 <div class="page-foot"><span class="turn-hint">${view < st.pages.length ? 'Varaqlang' : 'Yakun'} <b>➜</b></span><span class="page-num">${this.pageNo(view, 'right')}</span></div>
             </div></div>`;
         }
 
-        questionHTML(view, p, ko) {
-            if (!p.question) return '';
+        questionHTML(view, p, ko, rd) {
+            if (!p.question || this.calm) return '';
             const state = this.record.answers[view] || {};
             const koQ = ko && ko.q;
+            const readQ = !koQ && rd;
             const buttons = p.question.a.map((txt, i) => {
                 let cls = 'choice';
                 if (state.done && (i === p.question.ok || p.question.ok < 0) && i === state.pick) cls += ' choice--right';
                 if (state.wrong && state.wrong.includes(i)) cls += ' choice--wrong';
-                return `<button type="button" class="${cls}" data-content data-action="answer" data-view="${view}" data-idx="${i}"${state.done ? ' disabled' : ''}>${esc(txt)}${koQ ? `<span class="ko-line" lang="ko">${esc(koQ[i + 1] || '')}</span>` : ''}</button>`;
+                return `<button type="button" class="${cls}" data-content data-action="answer" data-view="${view}" data-idx="${i}"${state.done ? ' disabled' : ''}>${esc(txt)}${koQ ? `<span class="ko-line" lang="ko">${esc(koQ[i + 1] || '')}</span>` : readQ ? this.readLine(txt) : ''}</button>`;
             }).join('');
             const feedback = state.done
-                ? `<p class="quiz-feedback quiz-feedback--ok">⭐ ${esc(state.praise || 'Barakalla!')} +10 ball</p>`
+                ? `<p class="quiz-feedback quiz-feedback--ok">⭐ ${esc(state.praise || 'Barakalla!')} +10 ball</p>` +
+                  (p.reveal ? `<p class="riddle-answer"><span>🎉 Javob:</span> <b data-content>${esc(p.reveal.answer)}</b></p>` : '')
                 : state.wrong && state.wrong.length ? `<p class="quiz-feedback">🤔 Yana bir o'ylab ko'ring!</p>` : '';
             return `<div class="page-question">
                 <div class="question-label">💡 Bolajonlar uchun savol</div>
-                <p class="question-text" data-content>${esc(p.question.q)}</p>${koQ ? `<p class="ko-line" lang="ko">${esc(koQ[0])}</p>` : ''}
+                <p class="question-text" data-content>${esc(p.question.q)}</p>${koQ ? `<p class="ko-line" lang="ko">${esc(koQ[0])}</p>` : readQ ? `<p class="read-line" lang="ko">${esc(root.Hangul.read(p.question.q))}</p>` : ''}
                 <div class="choices">${buttons}</div>${feedback}
             </div>`;
         }
@@ -244,6 +290,39 @@
             this.koView = this.koView === v ? null : v;
             if (v >= 1) this.put(this.left, this.leftHTML(v));
             this.put(this.right, this.rightHTML(Math.max(v, 0)));
+        }
+
+        // ---------- 가: Uzbek read out in Korean letters (js/hangul.js) ----------
+
+        // On a story page while 가 is on, unless 🇰🇷 is showing that page's Korean.
+        readsOut(view) {
+            return this.reading && !!root.Hangul && view >= 1 && view <= this.story.pages.length && !this.koShown(view);
+        }
+
+        readLine(text) {
+            return `<span class="read-line" lang="ko">${esc(root.Hangul.read(text))}</span>`;
+        }
+
+        readButton() {
+            if (!root.Hangul) return '';
+            return `<button type="button" class="read-toggle${this.reading ? ' is-on' : ''}" data-action="reading" aria-pressed="${this.reading}" aria-label="Koreys harflarida o'qilishi" title="Koreys harflarida o'qilishi" lang="ko">가</button>`;
+        }
+
+        toggleReading() {
+            this.reading = !this.reading;
+            if (this.reading) this.koView = null;
+            const v = this.view;
+            if (v >= 1) this.put(this.left, this.leftHTML(v));
+            this.put(this.right, this.rightHTML(Math.max(v, 0)));
+            if (this.opts.onReading) this.opts.onReading(this.reading);
+        }
+
+        // An Alifbo page's big letter, and the button to trace it.
+        letterHTML(p) {
+            if (!p.letter) return '';
+            const traceable = /[A-Za-z]/.test(p.letter); // the tutuq belgisi is a sign, not a letter to trace
+            return `<div class="alifbo-letter"><span class="alifbo-glyph" data-content>${esc(p.letter)}</span>` +
+                (traceable ? `<button type="button" class="btn-trace" data-action="trace" data-letter="${esc(p.letter)}">✍️ Yozib ko'r</button>` : '') + `</div>`;
         }
 
         // Glossary entry for a word, e.g. the "Yangi so'z" card's term.
@@ -294,7 +373,7 @@
                 <h1 class="title-name" data-content>${esc(st.title)}</h1>
                 <p class="title-tag" data-content>${esc(st.tag)}</p>
                 <div class="title-medallion" data-action="poke">${this.art(scene, false, 'title')}</div>
-                <p class="title-meta">📄 ${st.pages.length} sahifa · ⏱ ~${mins} daqiqa</p>
+                <p class="title-meta"><span>📄 ${st.pages.length} sahifa · ⏱ ~${mins} daqiqa</span>${st.age ? ` · <span>${st.age[0]}–${st.age[1]} yosh</span>` : ''}</p>
                 <p class="title-opening" data-content>«Bir bor ekan, bir yo'q ekan...»</p>
                 ${resume
                     ? `<button type="button" class="btn-resume" data-action="resume">▶ Davom ettirish · ${resume}-sahifa</button>`
@@ -307,19 +386,36 @@
             const view = this.lastView;
             const { asked, right, stars } = BookEngine.score(st, this.record.answers);
             const ko = this.koShown(view);
+            // "Ikki xalq — bir ertak": this tale's Korean twin (js/stories-twins.js), or, at the end of a twin, its game.
+            const db = root.storiesDatabase || {};
+            const twin = Object.keys(db).find((k) => db[k].twin === this.key);
+            const special = twin
+                ? `<button type="button" class="btn-twin" data-action="twin" data-key="${esc(twin)}"><span>🇰🇷 Egizak ertak ochildi!</span> <b data-content>${esc(db[twin].title)}</b></button>`
+                : st.compare ? `<button type="button" class="btn-twin" data-action="compare">🔍 Farqlarni toping</button>` : '';
             return `<div class="sheet sheet--right sheet--finale"><div class="page-pad finale">
+                ${this.passportHTML()}
                 <div class="title-ornament">❦</div>
                 <h2 class="finale-title">Ertak tugadi!</h2>
                 <div class="finale-stars" aria-label="${stars} yulduz">${'★'.repeat(stars)}<span>${'★'.repeat(3 - stars)}</span></div>
                 <p class="finale-score">${asked ? `Savollarga javoblar: ${right} / ${asked}` : 'Ajoyib o\'qidingiz!'}</p>
                 <div class="finale-moral"><b>Ertakdan saboq:</b> ${this.ko && this.ko.moral ? this.koButton(view) : ''}<span data-content>${esc(st.moral || "Yaxshilik va ezgulik har doim g'alaba qiladi.")}</span>${ko && ko.moral ? `<span class="ko-line" lang="ko">${esc(ko.moral)}</span>` : ''}</div>
+                ${special}
                 <div class="finale-actions">
                     <button type="button" class="btn-quiz" data-action="quiz">🏆 Bilimdon testi</button>
-                    <button type="button" class="btn-game" data-action="order">🧩 Voqealar tartibi</button>
+                    ${st.order === false ? '' : '<button type="button" class="btn-game" data-action="order">🧩 Voqealar tartibi</button>'}
                     <button type="button" class="btn-reread" data-action="restart">↺ Boshidan o'qish</button>
                     <button type="button" class="btn-reread" data-action="share">📤 Ulashish</button>
                 </div>
             </div></div>`;
+        }
+
+        // Culture passport (js/passport.js): the place this book took the child to, with its stamp.
+        passportHTML() {
+            const P = root.Passport;
+            const r = P && P.regionOf(this.story);
+            if (!r) return '';
+            const where = `📍 Bu ertak seni ${P.dative(r.name)} olib bordi!`;
+            return `<button type="button" class="finale-stamp" data-action="passport" data-region="${esc(r.id)}" aria-label="${esc(where)}" title="${esc(where)}">${P.stampSVG(r)}<small>🗺️ Pasport</small></button>`;
         }
 
         coverHTML() {
@@ -549,6 +645,7 @@
             else if (act === 'prev') this.prev();
             else if (act === 'answer') this.answer(+a.dataset.view, +a.dataset.idx);
             else if (act === 'korean') this.toggleKorean();
+            else if (act === 'reading') this.toggleReading();
             else if (act === 'poke') this.poke(a);
             else if (this.opts.onAction) this.opts.onAction(act, a);
         }
@@ -577,7 +674,11 @@
                 st.wrong.push(idx);
                 if (this.opts.onAnswer) this.opts.onAnswer(false);
             }
-            if (this.view === view) this.put(this.right, this.rightHTML(view));
+            if (this.view === view) {
+                this.put(this.right, this.rightHTML(view));
+                // a guessed riddle uncovers its picture
+                if (right && p.reveal) this.put(this.left, this.leftHTML(view));
+            }
         }
 
         onPointerDown(e) {

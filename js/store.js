@@ -2,13 +2,18 @@
  * Store: what the app remembers between visits. Everything stays on this
  * device (localStorage); nothing is sent anywhere.
  *
- * Each child has a profile with their own points and, per book:
+ * Each child has a profile with their own points, an optional age (it picks
+ * their shelf in the library, see js/levels.js), the words they have met
+ * (Mening lug'atim), the passport stickers they have bought and, per book:
  *   page      last story page they were on (0 = nothing to continue)
  *   answers   page questions answered so far (see BookEngine.answer)
- *   finished  reached the last page at least once
+ *   finished  reached the last page at least once (finishedAt: when, the
+ *             first time; it dates the passport stamp, see js/passport.js)
  *   quiz      passed the final quiz (its points are given only once)
  *   order     solved the story-order game (likewise paid once)
- * Settings (script, menu language, page sound) belong to the device.
+ *   compare   sorted a twin tale's "find the differences" cards (likewise)
+ * Settings (script, menu language, page sound, 가, pages at bedtime) belong
+ * to the device.
  */
 (function (root) {
     'use strict';
@@ -18,7 +23,10 @@
     const AVATARS = ['🦊', '🐰', '🐻', '🦉', '🐱', '🐶', '🐴', '🐝'];
     const DEFAULT_NAME = 'Bolajon';
 
-    const blank = () => ({ v: VERSION, settings: { script: 'lat', lang: 'uz', sound: true }, active: null, profiles: {} });
+    // A child's age in years, or null when not given (or not believable).
+    const cleanAge = (age) => (Number.isInteger(age) && age >= 2 && age <= 18 ? age : null);
+
+    const blank = () => ({ v: VERSION, settings: { script: 'lat', lang: 'uz', sound: true, reading: false, bedtimePages: 5 }, active: null, profiles: {} });
 
     function read() {
         try {
@@ -74,15 +82,18 @@
             this.save();
         }
 
-        addProfile(name, avatar) {
+        addProfile(name, avatar, age) {
             const taken = new Set(this.profiles().map((p) => p.avatar));
             const id = 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
             this.data.profiles[id] = {
                 id,
                 name: String(name || '').trim() || DEFAULT_NAME,
                 avatar: avatar || AVATARS.find((a) => !taken.has(a)) || AVATARS[0],
+                age: cleanAge(age),
                 points: 0,
                 books: {},
+                words: {}, // "book:page" of each word card met (Mening lug'atim)
+                stickers: {}, // passport stickers bought: id -> when (js/passport.js)
                 last: null,
                 created: Date.now(),
             };
@@ -90,11 +101,12 @@
             return this.data.profiles[id];
         }
 
-        updateProfile(id, { name, avatar }) {
+        updateProfile(id, { name, avatar, age }) {
             const p = this.data.profiles[id];
             if (!p) return;
             if (name !== undefined) p.name = String(name).trim() || p.name;
             if (avatar) p.avatar = avatar;
+            if (age !== undefined) p.age = cleanAge(age);
             this.save();
         }
 
@@ -113,13 +125,22 @@
         // The active child's record for a book (created on first use).
         book(key) {
             const books = this.profile().books;
-            return books[key] || (books[key] = { page: 0, answers: {}, finished: false, quiz: false, order: false });
+            return books[key] || (books[key] = { page: 0, answers: {}, finished: false, quiz: false, order: false, compare: false });
         }
 
         addPoints(n) {
             this.profile().points += n;
             this.save();
             return this.profile().points;
+        }
+
+        // Spends points (a passport sticker); false, and nothing spent, if there aren't enough.
+        spendPoints(n) {
+            const p = this.profile();
+            if (!(n > 0) || p.points < n) return false;
+            p.points -= n;
+            this.save();
+            return true;
         }
     }
 

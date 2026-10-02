@@ -62,6 +62,15 @@
         return c ? Object.assign({ voice: v.id, book, page: +page }, c) : null;
     }
 
+    // Every built-in recording of a book, from every built-in voice.
+    function builtinClips(book) {
+        return builtinVoices().flatMap((v) => Object.keys((v.books || {})[book] || {}).map((page) => builtinClip(v, book, page)));
+    }
+
+    // A copy saved on this device (Voices.saveBook) of this very recording;
+    // a copy of an older recording of the page doesn't count.
+    const sameRecording = (saved, c) => !!saved && !!saved.blob && saved.src === c.src && saved.duration === c.duration;
+
     // ---------- helpers ----------
 
     const newId = () => 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -115,7 +124,13 @@
 
         async clip(voiceId, book, page) {
             const b = builtinVoices().find((v) => v.id === voiceId);
-            if (b) return builtinClip(b, book, page);
+            if (b) {
+                const c = builtinClip(b, book, page);
+                if (!c) return null;
+                // Saved on this device: plays without internet.
+                const saved = await run('clips', 'readonly', (s) => s.get([voiceId, book, +page])).catch(() => null);
+                return sameRecording(saved, c) ? Object.assign({}, c, { blob: saved.blob }) : c;
+            }
             return (await run('clips', 'readonly', (s) => s.get([voiceId, book, +page])).catch(() => null)) || null;
         },
 
@@ -153,6 +168,49 @@
         async pages(voiceId, book) {
             const keys = await run('clips', 'readonly', (s) => s.index('voice').getAllKeys(voiceId)) || [];
             return keys.filter((k) => k[1] === book).map((k) => k[2]).sort((a, b) => a - b);
+        },
+
+        // ---------- built-in narration on this device ----------
+        // The offline worker (sw.js) leaves audio files alone: phones play
+        // them in pieces, and a kept whole file breaks that on iPhones. So a
+        // book's built-in recordings are saved here instead, next to the
+        // family ones (keyed by the built-in voice), and played from here.
+
+        // How many built-in recordings this book has.
+        builtinCount(book) {
+            return builtinClips(book).length;
+        },
+
+        // How many of them are saved on this device.
+        async savedCount(book) {
+            let n = 0;
+            for (const c of builtinClips(book)) {
+                const saved = await run('clips', 'readonly', (s) => s.get([c.voice, book, c.page])).catch(() => null);
+                if (sameRecording(saved, c)) n++;
+            }
+            return n;
+        },
+
+        // Downloads the book's built-in recordings onto this device; onStep(done, total).
+        async saveBook(book, onStep) {
+            const clips = builtinClips(book);
+            let done = 0;
+            for (const c of clips) {
+                const saved = await run('clips', 'readonly', (s) => s.get([c.voice, book, c.page])).catch(() => null);
+                if (!sameRecording(saved, c)) {
+                    const res = await root.fetch(c.src);
+                    if (!res.ok) throw new Error(`${res.status} ${c.src}`);
+                    await this.saveClip(Object.assign({}, c, { blob: await res.blob(), builtin: true, created: Date.now() }));
+                }
+                if (onStep) onStep(++done, clips.length);
+            }
+            if (root.navigator.storage && root.navigator.storage.persist) root.navigator.storage.persist().catch(() => {});
+        },
+
+        // Removes the saved copies; the recordings still play from the internet.
+        unsaveBook(book) {
+            const keys = builtinClips(book).map((c) => [c.voice, book, c.page]);
+            return run('clips', 'readwrite', (s) => { keys.forEach((k) => s.delete(k)); });
         },
 
         // ---------- voice packs ----------

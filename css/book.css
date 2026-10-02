@@ -514,6 +514,78 @@ h1, h2, h3, h4, .font-heading {
     line-height: 1.35;
 }
 
+/* a proverb's Korean twin (js/stories-short.js) */
+.proverb-card {
+    grid-template-columns: 1fr;
+    background: linear-gradient(135deg, #eff6ff, #fdf2f8);
+    border-color: #a5b4fc;
+}
+
+.proverb-card .word-label {
+    color: #4338ca;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 12px;
+}
+
+.proverb-ko {
+    font-family: 'Gowun Dodum', sans-serif;
+    font-size: 19px;
+    font-weight: 700;
+    color: #1e3a8a;
+    line-height: 1.3;
+}
+
+/* a tongue twister's sounds to practise */
+.twister-card {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    background: linear-gradient(135deg, #fff7ed, #fef9c3);
+    border-color: #fbbf24;
+}
+
+.twister-card .word-label {
+    color: #b45309;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 13px;
+}
+
+.twister-sounds {
+    font-family: 'Fredoka', 'Nunito', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    color: #c2410c;
+}
+
+/* a lullaby: one line of verse to a line */
+.page-text.is-verse {
+    text-align: center;
+    font-style: italic;
+}
+
+.page-text.is-verse .sent {
+    display: block;
+}
+
+.page-text.is-verse::first-letter {
+    all: unset;
+}
+
+/* a guessed riddle's answer */
+.riddle-answer {
+    margin: 4px 0 0;
+    font-weight: 800;
+    color: #7c2d12;
+}
+
+.riddle-answer b {
+    font-family: 'Fredoka', 'Nunito', sans-serif;
+    font-size: 1.25em;
+    color: #15803d;
+}
+
 /* text page */
 .page-body {
     --fs: 19px;
@@ -565,6 +637,26 @@ h1, h2, h3, h4, .font-heading {
     background: #fdecee;
 }
 
+/* 가: the page read out in Korean letters (js/hangul.js) */
+.read-toggle {
+    min-width: 36px;
+    height: 28px;
+    padding: 0 8px;
+    border-radius: 999px;
+    border: 2px solid #f1d8a8;
+    background: #fff;
+    color: #0f766e;
+    font: 700 15px/1 system-ui, -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+}
+
+.read-toggle.is-on {
+    border-color: #0f766e;
+    background: #ccfbf1;
+}
+
+.read-toggle:focus-visible,
 .ko-toggle:focus-visible {
     outline: 3px solid #f59e0b;
     outline-offset: 2px;
@@ -600,6 +692,41 @@ h1, h2, h3, h4, .font-heading {
     color: inherit;
     background: none;
     box-shadow: none;
+}
+
+/* Readings are made for any text, so they use the phone's own Korean font
+   (the bundled one only has the letters of the app's fixed Korean). */
+.read-line {
+    display: block;
+    margin: 1px 0 10px;
+    font-family: system-ui, -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    font-size: calc(var(--fs, 19px) * .8);
+    line-height: 1.5;
+    font-weight: 500;
+    letter-spacing: .02em;
+    color: #0f766e;
+}
+
+.read-line--title {
+    margin: -4px 0 4px;
+    font-size: calc(var(--fs, 19px) * .9);
+}
+
+.page-question .read-line {
+    margin: 0 0 6px;
+    font-size: 14px;
+}
+
+.choice .read-line {
+    margin: 2px 0 0;
+    font-size: .88em;
+}
+
+.word-read {
+    font-family: system-ui, -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    font-size: .72em;
+    font-weight: 600;
+    color: #0f766e;
 }
 
 .choice .ko-line {
@@ -655,6 +782,12 @@ h1, h2, h3, h4, .font-heading {
     box-shadow: 0 0 0 3px #fde68a;
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
+}
+
+/* A page that opens with a number ("9-oktabr") has no big first letter:
+   it would split the number from its word. */
+.page-text.no-cap::first-letter {
+    all: unset;
 }
 
 .page-text::first-letter {
@@ -1186,3 +1319,145 @@ h1, h2, h3, h4, .font-heading {
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: #fff9ed; }
 ::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 9999px; }
+
+/* ---------- bedtime (js/bedtime.js) ---------- */
+
+/* the room goes dark and the book warm, as under a night lamp */
+html[data-bedtime='on'] body {
+    background:
+        radial-gradient(1.5px 1.5px at 12% 18%, rgba(255, 255, 255, .55) 50%, transparent 52%),
+        radial-gradient(1.5px 1.5px at 72% 9%, rgba(255, 255, 255, .45) 50%, transparent 52%),
+        radial-gradient(2px 2px at 88% 32%, rgba(255, 255, 255, .5) 50%, transparent 52%),
+        radial-gradient(1.5px 1.5px at 33% 6%, rgba(255, 255, 255, .4) 50%, transparent 52%),
+        radial-gradient(1.5px 1.5px at 52% 26%, rgba(255, 255, 255, .35) 50%, transparent 52%),
+        linear-gradient(#0b1026, #1e2a5a) fixed;
+}
+
+html[data-bedtime='on'] header,
+html[data-bedtime='on'] #storyView > :first-child,
+html[data-bedtime='on'] #storyView > :last-child {
+    opacity: .62;
+    filter: saturate(.6);
+    transition: opacity .8s;
+}
+
+html[data-bedtime='on'] .book {
+    filter: brightness(.86) sepia(.22) saturate(.85);
+    transition: filter 1s;
+}
+
+html[data-bedtime='on'] #studioBtn,
+html[data-bedtime='on'] #soundToggleBtn {
+    display: none;
+}
+
+.bed-count {
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #1e2a5a;
+    color: #fde68a;
+    font-size: 13px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+/* Xayrli tun: good night, fading to dark */
+.goodnight {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 24px 16px;
+    overflow-y: auto;
+    background: radial-gradient(circle at 50% 30%, #1e2a5a, #070b1d 72%);
+    color: #e0e7ff;
+    text-align: center;
+}
+
+.goodnight.hidden {
+    display: none;
+}
+
+.goodnight > * {
+    transition: opacity 6s ease;
+}
+
+.goodnight.is-faded > * {
+    opacity: .05;
+}
+
+.goodnight-art {
+    width: min(420px, 86vw);
+    aspect-ratio: 400 / 320;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 0 60px rgba(255, 236, 160, .14);
+}
+
+.goodnight-art svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.goodnight-title {
+    margin: 8px 0 0;
+    font-family: 'Fredoka', 'Nunito', 'Gowun Dodum', sans-serif;
+    font-size: clamp(26px, 6vw, 40px);
+    color: #fde68a;
+}
+
+.goodnight-sub {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #c7d2fe;
+}
+
+.goodnight-next {
+    max-width: 32rem;
+    margin: 0;
+    font-size: 15px;
+    color: #a5b4fc;
+}
+
+.goodnight-stamp:empty {
+    display: none;
+}
+
+.goodnight-stamp .stamp-svg {
+    width: 104px;
+    height: 104px;
+    margin: 0 auto 6px;
+    padding: 4px;
+    border-radius: 50%;
+    background: #fdf6e3;
+}
+
+.goodnight-stamp p {
+    margin: 0;
+    font-weight: 800;
+    color: #fde68a;
+}
+
+.goodnight-btn {
+    min-height: 48px;
+    margin-top: 8px;
+    padding: 0 20px;
+    border: 2px solid #4c5aa0;
+    border-radius: 16px;
+    background: #1e2a5a;
+    color: #e0e7ff;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .goodnight > * {
+        transition: none;
+    }
+}

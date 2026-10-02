@@ -294,6 +294,187 @@
     color: #047857;
 }
 
+/* ---------- find the differences (twin tales) ---------- */
+
+.cmp-pics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.cmp-pic {
+    margin: 0;
+    text-align: center;
+}
+
+.cmp-art {
+    display: block;
+    aspect-ratio: 400 / 260;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 3px solid #fde68a;
+}
+
+.cmp-art svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.cmp-pic figcaption {
+    margin-top: 4px;
+    font-weight: 800;
+    color: #7c2d12;
+}
+
+.cmp-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 72px;
+    padding: 10px 16px;
+    border-radius: 18px;
+    border: 3px dashed #f59e0b;
+    background: #fffbeb;
+}
+
+.cmp-card.hidden {
+    display: none;
+}
+
+.cmp-emoji {
+    font-size: 40px;
+    line-height: 1;
+}
+
+.cmp-text {
+    font-size: 22px;
+    font-weight: 800;
+    color: #1f2937;
+}
+
+.cmp-count {
+    margin-left: auto;
+    font-size: 13px;
+    font-weight: 800;
+    color: #92400e;
+}
+
+.cmp-card.is-wrong {
+    animation: cardShake .45s ease-in-out;
+    border-color: #fda4af;
+}
+
+.cmp-choices {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.cmp-choices.hidden {
+    display: none;
+}
+
+.cmp-choices button {
+    min-height: 56px;
+    padding: 6px 8px;
+    border: 0;
+    border-radius: 16px;
+    font-weight: 800;
+    font-size: 15px;
+    color: #fff;
+    background: linear-gradient(135deg, #f59e0b, #ea580c);
+    box-shadow: 0 4px 0 #9a3412;
+    cursor: pointer;
+}
+
+.cmp-choices [data-where="both"] {
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+    box-shadow: 0 4px 0 #4c1d95;
+}
+
+.cmp-choices [data-where="ko"] {
+    background: linear-gradient(135deg, #0ea5e9, #1d4ed8);
+    box-shadow: 0 4px 0 #1e3a8a;
+}
+
+.cmp-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.cmp-col {
+    min-height: 80px;
+    padding: 8px;
+    border-radius: 14px;
+    background: #fff7ed;
+}
+
+.cmp-col--both {
+    background: #f5f3ff;
+}
+
+.cmp-col--ko {
+    background: #eff6ff;
+}
+
+.cmp-head {
+    margin: 0 0 6px;
+    font-size: 13px;
+    font-weight: 800;
+    text-align: center;
+    color: #7c2d12;
+}
+
+.cmp-col ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 4px;
+}
+
+.cmp-col li {
+    padding: 4px 6px;
+    border-radius: 10px;
+    background: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    animation: cmpIn .3s ease-out;
+}
+
+@keyframes cmpIn {
+    from {
+        transform: scale(.6);
+        opacity: 0;
+    }
+}
+
+.cmp-game.is-won .order-result {
+    color: #047857;
+}
+
+/* The button on a tale's last page that opens its Korean twin. */
+.btn-twin {
+    width: 100%;
+    min-height: 52px;
+    margin-bottom: 8px;
+    padding: 10px 16px;
+    border: 0;
+    border-radius: 16px;
+    font-weight: 800;
+    font-size: 15px;
+    color: #fff;
+    background: linear-gradient(135deg, #0ea5e9, #1d4ed8);
+    box-shadow: 0 4px 0 #1e3a8a;
+    cursor: pointer;
+}
+
 /* Toasts (points, "try again") show above an open game. */
 #toast {
     z-index: 80;
@@ -305,11 +486,1119 @@
     .play-card {
         padding: 12px;
     }
+
+    .cmp-choices button {
+        font-size: 13px;
+    }
+
+    .cmp-col li {
+        font-size: 12px;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
     .order-card.is-wrong,
-    .order-card.is-hint {
+    .order-card.is-hint,
+    .cmp-card.is-wrong,
+    .cmp-col li {
         animation: none;
     }
+}
+
+/* ---------- Alifbo: the big letter and tracing it ---------- */
+
+.alifbo-letter {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 2px 0 10px;
+}
+
+.alifbo-glyph {
+    font-family: 'Fredoka', 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: calc(var(--fs, 19px) * 3.2);
+    line-height: 1;
+    color: #ea580c;
+    text-shadow: 0 3px 0 #fed7aa;
+}
+
+.btn-trace {
+    min-height: 40px;
+    padding: 0 14px;
+    border-radius: 14px;
+    border: 2px solid #fdba74;
+    background: #fff7ed;
+    color: #9a3412;
+    font-weight: 800;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.btn-trace:hover {
+    background: #ffedd5;
+}
+
+.btn-trace:focus-visible {
+    outline: 3px solid #f59e0b;
+    outline-offset: 2px;
+}
+
+.play-card--trace {
+    max-width: 440px;
+}
+
+.trace-steps {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 4px 0 10px;
+}
+
+.trace-steps span {
+    min-width: 44px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    border: 2px solid #fde68a;
+    background: #fffbeb;
+    font: 800 20px/1.2 Nunito, sans-serif;
+    color: #92400e;
+    text-align: center;
+}
+
+.trace-steps span.is-now {
+    border-color: #f97316;
+    background: #ffedd5;
+}
+
+.trace-steps span.is-done::after {
+    content: ' ⭐';
+}
+
+.trace-pad {
+    width: min(340px, 78vw);
+    margin: 0 auto;
+    aspect-ratio: 1;
+    border-radius: 22px;
+    border: 3px solid #fde68a;
+    background: #fffdf7;
+    overflow: hidden;
+}
+
+.trace-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+    cursor: crosshair;
+}
+
+.trace-meter {
+    width: min(340px, 78vw);
+    height: 10px;
+    margin: 10px auto 0;
+    border-radius: 999px;
+    background: #fef3c7;
+    overflow: hidden;
+}
+
+.trace-meter span {
+    display: block;
+    height: 100%;
+    width: 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #fbbf24, #f97316);
+    transition: width .25s;
+}
+
+.trace-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.trace-clear {
+    min-height: 40px;
+    padding: 0 16px;
+    border-radius: 14px;
+    border: 2px solid #e5e7eb;
+    background: #fff;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.trace-game.is-won .trace-pad {
+    border-color: #34d399;
+    box-shadow: 0 0 0 4px #d1fae5;
+}
+
+/* ---------- Mening lug'atim ---------- */
+
+.dict-games {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.dict-game-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 12px 8px;
+    border-radius: 20px;
+    border: 2px solid #fde68a;
+    background: linear-gradient(135deg, #fffbeb, #fff7ed);
+    color: #78350f;
+    text-align: center;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+}
+
+.dict-game-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(180, 83, 9, .15);
+}
+
+.dict-game-btn small {
+    font-size: 12px;
+    color: #92400e;
+    opacity: .8;
+}
+
+.dict-game-btn:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+.dict-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 12px;
+}
+
+.dict-card {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 20px;
+    background: #fff;
+    border: 1px solid #fed7aa;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .04);
+}
+
+.dict-art {
+    flex: 0 0 92px;
+    height: 92px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #fef3c7;
+}
+
+.dict-art svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.dict-body {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.dict-term {
+    font-family: 'Fredoka', 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: #065f46;
+}
+
+.dict-mean {
+    font-size: 13px;
+    line-height: 1.35;
+    color: #4b5563;
+}
+
+.dict-ko {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e40af;
+}
+
+.dict-tools {
+    display: flex;
+    gap: 6px;
+    margin-top: auto;
+    padding-top: 4px;
+}
+
+.dict-tools button {
+    min-height: 34px;
+    padding: 0 10px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.play-card--dict {
+    max-width: 560px;
+}
+
+.listen-word {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+    margin-bottom: 10px;
+}
+
+.listen-say {
+    min-height: 40px;
+    padding: 0 14px;
+    border-radius: 14px;
+    border: 2px solid #93c5fd;
+    background: #eff6ff;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.listen-text {
+    font-family: 'Fredoka', 'Nunito', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: #065f46;
+}
+
+.listen-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.listen-card {
+    aspect-ratio: 4 / 3;
+    border-radius: 16px;
+    border: 3px solid #fde68a;
+    background: #fef3c7;
+    overflow: hidden;
+    padding: 0;
+    cursor: pointer;
+}
+
+.listen-card svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.listen-card.is-right,
+.match-item.is-right {
+    border-color: #34d399;
+    box-shadow: 0 0 0 4px #d1fae5;
+}
+
+.listen-card.is-wrong,
+.match-item.is-wrong,
+.spell-tile.is-wrong {
+    animation: cardShake .5s;
+    border-color: #f87171;
+}
+
+.match-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.match-col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.match-item {
+    min-height: 46px;
+    padding: 6px 10px;
+    border-radius: 14px;
+    border: 2px solid #fde68a;
+    background: #fffbeb;
+    font-weight: 800;
+    font-size: 16px;
+    color: #78350f;
+    cursor: pointer;
+}
+
+.match-item[lang="ko"] {
+    border-color: #bfdbfe;
+    background: #eff6ff;
+    color: #1e3a8a;
+}
+
+.match-item.is-picked {
+    border-color: #f97316;
+    background: #ffedd5;
+}
+
+.match-item:disabled {
+    cursor: default;
+    opacity: .75;
+}
+
+.spell-art {
+    width: min(260px, 70vw);
+    aspect-ratio: 4 / 3;
+    margin: 0 auto;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.spell-art svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.spell-mean {
+    margin: 8px 0;
+    text-align: center;
+    font-size: 14px;
+    color: #4b5563;
+}
+
+.spell-ko {
+    display: block;
+    color: #1e40af;
+    font-weight: 700;
+}
+
+.spell-slots,
+.spell-tiles {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    margin: 8px 0;
+}
+
+.spell-slot {
+    width: 40px;
+    height: 46px;
+    border-bottom: 4px solid #f59e0b;
+    font: 800 26px/46px Nunito, sans-serif;
+    text-align: center;
+    color: #065f46;
+}
+
+.spell-tile {
+    min-width: 46px;
+    height: 46px;
+    padding: 0 8px;
+    border-radius: 12px;
+    border: 2px solid #fdba74;
+    background: #fff7ed;
+    font: 800 22px/1 Nunito, sans-serif;
+    color: #9a3412;
+    cursor: pointer;
+}
+
+.spell-tile.is-used {
+    visibility: hidden;
+}
+
+@media (max-width: 480px) {
+    .dict-games {
+        grid-template-columns: 1fr;
+    }
+
+    .dict-game-btn {
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 10px;
+        text-align: left;
+    }
+}
+
+
+/* ---------- culture passport (js/passport.js) ---------- */
+
+.pass-card {
+    padding: 12px;
+    border-radius: 28px;
+    background: #fff;
+    border: 1px solid #ffedd5;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+}
+
+.uzmap {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 20px;
+}
+
+.uzmap text {
+    font-family: Nunito, sans-serif;
+    font-weight: 800;
+    text-anchor: middle;
+    paint-order: stroke;
+    stroke: #fff;
+    stroke-width: 4px;
+    stroke-linejoin: round;
+}
+
+.uzmap .map-sea {
+    fill: #cfe7f2;
+}
+
+.uzmap .map-land {
+    fill: #ebe5d8;
+    stroke: #cfc3aa;
+    stroke-width: 1.2;
+}
+
+.uzmap .map-shadow {
+    fill: rgba(91, 58, 26, .14);
+}
+
+.uzmap .map-border {
+    fill: none;
+    stroke: #b07a3c;
+    stroke-width: 3.2;
+    stroke-linejoin: round;
+    pointer-events: none;
+}
+
+.uzmap .map-region {
+    fill: #fffaf0;
+    stroke: #dcc49c;
+    stroke-width: 1.6;
+    stroke-linejoin: round;
+    cursor: pointer;
+    transition: fill .3s;
+}
+
+.uzmap .map-region:hover {
+    fill: #fff1d0;
+}
+
+.uzmap .map-region.is-stamped {
+    fill: var(--fill);
+    stroke: #fff;
+    stroke-width: 2.4;
+}
+
+.uzmap .map-outline {
+    fill: none;
+    stroke: #7c2d12;
+    stroke-width: 4;
+    stroke-linejoin: round;
+    pointer-events: none;
+}
+
+.uzmap .map-star {
+    fill: #e63946;
+    stroke: #fff;
+    stroke-width: 2.4;
+    paint-order: stroke;
+    pointer-events: none;
+}
+
+.uzmap .map-label {
+    cursor: pointer;
+}
+
+.uzmap .map-name {
+    font-size: 17px;
+    fill: #5b3a1a;
+}
+
+.uzmap .map-label.is-selected .map-name {
+    fill: #9a3412;
+    font-size: 20px;
+}
+
+.uzmap .map-mark {
+    fill: var(--ink);
+    stroke: #fff;
+    stroke-width: 2.6;
+}
+
+.uzmap .map-tick {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.uzmap .map-country,
+.uzmap .map-sea-name {
+    font-size: 15px;
+    font-style: italic;
+    letter-spacing: 1px;
+    pointer-events: none;
+}
+
+.uzmap .map-country {
+    fill: #a39577;
+    stroke: #ebe5d8;
+}
+
+.uzmap .map-sea-name {
+    fill: #4f86a8;
+    stroke: #cfe7f2;
+}
+
+.uzmap .map-korea {
+    cursor: pointer;
+}
+
+.uzmap .map-inset {
+    fill: #eef6fb;
+    stroke: #8fb8ea;
+    stroke-width: 2.4;
+    stroke-dasharray: 9 6;
+}
+
+.uzmap .map-korea.is-selected .map-inset {
+    stroke: #7c2d12;
+    stroke-dasharray: none;
+}
+
+.uzmap .map-inset-title {
+    stroke: #eef6fb;
+}
+
+.uzmap .map-city {
+    font-size: 14px;
+    fill: #1e3a8a;
+    text-anchor: end;
+    stroke: #eef6fb;
+}
+
+.uzmap .map-flight {
+    fill: none;
+    stroke: #1e40af;
+    stroke-width: 2.6;
+    stroke-dasharray: 1 8;
+    stroke-linecap: round;
+    opacity: .75;
+}
+
+.uzmap .map-km {
+    font-size: 15px;
+    fill: #1e40af;
+    stroke: #ebe5d8;
+}
+
+/* On a phone the map is small: only the chosen place keeps its name. */
+@media (max-width: 640px) {
+    .uzmap .map-name,
+    .uzmap .map-country,
+    .uzmap .map-sea-name,
+    .uzmap .map-city,
+    .uzmap .map-km {
+        display: none;
+    }
+
+    .uzmap .map-label.is-selected .map-name,
+    .uzmap .map-inset-title {
+        display: block;
+        font-size: 38px;
+        stroke-width: 8px;
+    }
+
+    .uzmap .map-inset-title {
+        font-size: 30px;
+        transform: translateY(14px);
+    }
+}
+
+.pass-hint {
+    margin: 8px 4px 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: #8a6d45;
+}
+
+.pass-price {
+    margin: -6px 4px 10px;
+}
+
+.pass-title {
+    margin: 4px 4px 10px;
+    font-size: 18px;
+    font-weight: 800;
+    color: #7c2d12;
+}
+
+.pass-stamps {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+    gap: 12px;
+}
+
+.pass-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 10px 6px 12px;
+    border: 2px solid #f6e7c8;
+    border-radius: 22px;
+    background:
+        repeating-linear-gradient(135deg, rgba(214, 190, 140, .07) 0 2px, transparent 2px 9px),
+        #fffaf0;
+    cursor: pointer;
+    transition: transform .2s, box-shadow .2s;
+}
+
+.pass-slot:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px -10px rgba(124, 45, 18, .45);
+}
+
+.pass-slot .stamp-svg {
+    width: 104px;
+    height: 104px;
+}
+
+.pass-slot-name {
+    font-weight: 800;
+    color: #5b3a1a;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.pass-slot-ko {
+    font-size: 12px;
+    font-weight: 700;
+    color: #6b7280;
+}
+
+.pass-slot-meta {
+    font-size: 12px;
+    font-weight: 800;
+    color: #a16207;
+}
+
+.pass-album {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+    gap: 10px;
+}
+
+.pass-sticker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 6px 10px;
+    border-radius: 18px;
+    border: 2px dashed #ecdcb8;
+    background: #fffdf7;
+    text-align: center;
+    cursor: pointer;
+}
+
+.pass-sticker.is-mine {
+    border-style: solid;
+    border-color: #fde68a;
+    background: #fffbeb;
+}
+
+.pass-sticker .sticker-svg {
+    width: 88px;
+    height: 88px;
+}
+
+.pass-sticker:not(.is-mine) .sticker-svg {
+    filter: grayscale(1) opacity(.28);
+}
+
+.pass-sticker b {
+    font-size: 12px;
+    line-height: 1.2;
+    color: #5b3a1a;
+}
+
+.pass-sticker small {
+    font-size: 11px;
+    font-weight: 700;
+    color: #9a7b4f;
+}
+
+/* a place's card: stamp, fact, books and stickers */
+.play-card--region {
+    width: min(640px, 100%);
+}
+
+.region-top {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+}
+
+.region-top .stamp-svg {
+    flex: 0 0 auto;
+    width: 112px;
+    height: 112px;
+}
+
+.region-city {
+    margin: 0 0 4px;
+    font-weight: 800;
+    color: #92400e;
+}
+
+.region-fact {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.55;
+    color: #3f3a33;
+}
+
+.region-fact-ko {
+    margin: 6px 0 0;
+    font-size: 14px;
+    line-height: 1.55;
+    color: #1e40af;
+}
+
+.region-h {
+    margin: 16px 0 8px;
+    font-size: 15px;
+    font-weight: 800;
+    color: #7c2d12;
+}
+
+.region-books {
+    display: grid;
+    gap: 8px;
+}
+
+.region-book {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 6px;
+    border: 2px solid #fde7c4;
+    border-radius: 16px;
+    background: #fff;
+    text-align: left;
+    cursor: pointer;
+}
+
+.region-book:hover {
+    background: #fff7ed;
+}
+
+.region-book .thumb-art {
+    flex: 0 0 auto;
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.region-book b {
+    display: block;
+    color: #3f2a14;
+}
+
+.region-book small {
+    font-weight: 700;
+    color: #8a7a62;
+}
+
+.region-book small.is-done {
+    color: #15803d;
+}
+
+.region-book small.is-reading {
+    color: #b45309;
+}
+
+.region-stickers {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.region-sticker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 8px;
+    border-radius: 18px;
+    background: #fffaf0;
+    border: 2px solid #f6e7c8;
+    text-align: center;
+}
+
+.region-sticker .sticker-svg {
+    width: 110px;
+    height: 110px;
+}
+
+.region-sticker:not(.is-mine) .sticker-svg {
+    filter: grayscale(.85) opacity(.45);
+}
+
+.region-sticker.is-new .sticker-svg {
+    animation: stickerPop .6s cubic-bezier(.2, 1.6, .4, 1);
+}
+
+@keyframes stickerPop {
+    0% { transform: scale(.4) rotate(-12deg); }
+    100% { transform: none; }
+}
+
+.region-sticker b {
+    color: #5b3a1a;
+    line-height: 1.2;
+}
+
+.region-sticker small {
+    font-size: 12px;
+    font-weight: 700;
+    color: #6b7280;
+}
+
+.btn-buy {
+    min-height: 40px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 12px;
+    font-weight: 800;
+    color: #fff;
+    background: linear-gradient(135deg, #f59e0b, #ea580c);
+    box-shadow: 0 3px 0 #9a3412;
+    cursor: pointer;
+}
+
+.btn-buy:disabled {
+    background: #e7dcc8;
+    color: #8a7a62;
+    box-shadow: none;
+    cursor: default;
+}
+
+.region-mine {
+    font-weight: 800;
+    color: #15803d;
+}
+
+.region-note {
+    margin: 10px 0 0;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: #fef3c7;
+    font-size: 13px;
+    font-weight: 700;
+    color: #92400e;
+}
+
+/* the end of a book: the place it took the child to, stamped in the page's corner */
+.finale-stamp {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 96px;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    transform: rotate(5deg);
+}
+
+.finale-stamp .stamp-svg {
+    width: 86px;
+    height: 86px;
+    animation: stampDown .55s cubic-bezier(.3, 1.5, .5, 1) .35s both;
+}
+
+.finale-stamp small {
+    margin-top: -4px;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: #eff6ff;
+    font-size: 11px;
+    font-weight: 800;
+    color: #1d4ed8;
+    white-space: nowrap;
+}
+
+.finale-stamp:hover .stamp-svg,
+.finale-stamp:focus-visible .stamp-svg {
+    transform: scale(1.06);
+}
+
+@keyframes stampDown {
+    0% { transform: scale(1.9); opacity: 0; }
+    60% { transform: scale(.92); opacity: 1; }
+    100% { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .finale-stamp .stamp-svg {
+        animation: none;
+    }
+}
+
+/* A narrow page (a phone, or a tablet held upright): a smaller stamp, clear of the title. */
+.sheet--finale .page-pad {
+    container-type: inline-size;
+}
+
+@media (max-width: 640px) {
+    .finale-stamp {
+        top: 6px;
+        right: 6px;
+        width: 56px;
+    }
+
+    .finale-stamp .stamp-svg {
+        width: 56px;
+        height: 56px;
+    }
+
+    .finale-stamp small {
+        display: none;
+    }
+}
+
+@container (max-width: 420px) {
+    .finale-stamp {
+        top: 6px;
+        right: 6px;
+        width: 56px;
+    }
+
+    .finale-stamp .stamp-svg {
+        width: 56px;
+        height: 56px;
+    }
+
+    .finale-stamp small {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .region-top {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .region-sticker .sticker-svg {
+        width: 88px;
+        height: 88px;
+    }
+}
+
+/* ---------- bedtime: choosing tonight's book (js/bedtime.js) ---------- */
+
+#bedBtn.is-evening {
+    box-shadow: 0 0 0 2px #fde68a, 0 0 18px rgba(253, 230, 138, .65);
+}
+
+.play-card--bedtime {
+    width: min(660px, 100%);
+    background: linear-gradient(#1e2a5a, #111a3d);
+    color: #e0e7ff;
+}
+
+.play-card--bedtime .play-head h3 {
+    color: #fde68a;
+}
+
+.play-card--bedtime .play-sub {
+    color: #c7d2fe;
+}
+
+.play-card--bedtime .play-x {
+    background: #2b3870;
+    color: #e0e7ff;
+}
+
+.bed-pages {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 14px;
+    font-weight: 800;
+    color: #c7d2fe;
+}
+
+.bed-chip {
+    min-height: 40px;
+    padding: 0 14px;
+    border: 2px solid #4c5aa0;
+    border-radius: 999px;
+    background: transparent;
+    color: #e0e7ff;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.bed-chip[aria-pressed='true'] {
+    border-color: #fde68a;
+    background: #fde68a;
+    color: #1e2a5a;
+}
+
+.bed-books {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 10px;
+}
+
+.bed-book {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border: 2px solid #33407a;
+    border-radius: 16px;
+    background: #18224a;
+    color: #e0e7ff;
+    text-align: left;
+    cursor: pointer;
+}
+
+.bed-book:hover,
+.bed-book:focus-visible {
+    border-color: #fde68a;
+}
+
+.bed-book .thumb-art {
+    flex: 0 0 auto;
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.bed-book b {
+    display: block;
+}
+
+.bed-book small {
+    font-weight: 700;
+    color: #a5b4fc;
 }

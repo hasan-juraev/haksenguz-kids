@@ -302,7 +302,7 @@ The generated files are committed, so the site still needs no build step. Rebuil
 ### Offline (`sw.js`)
 * Every request for the app's own files goes to the network first. After 4 s, or when offline, a kept copy is used, so updates reach users on their next visit.
 * After loading, the page sends the worker the list of files it used, plus every font in `css/fonts.css` (Cyrillic and Korean too, needed or not), so all of them are kept on the first visit.
-* Requests for part of a file (audio playback) are left to the browser: serving a kept whole file to them breaks playback on iPhones. So built-in narration needs internet; family recordings live in IndexedDB and work offline.
+* Audio files are left to the browser: playback asks for parts of a file, and serving a kept whole file breaks playback on iPhones. Family recordings live in IndexedDB and work offline; built-in narration does too once a book is saved with ⬇️ (section 14).
 * The worker only registers over http(s), not from `file://`.
 
 ### Sharing and book links
@@ -324,7 +324,7 @@ tests/assets.test.js             # part of npm test
 ```
 
 ### Still open
-* Built-in narration offline: a "download this book" button that saves its recordings.
+* Nothing from this step; built-in narration offline is in section 14.
 
 ## 11. Update: Korean Helper and Korean Menus (Roadmap Phase 1, step 2)
 
@@ -335,7 +335,7 @@ Korean supports the Uzbek text and never replaces it: story text is always shown
 * `pages[i].s` is the page title, then each sentence, in the order `BookEngine.segments(page)` splits the Uzbek, so the Korean lines up sentence by sentence. `pages[i].q` is the page question, then its answers in the Uzbek order.
 * `words`: `[term, Korean meaning, forms]`. A form matches words in the text that start with it (`sandiq` → `sandiqni`); `=in` matches only that exact word, for short words.
 * `reviewed: false` until the bilingual reviewer has checked the book.
-* So far *Zumrad va Qimmat* and *Oltin tarvuz*. The Korean is told the way picture books are read aloud (…했대요). Names are spelled by their Uzbek sounds (Zumrad → 줌라드, Qimmat → 킴마트); greetings keep the Uzbek with the meaning in brackets.
+* So far *Zumrad va Qimmat*, *Oltin tarvuz*, *Hungbu va Nolbu* and the three "Koreyadagi hayotim" books. The Korean is told the way picture books are read aloud (…했대요). Names are spelled by their Uzbek sounds (Zumrad → 줌라드, Qimmat → 킴마트); greetings keep the Uzbek with the meaning in brackets.
 
 ### In the book (`js/book.js`, `js/app.js`)
 * **🇰🇷 button:** on a text page (next to the page number), on the moral on the last page, and in the quiz header. It shows the Korean under each Uzbek sentence, the question and its answers. It turns off when the page changes (`koView`).
@@ -353,7 +353,7 @@ Korean supports the Uzbek text and never replaces it: story text is always shown
 * Library cards show the Korean title under the Uzbek one when the book has Korean.
 
 ### Korean font
-* Gowun Dodum (OFL), from `@expo-google-fonts/gowun-dodum`. `tools/build-assets.js` collects every Hangul letter in `index.html` and `js/` and cuts the font down to those: `fonts/gowun-dodum-ko.woff2`, about 44 KB, with the list in `fonts/gowun-dodum-ko.txt`.
+* Gowun Dodum (OFL), from `@expo-google-fonts/gowun-dodum`. `tools/build-assets.js` collects every Hangul letter in `index.html` and `js/` and cuts the font down to those: `fonts/gowun-dodum-ko.woff2`, about 50 KB, with the list in `fonts/gowun-dodum-ko.txt`.
 * It comes after Fredoka and Nunito in the font stacks, since they have no Hangul. A letter missing from it falls back to the phone's own Korean font.
 * **After adding Korean text, run `npm run build`**; `npm test` names any letters that are missing.
 
@@ -401,3 +401,334 @@ fonts/gowun-dodum-ko.*   # built Korean font + the letters in it
 * Both open in `#playModal`. While it is open, the arrow keys don't turn the book's pages; Escape or ✕ closes it.
 * The Cyrillic and 한국어 switches cover both: the page-wide display layer in `js/translit.js` converts the window's text as it is drawn, and `js/i18n.js` has the Korean for its buttons and messages. Story text in it (the page title in the colouring heading, the order cards' captions) is marked `data-content`, so it stays Uzbek. The printed heading is taken as shown, so it prints in Cyrillic, or with the Korean word for "colouring", when those are on.
 * Neither uses a computer voice, in line with the narration decision in `ROADMAP.md`.
+
+## 13. Update: Reading Levels (Roadmap Phase 1, item 4)
+
+### Ages and shelves (`js/levels.js`)
+* Every book has `age: [youngest, oldest]`: from a grown-up reading it with the child, to the child reading it alone. The current values are a first estimate from sentence length, vocabulary and theme. The folk tales mostly suit 4–8, Afandi and *Donishmand qiz* 7–10, and Navoiy and Qodiriy 9–12.
+* The library has three shelves: `4-6`, `7-8` and `9+`. A book stands on every shelf its ages touch (`Levels.fits`), so a 5–8 book is on both 4–6 and 7–8.
+* `Levels.shelfFor(age)` gives a child's shelf. Children under 4 use the 4–6 shelf.
+
+### In the app (`js/app.js`, `js/store.js`)
+* A profile may have an `age` (the form offers 4 to 11+, and tapping the chosen age again clears it). `Store.updateProfile` keeps only believable ages, from 2 to 18.
+* Choosing a child opens their shelf, marked with their face. "Barcha yoshlar" shows every book. The category counts and the heading count the books on the chosen shelf. A category with no book for that age shows a message with "Barcha kitoblarni ko'rsatish".
+* With no book in progress, the banner suggests the first book on the child's shelf that they haven't finished (`suggestedBook`).
+* Cards and title pages show a book's ages ("5–8 yosh"); in Korean, "5~8세".
+
+### Tests
+* `tests/stories.test.js` (part of `npm test`) checks every book: its key, title, category and age range, at least three pages with a title, text and picture, and questions and quizzes whose right answer exists. It also checks the shelf rules, and that each shelf has at least five books. Run it after adding or lengthening books.
+
+## 14. Update: Built-in Narration Offline
+
+* For a book with built-in narration (`audio/narration.js`), a ⬇️ button appears next to "Tinglash". It downloads the book's recordings and saves them in IndexedDB, next to the family recordings, keyed by the built-in voice (`Voices.saveBook`). It shows progress (3/12), then ✅. Tapping ✅ removes the saved copies after asking (`Voices.unsaveBook`).
+* `Voices.clip` gives a built-in clip its saved audio when there is a copy of that same recording (same file and length), so it plays without internet. A re-recorded page is downloaded again.
+* `sw.js` no longer keeps audio files, so a downloaded recording isn't stored twice. Playback still goes straight to the network as before.
+* An audio file that fails to load now ends the clip (`Player` listens for `error`). If the phone is offline, read-along says to save the book with ⬇️ first.
+* Nothing changes until the narrator's recordings are imported, because no book has built-in narration yet.
+
+## 15. Update: Ikki xalq — bir ertak, Korean Twin Tales (Roadmap Phase 2, item 5)
+
+### Twin tales (`js/stories-twins.js`)
+* A Korean folk tale retold in Uzbek, with the usual book fields plus:
+  * `twin`: the Uzbek tale it pairs with (`hungbu_nolbu` → `oltin_tarvuz`);
+  * `compare`: `{ icons: [uzbek tale, korean tale], cards: [[emoji, text, 'uz' | 'ko' | 'both'], ...] }`.
+* Category `twins`, the shelf "🇰🇷 Ikki xalq — bir ertak".
+* The first one is *Hungbu va Nolbu* (흥부와 놀부): 12 pages, 5 questions, word cards for the Korean words (*choga*, *bak*, *dokkebi*), and the Korean helper in `js/stories-ko.js`.
+
+### Locked until the Uzbek tale is read (`js/app.js`)
+* `isLocked(key)`: a twin opens once the active child has finished its Uzbek tale. Locked cards show 🔒 and "«Oltin Tarvuz»ni o'qib tugating". Tapping one explains this, and the banner never suggests a locked book. A shared link still opens it, for grown-ups.
+* The first time the Uzbek tale is finished, a toast says the twin is open. That tale's last page shows "🇰🇷 Egizak ertak ochildi!" with the twin's title (`data-action="twin"`).
+
+### Find the differences (`Games.compare` in `js/games.js`, `css/play.css`)
+* On the twin's last page, "🔍 Farqlarni toping" opens the game in `#playModal`. The two covers are on top, then one card at a time with three answers: only in the Uzbek tale, in both, only in the Korean one.
+* A right answer moves the card into a three-column table, so the finished game shows what the tales share and where they differ. A wrong answer shakes the card.
+* The first win per child and book gives +30 points (`record.compare` in `js/store.js`).
+* Card words are story content (`data-content`) and stay Uzbek in Korean mode; the game's buttons and messages are in `js/i18n.js`.
+
+### Korean pictures (`js/art/world.js`, `js/art/people.js`)
+* Backgrounds `kvillage` (soft green mountains with pines, distant straw roofs) and `kyard`, a madang inside an earthen wall capped with straw, or with tiles when the scene has `wall: 'tile'`.
+* `chogajip` (straw roof, hanji doors, maru porch; options `gourds`, `glow`, `nest`, `lit`), `giwajip` (tiled roof with upturned eaves, on a stone terrace), `gourd` (whole, or `open: 'gold' | 'rice' | 'smoke'`), `saw` (also as a held item), `onggi` jars.
+* People: outfits `hanbok` (jeogori and wide baji tied at the ankle), `durumagi` (long coat) and `chima` (short jeogori over a long skirt; `jacket` colour). All have the dark collar band, white dongjeong and goreum ribbon. `saekdong: true` gives a child rainbow sleeves.
+* Heads: `gat` (horsehair hat), `sangtu` (topknot with headband), `jjok` (bun with a binyeo pin) and `daenggi` (braid with a ribbon).
+* Cast presets: `hungbu`, `hungbuxotin`, `nolbu`, `nolbuxotin`, `hkid1`–`hkid3`, and the goblins `dokkebi` and `dokkebi2`, which are the `dev` part recoloured, with its club.
+
+### Adding the next twin
+1. Write the tale in `js/stories-twins.js` with `twin` and `compare`. The Uzbek tale needs no change; it finds its twin.
+2. Add its Korean to `js/stories-ko.js`, then run `npm run build` (font) and `npm test`. `tests/stories.test.js` checks the twin and the cards.
+
+## 16. Update: Koreyadagi hayotim, My Life in Korea (Roadmap Phase 2, item 6)
+
+### Stories (`js/stories-korea.js`)
+* Category `korea`, the shelf "🏙️ Koreyadagi hayotim" (한국에서의 내 생활 in Korean mode).
+* The stories:
+  * *Mening ismim — Asal* (`asal_ismi`, ages 5–8)
+  * *Osh va tteok* (`osh_tteok`, ages 4–7)
+  * *Buvijon bilan videoqo'ng'iroq* (`buvijon_qongiroq`, ages 4–7)
+* They are everyday stories, so they use the plain past tense (-di), not the fairy-tale -ibdi.
+* Korean words in them have word cards. All three have their Korean in `js/stories-ko.js`.
+
+### Today's Korea in pictures (`js/art/world.js`, `js/art/people.js`)
+* Backgrounds:
+  * `seoul`: apartment blocks (apateu) with numbered gables, trees and a paved square.
+  * `flat`: a living room with a big window onto the blocks. Options: `windowX`; `clock: false` hides the clock.
+  * `classroom`: a chalkboard, a window and a clock. `board: ['안녕하세요', ...]` writes lines in chalk; Hangul uses the Korean font.
+  * `hall`: an apartment landing with the lift.
+    * The floor number is `floor`, 12 unless given. It shows on the lift and on a "12F" sign; `lift: x` moves the lift and `lift: false` removes it.
+    * Front doors are `door` items standing on the wall line at y 236, so people stand in front of them.
+* Items:
+  * `school`, `desk` (`book: true` opens a book on it), `drawing` and `slide`.
+  * `table`: a low table at home. Things on it stand at y −42 from its base, e.g. a `tablet` at y 260 on a table at 302.
+  * `tablet` on a stand, video-calling: `show: 'buvi' | 'apricot'`, with her `mood`.
+  * `door`, a flat's front door: `no`, `color`, a keypad lock, and `open: true`, which swings it open onto the lit flat.
+  * Food: `lagan` (osh), `tteok`, `kimbap`, `somsa`, `honey` and `kimchi`. Children can also hold `osh` and `tteok` (`pose: 'hold', hold: 'osh'`).
+* People:
+  * Heads `modern`, `ponytail`, `bob` and `perm` (a halmeoni's perm), and `glasses: true`.
+  * Cast presets: `asal`, `malika` and `bobur` (Uzbek children); `minjun`, `seoyeon` and `jiho` (classmates); `kimteacher`, `halmeoni` (the neighbour) and `dada`.
+
+### Adding a story
+1. Write it in `js/stories-korea.js` with `category: "korea"` and an `age`.
+2. For the Korean helper, add its Korean to `js/stories-ko.js`, then run `npm run build` (font) and `npm test`.
+
+## 17. Update: Bayramlar, the Holiday Shelf (Roadmap Phase 2, item 7)
+
+### When holidays come (`js/holidays.js`)
+* `Holidays.DAYS` lists each holiday: its `name`, its `date` as `[month, day]` and the calendar `cal` it is counted in.
+  * Fixed days use the ordinary calendar: Navro'z, Hangul kuni, O'zbek tili bayrami, both Children's Days and Mustaqillik kuni.
+  * Seollal and Chusok use the Korean lunar calendar (`'dangi'`).
+  * Ramazon and Qurbon hayiti use the Islamic one (`'islamic-umalqura'`).
+  * `long: 1` means the day after still counts: Seollal and Chusok are three days off in Korea.
+* For the moving holidays, the browser's own `Intl` calendars find the next day the calendar reads that month and day. Nothing needs updating each year.
+  * Hayit is announced in Uzbekistan and can fall a day either side of this date.
+  * A browser without these calendars gets no date, rather than a wrong one.
+* The functions:
+  * `next(id, today)`: the holiday's next date.
+  * `upcoming(story)`: the book's first holiday, as `{ id, name, date, days }`.
+  * `soon(story)`: the same, but only from 21 days (`SOON`) before the holiday until it is over.
+  * `when(days)`: the banner's words, e.g. "🎉 8 kundan keyin bayram:".
+  * `dateLabel(date)`: "9-oktabr".
+
+### Stories (`js/stories-holiday.js`)
+* Category `holiday`, the shelf "🎉 Bayramlar" (명절과 기념일).
+* A book names its days in `holidays: ['hangul', 'uztili']`. `tests/stories.test.js` checks that only holiday books have them, and that each id is in `Holidays.DAYS`.
+* *Harflar bayrami* (`harflar_bayrami`, 5–8) and *Ikki Yangi yil* (`ikki_yangi_yil`, 4–8). They reuse the children of "Koreyadagi hayotim" (Asal, Bobur, Kim buvi), and both have Korean in `js/stories-ko.js`.
+
+### In the app (`js/app.js`, `index.html`)
+* Library cards of holiday books show "🎉 9-oktabr" (`holidayChip`); the holiday's name is the chip's `title`.
+* `suggestedBook()` offers a holiday's book first while its holiday is `soon`, as long as the book suits the child's age and they haven't finished it. `#heroHoliday` in the banner then says which holiday it is.
+* Korean menus: the holiday names and the banner's words are in `js/i18n.js`, e.g. "🎉 8일 뒤는 한글날". A pattern turns "🎉 9-oktabr" into "🎉 10월 9일".
+
+### Pictures (`js/art/world.js`, `js/art/people.js`)
+* `sejong`: King Sejong's golden statue on its pedestal, seated with a book. He wears the `ikseon` head: the king's hat with two wings standing up behind.
+* `paper`: a sheet of handwriting, one line per item of `lines`. `keep: true` keeps each line as written in every script, so "Ўзбек" and "O'zbek" stay side by side.
+* Food on a table: `tteokguk` (New Year soup), `sumalak` in a blue cotton-pattern kosa (`stone: true` adds the lucky pebble), and `maysa`, a plate of wheat sprouts.
+* `yut`: yut sticks over the mat. `air: true` shows them mid-throw.
+* People can kneel or sit on the floor with `noLegs: true`. `rot` leans the whole figure, e.g. for a bow.
+
+### Text
+* A page that opens with a number ("9-oktabr — ...") has no big first letter (`.no-cap` in `css/book.css`), so the number stays with its word.
+* SVG text collapses spaces, so chalkboard lines are one idea each: "ㅁ = og'iz".
+
+### Tests
+* `tests/holidays.test.js` covers:
+  * fixed days, and the next year's once a day has passed;
+  * Seollal and Chusok for 2026–2028, as published in Korea;
+  * Hayit to within a day;
+  * which of a book's holidays comes first, the three-week window and the three-day Seollal;
+  * a browser without lunar calendars.
+
+## 18. Update: Longer Classic, Navoiy and Modern Books (Roadmap Phase 2, item 8)
+
+### Stories (`js/stories-classic.js`)
+* Nine books went from 5 short pages to 8–9 pages, with word cards, page questions and a final `quiz`:
+  * the two Navoiy dostons and *O'tkan kunlar*, retold for children;
+  * the Eastern parable *Shoh va dehqon* (moved from `navoiy` to `classic`);
+  * *Buvijonning sandig'i*;
+  * the four modern tales written for the app.
+* Book keys didn't change, so links and saved progress still work. A saved page number may now land on a different page.
+* *Sariq devni minib* (Xudoyberdi To'xtaboyev, under copyright) is unchanged; see ROADMAP item 8.
+* Facts kept to what is well established, so children don't learn something wrong:
+  * dates: *Farhod va Shirin* 1484, *Lison ut-tayr* 1499, Ulug'bek madrasa about 600 years old;
+  * Ulug'bek's catalogue of over a thousand stars;
+  * the Kalta minor was never finished.
+* The sad endings of *Farhod va Shirin* and *O'tkan kunlar* are told gently, or left for later.
+
+### Pictures
+* Birds: `kind: 'nightingale' | 'parrot' | 'peacock' | 'duck'`. The peacock spreads a fan tail; the duck has a green head and a flat bill.
+* `mirror`: a round magic mirror on a stand. `show: 'arman'` shows the mountains and canal Farhod saw; `show: 'moon'` shows moonlight caught in the glass.
+* `suzani`: a so'zana with big red flowers, hung on the wall.
+* `kosa`: a turquoise-and-blue Rishton bowl.
+* `rasadxona`: Ulug'bek's observatory drum with the great sextant arc.
+* `kaltaminor`: the Kalta minor in turquoise tiles.
+* Held items: `atlas` (a length of rainbow ikat silk) joins `sapling`, `ketmon`, `moneybag` and the rest.
+* Cast presets: `shirin`, `xusrav`, `kumush` and `homid`.
+* Trees: `n: 0` now means no fruit (it used to fall back to 9). *Sehrli olma*'s tree has exactly one golden apple.
+
+## 19. Update: Alifbo, Sound Hints and Tracing (Roadmap Phase 3, item 9)
+
+### Korean-letter readings (`js/hangul.js`)
+* `Hangul.read(text)` writes Uzbek in Hangul, the way it sounds. Words are converted; everything else (spaces, punctuation, numbers) is kept. The rules:
+  * Letters to sounds:
+    * sh, ch, ng, o' and g' are single sounds;
+    * q/k are ㅋ, x/h are ㅎ, v is ㅂ, and both o and o' are ㅗ;
+    * y and sh before a vowel fold into it (ya 야, sha 샤).
+  * Between two vowels:
+    * one consonant starts the next syllable;
+    * l is doubled the way Korean writes it (lola 롤라);
+    * ng is ㄴ + ㄱ (dengiz 덴기즈).
+  * A doubled consonant closes the syllable before it (Assalomu 앗살로무).
+  * n, m, l and ng may end a syllable; n before g, g', k or q is said ng (qo'ng'iroq 콩기로크).
+  * Any other consonant without a vowel gets ㅡ, or ㅣ after sh, ch and j (kitob 키토브, Toshkent 토시켄트).
+* `tests/hangul.test.js` checks the word list and reads every sentence of every book, so no Latin is left.
+
+### 가 in the book (`js/book.js`, `css/book.css`)
+* The 가 button (`.read-toggle`) sits next to 🇰🇷 on every story page.
+* While it's on, `.read-line`s show under the title, each sentence, the question and its answers, and the word card shows its reading.
+* It stays on from page to page (`settings.reading` in the store). On a page where 🇰🇷 is on, the Korean meaning shows instead.
+* The readings can be any syllable, so they use the phone's own Korean font. The bundled Gowun Dodum has only the app's fixed Korean. `tools/build-assets.js` therefore skips `js/hangul.js` when collecting letters.
+
+### The Alifbo book (`js/stories-alifbo.js`)
+* Category `alifbo`, the shelf "🔤 Alifbo" (first in the row). The script loads after the tales, so a new child is still offered *Zumrad va Qimmat* first.
+* 30 pages: the 29 letters in official order, and the tutuq belgisi.
+* Each page has `letter: "A a"` (capital and small), shown big by `letterHTML` with a ✍️ button (none for the tutuq).
+* Each page also has a word that starts with its letter, with its picture. "Ng" never starts a word, so its page says so.
+* `tests/stories.test.js` checks the alphabet's order, the letter pairs and that each word starts with its letter.
+
+### Tracing (`Games.trace` in `js/games.js`, `css/play.css`)
+* A canvas shows the letter big and pale with a dashed edge; the child draws over it.
+* The letter is also drawn on a hidden canvas as a mask, read on a grid. After each stroke the game measures:
+  * how much of the letter is covered (`TRACE_COVER` 0.6);
+  * how much of its weakest part is covered, on a 3 × 3 grid over the letter (`TRACE_PART` 0.35), so the legs of an A count;
+  * how much ink is off the letter (`TRACE_OFF` 0.5).
+* Capital first, then small. Input pauses between them, so a stroke can't count twice.
+* The app gives +5 points per letter, the first time (`record.traced`).
+* In Cyrillic the letters are traced in Cyrillic (`Translit.toCyrillic`).
+
+### Pictures
+* New items: `fil` (elephant), `sabzi` (carrots), `shar` (balloons), and the birds `chick` and `goose`.
+* `star` is now drawn as a light, above the night tint, with a soft halo, so night skies shine.
+
+## 20. Update: Mening lug'atim, the Child's Dictionary (Roadmap Phase 3, item 10)
+
+### Words (`js/dictionary.js`)
+* `Dictionary.entries(db, profile)` returns the child's cards: `{ key, book, view, term, meaning, ko, scene }`.
+  * A word counts once its page has been opened (`profile.words["book:page"]`, set in `saveProgress`), or once its book is finished.
+  * A word met in two books is one card.
+  * The cards are sorted in Uzbek alphabet order (`ALPHABET`, `compare`).
+* `letters(word)` splits a word into Uzbek letters. O', g', sh, ch and ng are one letter each; ng' is n + g'; the tutuq is a tile of its own.
+* `koMeaning(book, term)` takes the meaning from that book's Korean glossary (`js/stories-ko.js`).
+* `spellable` picks words for "build the word" (one word, 3–7 letters).
+* `tests/dictionary.test.js` covers collecting, the order, the letters and the Korean meanings.
+
+### The view (`#dictView`, `js/app.js`)
+* The banner's "📖 Mening lug'atim (n)" opens it. The view shows:
+  * the three game buttons (open from 4 words);
+  * a hint while there are fewer;
+  * the picture cards.
+* Pictures are drawn as cards scroll into view (IntersectionObserver), so a long dictionary stays quick on phones.
+* 🔊 on a card uses `wordVoice()`:
+  * an Uzbek voice if the phone has one;
+  * else the Korean voice reading the word's 가 reading (`Hangul.read`);
+  * else nothing.
+
+### Games (`js/games.js`, `css/play.css`)
+* `Games.listen`: 5 rounds. The word is said (or written, without a voice), and the child taps its picture among four. A wrong tap shows the word and says it again.
+* `Games.match`: 5 Uzbek words and their Korean meanings, shuffled; tap one of each. Only the first part of a long Korean meaning is shown ("상자").
+* `Games.spell`: 3 words. The picture and meaning show, and the child taps the letter tiles in order. Wrong tiles shake; the tiles stay in Latin (`translate="no"`).
+* A win gives +10 points, once per game per day (`profile.dictWins`).
+
+## 21. Update: Madaniyat Pasporti, the Culture Passport (Roadmap Phase 3, item 11)
+
+### Places (`js/passport.js`)
+* `Passport.REGIONS` holds the 14 regions and Korea. Each place has:
+  * `name` and `ko`;
+  * its centre `city`, with its `[lat, lon]` in `at`;
+  * a `fact` and a `koFact`;
+  * an ink colour for its stamp and a fill colour for the map;
+  * two `stickers`, each with art-engine items (`art`).
+* Every story names its place: `region: "xorazm"` in `js/stories-*.js`. The Alifbo has none.
+* `stamps(db, profile)` lists the places of finished books. Each stamp is dated by the first book finished there (`record.finishedAt`, set in `saveProgress`). Books finished before the passport existed stamp without a date.
+* `stickerState(...)` returns one of:
+  * `have`;
+  * `stamp` (its place not visited yet);
+  * `points` (fewer than `PRICE`, 50);
+  * `ok`.
+  `Store.spendPoints` pays, and `profile.stickers` remembers.
+* Pictures:
+  * `stampSVG(region)` draws a rubber stamp: the name around the edge, the first sticker's picture inked in the middle, the date, and worn ink (an SVG filter). Korea's stamp is square.
+  * `stickerSVG(sticker)` draws a sticker with `Art.sticker`.
+  * `mapSVG({ stamped, selected, lang })` draws the map.
+* `tests/passport.test.js` checks:
+  * the places, their facts and Korean;
+  * that every book has a place;
+  * stamps and stickers;
+  * each region's centre city lies inside it on the map;
+  * the Korean menus.
+
+### The map (`js/uzmap.js`, built by `tools/build-map.js`)
+* Region borders come from Natural Earth (public domain), via the datamaps package; neighbouring countries and Korea come via world-atlas.
+* They are simplified and projected (Lambert conformal conic), then written as compact SVG paths with label spots: about 19 KB.
+* The packages aren't dependencies. To rebuild, see the command at the top of `tools/build-map.js`.
+* On a phone the region names are hidden, except the open place's.
+
+### The view (`#passView`, `js/app.js`)
+* The banner's "🗺️ Pasportim (n/15)" opens it. It shows the map, the 15 stamp places and the sticker album.
+* Tapping a place on the map, a stamp or a sticker opens the place's card in the play-corner modal (`Games.open`). Buying a sticker redraws the card in place, so focus still returns where it was.
+* The last page of a book has the place's stamp in its corner (`.finale-stamp`, `BookEngine.passportHTML`). It is smaller on narrow pages (a container query), and tapping it opens the passport at that place.
+* Opening the passport (or the dictionary) clears the book from the address, so a reload doesn't reopen it.
+
+### Pictures
+* `Art.sticker(items, { box, cut, attrs })` draws parts without a background, cut out with a white edge and a shadow (`feMorphology`).
+* New parts in `js/art/landmarks.js`: `oqsaroy`, `zurmala`, `teleminora`, `metro`, `chimyon`, `archa`, `paxta`, `qovun`, `non`, `doppi`, `atlas`, `mashina`, `kitob`, `sarmishsoy`.
+* New animals: `tuya` (a two-humped camel) and `qoplon` (a snow leopard).
+* A new person preset, `navoiy` (the poet with his scroll).
+
+## 22. Update: Qisqa va Qiziq, the Short Pieces (Roadmap Phase 3, item 12)
+
+### The books (`js/stories-short.js`, category `kichik`)
+* `topishmoqlar`: 10 riddles on folk riddle images. `maqollar`: 10 Uzbek proverbs and their Korean twins. `allalar`: 6 lullabies. `tez_aytish`: 8 tongue twisters.
+* Only folk material and our own writing. The riddle images and the proverbs are folk; the lullabies and twisters were written for the app (their tags say "Xalq allalari ruhida", "Tilni charxlaymiz").
+* New page and book fields, read by `js/book.js`:
+  * `reveal: { answer, scene }` on a riddle page:
+    * Its picture (`scene`, with the `sirli` cloth) stays covered until the question is answered right.
+    * Then `sceneOf(view)` returns `reveal.scene`, the left page is redrawn, and "🎉 Javob: …" shows under the question.
+    * The colouring page uses the same picture.
+  * `proverbKo: [korean, uzbekMeaning]` replaces the word card with "🇰🇷 Koreyada ham shunday deyishadi:".
+  * `sounds: ['q', 'k']` shows "🔁 Uch marta, tez-tez ayting!" and the sounds; they stay letters, in Cyrillic too.
+  * `verse: true` (a book) sets each sentence on its own line, centred, without a drop cap.
+  * `order: false` (a book) drops the "Voqealar tartibi" game at the end.
+* The short pieces have no `region`, so they stamp nothing in the passport.
+* `tests/stories.test.js` checks:
+  * a riddle's answer is its right choice, and it has no word card to give it away;
+  * every `proverbKo` is [Korean, Uzbek];
+  * every twister uses its sounds.
+
+### Pictures
+* New props in `js/art/world.js`:
+  * `sirli`: a riddle's hidden answer, under an atlas cloth with a bobbing "?";
+  * `beshik`: the cradle, with the baby asleep; `rock: true` rocks it;
+  * `piyoz`, `igna`, `xazon` (a heap of autumn leaves) and `chiganoq` (shells);
+  * `soya`: draws any part as its shadow on the ground, e.g. `['soya', x, y, { of: ['kid3', 0, 0, {}] }]`.
+
+## 23. Update: Uxlash Vaqti, Bedtime (Roadmap item 14)
+
+### How it works (`js/bedtime.js`, `app.bedtime`)
+* The calm books carry `bedtime: true` (12 books). `tests/stories.test.js` checks there are at least 8, that their pictures have no dev, dokkebi, snake, wolf or club, and that none is a twin tale (those open only later).
+* `open()` shows the picker in the play-corner modal:
+  * the number of pages (`settings.bedtimePages`: 3, 5 or 0 for the whole book);
+  * the calm books, the one under way first.
+* `start(key)` begins the reading:
+  * it opens the book on its page (`record.page`) or page 1;
+  * it sets `book.calm` (no questions) and `book.limit` (tonight's last page);
+  * it puts `data-bedtime="on"` on `<html>` for the dark theme;
+  * if the book has a voice (`loadVoices`), it starts read-along. The audio is unlocked during the tap, so phones allow it.
+* `BookEngine`:
+  * `canNext()` stops at `limit`;
+  * `next()` past it calls `opts.onLimit`, which shows good night. This covers the button, the arrow keys, a swipe, the page corner and read-along's own page turns.
+* The narrator doesn't wait for answers while `book.calm` is on.
+* `goodnight()` fills `#goodnight`:
+  * the night picture, "Xayrli tun, {name}! 🌙" and where tomorrow begins;
+  * or, after the last page, "Ertak tugadi!": the book is saved as finished (`saveProgress` with `end`), with its new passport stamp if any.
+  * After `fadeAfter` (15 s), it fades to near black. A tap wakes it; the button or Escape returns to the library.
+* `stop()` (also from `goHome`, or when another book opens) puts everything back.
+* At bedtime the page-turn sound plays at a third of its volume and the chimes are silent. In the evening (19:00–05:00) the banner button glows.
+

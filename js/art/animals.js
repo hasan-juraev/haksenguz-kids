@@ -2,7 +2,8 @@
  * Animals of Uzbek folk tales: fox, wolf and dog (one canine), donkey and
  * horse (one equine), ram, goat, rooster/hen, rabbit, bear, hedgehog, cat,
  * small birds (sparrow, swallow, hoopoe), stork, owl, fish, snake, bee and
- * the Simurg'. All face right; mirror with { f: 1 }.
+ * the Simurg'; and for the culture passport, the camel and the snow
+ * leopard. All face right; mirror with { f: 1 }.
  */
 (function (Art) {
     'use strict';
@@ -317,10 +318,25 @@
             dove: ['#f5f5f4', '#ffffff', '#a8a29e'],
             robin: ['#8d6e63', '#ff7043', '#5d4037'],
             gold: ['#fbbf24', '#fff7d6', '#d97706'],
+            // the birds of Lison ut-tayr: bulbul, to'ti, tovus, o'rdak
+            nightingale: ['#8a6f4e', '#efe3cd', '#5a4632'],
+            parrot: ['#2bb24c', '#ffe066', '#1f7a35'],
+            peacock: ['#1f6fd1', '#8fd3ff', '#0b3d91'],
+            duck: ['#efe9dc', '#ffffff', '#8d8a7a'],
+            // the Alifbo's jo'ja and g'oz
+            chick: ['#ffd84d', '#fff3b0', '#e0a800'],
+            goose: ['#f8f9fa', '#ffffff', '#adb5bd'],
         }[kind] || ['#a47148', '#f1dfc4', '#6b4424'];
         const [body, belly, dark] = o.colors || pal;
         let s = '';
         const fly = !!o.fly;
+        // the peacock's tail, spread like a fan behind him
+        if (kind === 'peacock') {
+            for (let i = 0; i < 9; i++) {
+                const a = -168 + i * 19;
+                s += `<g transform="translate(-6 -10) rotate(${a})"><path d="M0 0 Q20 -5 34 0 Q20 5 0 0Z" fill="#2a9d8f" ${S(1.1)}/><circle cx="31" cy="0" r="4.6" fill="#ffd166" ${S(0.9)}/><circle cx="31.5" cy="0" r="2.4" fill="#1d4ed8"/></g>`;
+            }
+        }
         if (fly) {
             s += `<g ${c.anim('sv-flap', 0.5)}><path d="M-4 -10 C-12 -26 -2 -34 8 -30 C6 -22 4 -14 2 -9Z" fill="${dark}" ${S(1.5)}/></g>`;
         }
@@ -332,9 +348,12 @@
         if (kind === 'hoopoe') {
             s += [-40, -20, 0, 20, 40].map((a) => `<g transform="translate(8 -18) rotate(${a})"><path d="M0 0 L-2 -12 L2 -12Z" fill="${body}" ${S(1.2)}/><path d="M-2 -12 L2 -12 L0 -15Z" fill="#111"/></g>`).join('');
         }
-        s += `<circle cx="8" cy="-14" r="6" fill="${body}" ${S(1.8)}/>`;
+        s += `<circle cx="8" cy="-14" r="6" fill="${kind === 'duck' ? '#2d6a4f' : body}" ${S(1.8)}/>`;
+        if (kind === 'peacock') s += [-3, 0, 3].map((d) => `<path d="M${8 + d} -19 l${d * 0.6} -6" stroke="${dark}" stroke-width="1"/><circle cx="${8 + d * 1.6}" cy="-25.5" r="1.6" fill="${body}"/>`).join('');
         if (kind === 'swallow') s += `<path d="M9 -10 Q12 -8 14 -11 L13 -13 Z" fill="#d64545"/>`;
-        s += `<path d="M13 -15 L${kind === 'hoopoe' ? 24 : 19} -13 L13 -11.5Z" fill="#f4a261" ${S(1.1)}/>`;
+        if (kind === 'parrot') s += `<path d="M13 -16.5 Q21 -17 19.5 -10 Q17 -12.5 13 -11Z" fill="#f4d35e" ${S(1.1)}/>`;
+        else if (kind === 'duck' || kind === 'goose') s += `<path d="M13 -15 L23 -14 Q24.5 -11.5 22 -10.5 L13 -11.5Z" fill="#f4a261" ${S(1.1)}/>`;
+        else s += `<path d="M13 -15 L${kind === 'hoopoe' ? 24 : 19} -13 L13 -11.5Z" fill="#f4a261" ${S(1.1)}/>`;
         s += eye(c, 9.5, -15, o.mood, 1.5);
         if (kind === 'hoopoe') s += `<path d="M-6 -10 L4 -10 M-6 -7 L4 -7" stroke="#111" stroke-width="1.6"/>`;
         if (fly) {
@@ -346,6 +365,66 @@
         if (o.bandage) s += `<path d="M-6 -12 L0 -4 M-2 -14 L4 -6" stroke="#fff" stroke-width="3"/><path d="M-6 -12 L0 -4 M-2 -14 L4 -6" stroke="#e63946" stroke-width="1" stroke-dasharray="1 2"/>`;
         return s;
     }, { actor: true, breath: 1.2 });
+
+    // ---------- elephant (fil), for the Alifbo ----------
+    Art.define('fil', (c, o) => {
+        const col = o.color || '#a7b4c2';
+        const dark = '#8593a3';
+        let s = `<path d="M-56 -50 q-12 8 -9 22" fill="none" stroke="${OL}" stroke-width="2.4" stroke-linecap="round"/>`;
+        for (const x of [-46, 6]) s += `<rect x="${x}" y="-36" width="18" height="36" rx="6" fill="${dark}" ${S(1.8)}/>`;
+        s += `<ellipse cx="-10" cy="-52" rx="50" ry="34" fill="${col}" ${S()}/>`;
+        for (const x of [-30, 22]) s += `<rect x="${x}" y="-36" width="18" height="36" rx="6" fill="${col}" ${S(1.8)}/>`;
+        s += `<circle cx="40" cy="-64" r="25" fill="${col}" ${S()}/>`;
+        s += `<path d="M30 -84 Q4 -88 4 -62 Q6 -38 30 -44Z" fill="${dark}" ${S(1.8)}/>`;
+        s += `<path d="M60 -58 Q72 -32 64 -10 Q62 -2 70 0" fill="none" stroke="${OL}" stroke-width="13" stroke-linecap="round"/><path d="M60 -58 Q72 -32 64 -10 Q62 -2 70 0" fill="none" stroke="${col}" stroke-width="8.6" stroke-linecap="round"/>`;
+        s += `<path d="M50 -46 q10 5 15 -2" fill="none" stroke="${OL}" stroke-width="6.4" stroke-linecap="round"/><path d="M50 -46 q10 5 15 -2" fill="none" stroke="#fffaf0" stroke-width="3.4" stroke-linecap="round"/>`;
+        return s + eye(c, 47, -70, o.mood, 2.6);
+    }, { actor: true, breath: 3.6 });
+
+    // ---------- camel (tuya): the two-humped camel of the Silk Road ----------
+    Art.define('tuya', (c, o) => {
+        const body = o.color || '#c8955a';
+        const dark = o.dark || '#8b5e34';
+        let s = tube(-26, -36, -29, -2, 6.6, dark) + tube(16, -36, 20, -2, 6.6, dark);
+        s += ptube('M-40 -46 C-47 -40 -47 -32 -45 -27', 3, body);
+        s += `<path d="M-42 -44 C-44 -60 -34 -76 -24 -80 C-16 -83 -10 -71 -6 -63 C-2 -73 6 -85 16 -81 C26 -77 28 -63 32 -55 C40 -49 38 -37 28 -35 L-34 -35 C-42 -35 -44 -39 -42 -44Z" fill="${body}" ${S()}/>`;
+        s += `<path d="M-31 -76 q4 -7 8 -2 q4 -7 8 0 M5 -79 q4 -7 8 -2 q4 -7 8 0" fill="none" stroke="${dark}" stroke-width="2.4" stroke-linecap="round"/>`;
+        if (o.saddle !== false) {
+            s += `<path d="M-13 -63 Q-6 -57 1 -63 L3 -44 Q-6 -40 -15 -44Z" fill="#d62828" ${S(1.6)}/>`;
+            s += `<path d="M-14 -49 Q-6 -46 2 -49" stroke="#ffd166" stroke-width="2.2" fill="none"/>`;
+            s += [-12, -6, 0].map((x) => `<path d="M${x} -43 v5" stroke="#ffd166" stroke-width="1.8" stroke-linecap="round"/>`).join('');
+        }
+        s += tube(-17, -36, -19, -2, 7.4, body) + tube(25, -36, 29, -2, 7.4, body);
+        s += `<path d="M-23 -1 h8 M25 -1 h8" stroke="${OL}" stroke-width="3" stroke-linecap="round"/>`;
+        s += `<path d="M24 -57 C34 -61 40 -67 44 -81 L56 -81 C54 -65 48 -49 34 -41Z" fill="${body}" ${S()}/>`;
+        s += `<path d="M37 -51 q4 4 2 8 M43 -60 q4 4 2 8" fill="none" stroke="${dark}" stroke-width="2.2" stroke-linecap="round"/>`;
+        s += `<g transform="translate(52 -85) rotate(8)"><path d="M-9 -8 l-3 -6 l6 3z" fill="${body}" ${S(1.4)}/>` +
+            `<path d="M-10 -6 C-8 -12 6 -12 14 -6 C18 -2 18 6 10 6 L-8 6 C-12 4 -12 -2 -10 -6Z" fill="${body}" ${S()}/>` +
+            eye(c, 2, -3, o.mood, 1.9) + `<path d="M14 1 q2 2 0 4" fill="none" ${S(1.2)}/><path d="M8 6 q4 3 8 0" fill="none" ${S(1.3)}/></g>`;
+        return s;
+    }, { actor: true, breath: 4 });
+
+    // ---------- snow leopard (qor qoploni) of the Tien Shan ----------
+    Art.define('qoplon', (c, o) => {
+        const fur = o.color || '#ebe7e1';
+        const shade = '#d7d2ca';
+        const spot = '#5d636b';
+        let s = ptube('M-30 -30 C-56 -32 -64 -12 -52 -3 C-46 2 -38 -2 -41 -9', 10, fur);
+        s += [[-44, -30], [-58, -20], [-52, -6]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.6" fill="${spot}"/>`).join('');
+        s += tube(-21, -26, -24, -2, 8, shade) + tube(14, -26, 17, -2, 8, shade);
+        s += `<ellipse cx="-3" cy="-32" rx="32" ry="14" fill="${fur}" ${S()}/>`;
+        s += tube(-12, -26, -14, -2, 8.6, fur) + tube(23, -26, 25, -2, 8.6, fur);
+        s += [[-15, -31], [-1, -37], [13, -31], [-25, -36], [5, -25], [-9, -23], [21, -39], [-26, -25]].map(([x, y]) =>
+            `<circle cx="${x}" cy="${y}" r="3.2" fill="none" stroke="${spot}" stroke-width="1.8" stroke-dasharray="4 1.6"/>`).join('');
+        s += `<g transform="translate(34 -45)">`;
+        s += `<path d="M-11 -6 L-10 -17 L-2 -11Z" fill="${fur}" ${S(1.6)}/><path d="M2 -11 L10 -17 L11 -6Z" fill="${fur}" ${S(1.6)}/>`;
+        s += `<circle r="13" fill="${fur}" ${S()}/>`;
+        s += `<circle cx="-7" cy="-8" r="1.4" fill="${spot}"/><circle cx="7" cy="-8" r="1.4" fill="${spot}"/><circle cx="0" cy="-10" r="1.4" fill="${spot}"/>`;
+        s += eye(c, -5, -1, o.mood, 2.1) + eye(c, 5, -1, o.mood, 2.1);
+        s += `<path d="M-1.8 4 L1.8 4 L0 6.2Z" fill="#f28482"/><path d="M0 6 Q-2 9 -4 7 M0 6 Q2 9 4 7" fill="none" ${S(1.2)}/>`;
+        s += `<path d="M-6 5 L-16 3 M-6 7 L-16 8 M6 5 L16 3 M6 7 L16 8" stroke="${OL}" stroke-width=".9"/></g>`;
+        return s;
+    }, { actor: true, breath: 3.8 });
 
     // ---------- stork (laylak) ----------
     Art.define('stork', (c, o) => {

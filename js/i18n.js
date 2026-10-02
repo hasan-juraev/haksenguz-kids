@@ -30,9 +30,18 @@
         'Klassik Asarlar': '고전',
         'Alisher Navoiy': '알리셰르 나보이',
         'Zamonaviy Sirlar': '현대 동화',
+        '🇰🇷 Ikki xalq — bir ertak': '🇰🇷 두 나라, 한 이야기',
+        '🏙️ Koreyadagi hayotim': '🏙️ 한국에서의 내 생활',
+        '🎉 Bayramlar': '🎉 명절과 기념일',
+        '🧩 Qisqa va qiziq': '🧩 짧고 재미있는 글',
+        '🔤 Alifbo': '🔤 우즈베크 알파벳',
         'Interaktiv Kitoblar Kutubxonasi': '인터랙티브 책 도서관',
         'Yangi': '새 책',
         // genre on the library cards (the part of a story's tag before "•")
+        'Koreya xalq ertagi': '한국 전래동화',
+        'Koreyadagi hayotim': '한국에서의 내 생활',
+        'Bayramlar': '명절과 기념일',
+        'Alifbo': '우즈베크 알파벳',
         "O'zbek xalq ertagi": '우즈베크 전래동화',
         "O'zbek xalq latifalari": '우즈베크 웃음 이야기',
         'Xalq ertagi': '전래동화',
@@ -44,6 +53,10 @@
         'Fantastik sarguzasht': '판타지 모험',
         'Milliy qadriyatlar': '우즈베크 전통',
         'Sharq hikmati': '동양의 지혜',
+        "O'zbek xalq topishmoqlari asosida": '우즈베크 전래 수수께끼',
+        "O'zbek va koreys maqollari": '우즈베크와 한국의 속담',
+        'Allalar': '자장가',
+        'Tez aytishlar': '잰말놀이',
         "O'qildi": '다 읽었어요',
 
         // reading
@@ -110,6 +123,31 @@
             'Safari 아래쪽의 공유 버튼을 누른 다음 ‘홈 화면에 추가’를 고르세요. 휴대폰 화면에 Ertaklar 아이콘이 생겨요.',
         '🔗 Havola': '🔗 링크',
         "Ertaklar Olami — o'zbek xalq ertaklari bolalar uchun": 'Ertaklar Olami — 어린이를 위한 우즈베크 전래동화',
+
+        // built-in narration saved for offline use (js/voices.js saveBook)
+        'Internetsiz tinglash uchun saqlash': '인터넷 없이 듣도록 저장하기',
+        "Internetsiz ham tinglasa bo'ladi": '인터넷 없이도 들을 수 있어요',
+        "Bu kitobning saqlangan ovozlari o'chirilsinmi? Internet bo'lsa, baribir tinglasa bo'ladi.": '이 책에 저장한 목소리를 지울까요? 인터넷이 있으면 계속 들을 수 있어요.',
+        "✓ Endi bu kitobni internetsiz ham tinglasa bo'ladi": '✓ 이제 이 책은 인터넷 없이도 들을 수 있어요',
+        "📶 Saqlab bo'lmadi. Internetni tekshirib, qaytadan urinib ko'ring.": '📶 저장하지 못했어요. 인터넷을 확인하고 다시 해 보세요.',
+        "📶 Internet yo'q. Bu kitobni internetsiz tinglash uchun avval ⬇️ bilan saqlang.": '📶 인터넷이 없어요. 인터넷 없이 들으려면 먼저 ⬇️ 버튼으로 저장하세요.',
+
+        // reading levels (js/levels.js): age shelves and a child's age
+        "Yosh bo'yicha": '나이별',
+        '🎈 Yoshi:': '🎈 나이:',
+        'Barcha yoshlar': '모든 나이',
+        "📚 Bu yoshga mos kitob hali yo'q.": '📚 이 나이에 맞는 책이 아직 없어요.',
+        "Barcha kitoblarni ko'rsatish": '모든 책 보기',
+        'Yoshi': '나이',
+        "Kutubxona shu yoshga mos kitoblarni ko'rsatadi.": '도서관에서 이 나이에 맞는 책을 보여 줘요.',
+
+        // twin tales (js/stories-twins.js) and their "find the differences" game
+        '🔒 Hali yopiq': '🔒 아직 잠겨 있어요',
+        '🇰🇷 Egizak ertak ochildi!': '🇰🇷 쌍둥이 이야기가 열렸어요!',
+        '🔍 Farqlarni toping': '🔍 다른 점 찾기',
+        'Bu qaysi ertakda bor?': '어느 이야기에 나올까요?',
+        'Ikkalasida ham': '두 이야기 모두',
+        "🎉 Barakalla! Ikki ertakning o'xshash va farqli tomonlarini topdingiz!": '🎉 Barakalla! 두 이야기의 같은 점과 다른 점을 찾았어요!',
 
         // play corner (js/games.js): colouring page and story-order game
         "Rasmni bo'yash": '그림 색칠하기',
@@ -178,9 +216,133 @@
         'Kirish': '들어가기',
         "Yana bir urinib ko'ring": '다시 해 보세요',
     };
+    // Mening lug'atim: the child's dictionary and its games (js/dictionary.js, js/games.js)
+    Object.assign(EXACT, {
+        "Mening lug'atim": '나의 낱말장',
+        "📖 Mening lug'atim": '📖 나의 낱말장',
+        'Eshit va top': '듣고 찾기',
+        "So'zni eshitib, rasmini toping": '낱말을 듣고 그림을 찾아요',
+        'Juftini top': '짝 찾기',
+        "O'zbekcha va koreyscha juftlar": '우즈베크어와 한국어 짝 맞추기',
+        "So'zni yig'ing": '낱말 만들기',
+        "Harflardan so'z tuzing": '글자로 낱말을 만들어요',
+        "📚 Hali so'z yo'q. Kitob o'qing — yangi so'zlar shu yerga yig'iladi!": '📚 아직 낱말이 없어요. 책을 읽으면 새 낱말이 여기에 모여요!',
+        'Eshitish': '듣기',
+        '📖 Kitobda': '📖 책에서 보기',
+        'Bu qurilmada ovoz topilmadi': '이 기기에서 목소리를 찾지 못했어요',
+        '🔊 Eshit va top': '🔊 듣고 찾기',
+        "So'zni tinglang va uning rasmini toping.": '낱말을 듣고 알맞은 그림을 찾아요.',
+        "So'zni o'qing va uning rasmini toping.": '낱말을 읽고 알맞은 그림을 찾아요.',
+        '🔊 Yana eshitish': '🔊 다시 듣기',
+        'Rasm': '그림',
+        '🤔 Yana bir bor tinglang!': '🤔 한 번 더 들어 봐요!',
+        '🎉 Barakalla! Hammasini topdingiz!': '🎉 잘했어요! 모두 찾았어요!',
+        '🇰🇷 Juftini top': '🇰🇷 짝 찾기',
+        "O'zbekcha so'zni bosing, keyin uning koreyscha ma'nosini toping.": '우즈베크어 낱말을 누르고, 그 뜻의 한국어를 찾아요.',
+        "🤔 Bu juft emas. Yana urinib ko'ring!": '🤔 짝이 아니에요. 다시 해 봐요!',
+        '🎉 Barakalla! Hamma juftlar topildi!': '🎉 잘했어요! 짝을 모두 찾았어요!',
+        "🔤 So'zni yig'ing": '🔤 낱말 만들기',
+        "Rasmga qarang va harflarni to'g'ri tartibda bosing.": '그림을 보고 글자를 차례대로 눌러요.',
+        '🤔 Bu harf emas. Qaysi harf keladi?': '🤔 그 글자가 아니에요. 어떤 글자가 올까요?',
+        "🎉 Barakalla! So'zlarni yig'dingiz!": '🎉 잘했어요! 낱말을 다 만들었어요!',
+    });
+    // Alifbo: tracing letters (js/games.js) and 가, the Korean-letter readings (js/hangul.js)
+    Object.assign(EXACT, {
+        "✍️ Yozib ko'r": '✍️ 따라 쓰기',
+        '✍️ Harfni yozing': '✍️ 글자 따라 쓰기',
+        "Barmog'ingiz bilan harf ustidan yurgizing.": '손가락으로 글자 위를 따라 그려 보세요.',
+        'Harf yozish maydoni': '글자 쓰는 곳',
+        '🔄 Qaytadan': '🔄 다시',
+        '⭐ Barakalla! Endi kichik harf.': '⭐ 잘했어요! 이제 소문자예요.',
+        "🎉 Barakalla! Harfni o'rgandingiz!": '🎉 잘했어요! 글자를 배웠어요!',
+        "🤔 Harfdan chetga chiqib ketdi. Qaytadan urinib ko'ring!": '🤔 글자 밖으로 많이 나갔어요. 다시 해 볼까요?',
+        "👍 Davom eting, harf ustidan yurgizing!": '👍 계속해요, 글자 위를 따라 그려요!',
+        "Koreys harflarida o'qilishi": '한글로 읽기',
+    });
+    // Short pieces (js/stories-short.js): a riddle's answer, a proverb's Korean twin, a tongue twister's task
+    Object.assign(EXACT, {
+        '🎉 Javob:': '🎉 정답:',
+        '🤔 Javobini toping — rasm ochiladi!': '🤔 답을 맞혀 보세요. 그림이 열려요!',
+        '🇰🇷 Koreyada ham shunday deyishadi:': '🇰🇷 한국에도 같은 뜻의 속담이 있어요:',
+        '🔁 Uch marta, tez-tez ayting!': '🔁 세 번, 빠르게 말해 보세요!',
+    });
+    // Uxlash vaqti: bedtime (js/bedtime.js)
+    Object.assign(EXACT, {
+        'Uxlash vaqti': '잘 시간',
+        '🌙 Uxlash vaqti': '🌙 잘 시간',
+        "Bugun kechqurun qaysi ertakni o'qiymiz?": '오늘 밤에는 어떤 이야기를 읽을까요?',
+        'Nechta sahifa?': '몇 쪽 읽을까요?',
+        'Butun kitob': '책 전체',
+        "Shirin tushlar ko'ring!": '좋은 꿈 꾸세요!',
+        "Ertak tugadi! Ertaga yangisini o'qiymiz.": '이야기가 끝났어요! 내일은 새 이야기를 읽어요.',
+        '📚 Kutubxonaga qaytish': '📚 도서관으로 돌아가기',
+    });
+    // Madaniyat pasporti: the map, stamps and stickers (js/passport.js). Place
+    // names come in Korean from js/passport.js itself.
+    Object.assign(EXACT, {
+        'Pasportim': '나의 여권',
+        '🗺️ Mening pasportim': '🗺️ 나의 여권',
+        '👆 Viloyatni bosing: u yerning muhri, kitoblari va stikerlari ochiladi.': '👆 지역을 눌러 보세요. 그곳의 도장과 책, 스티커가 나와요.',
+        '🛂 Muhrlar': '🛂 도장',
+        '🎁 Stikerlar albomi': '🎁 스티커 앨범',
+        '📍 Markazi:': '📍 중심 도시:',
+        '📍 Poytaxti:': '📍 수도:',
+        "📍 O'zbekistonning poytaxti": '📍 우즈베키스탄의 수도',
+        '📚 Bu yerga olib boradigan kitoblar': '📚 이곳으로 데려가는 책',
+        '🎁 Stikerlar': '🎁 스티커',
+        '🎁 Olish': '🎁 받기',
+        '✓ Sizniki': '✓ 내 스티커',
+        "✓ O'qildi": '✓ 다 읽었어요',
+        "Hali o'qilmagan": '아직 안 읽었어요',
+        "🔒 Stikerlar muhr bosilgach ochiladi: bu yerga olib boradigan kitobni oxirigacha o'qing!": '🔒 도장을 받으면 스티커가 열려요. 이곳으로 데려가는 책을 끝까지 읽어 보세요!',
+        "🔒 Avval bu yerga sayohat qiling: kitobini oxirigacha o'qing!": '🔒 먼저 이곳으로 여행을 떠나요. 책을 끝까지 읽어 보세요!',
+        '🗺️ Pasport': '🗺️ 여권',
+    });
+    // The holiday shelf (js/holidays.js): holiday names and the banner's words
+    // before them ("오늘은 / 내일은 / 9일 뒤는 / 지금은" + the holiday).
+    Object.assign(EXACT, {
+        "Navro'z": '나브루즈(우즈베크 봄맞이 새해)',
+        'Seollal': '설날',
+        'Chusok': '추석',
+        'Hangul kuni': '한글날',
+        "O'zbek tili bayrami": '우즈베크어의 날',
+        'Koreyada bolalar kuni': '어린이날',
+        'Bolalar kuni': '국제 어린이날',
+        'Mustaqillik kuni': '우즈베키스탄 독립기념일',
+        'Ramazon hayiti': '이드 알피트르(라마단 명절)',
+        'Qurbon hayiti': '이드 알아드하(희생제)',
+        '🎉 Bayram kunlari:': '🎉 지금은',
+        '🎉 Bugun bayram:': '🎉 오늘은',
+        '🎉 Ertaga bayram:': '🎉 내일은',
+    });
+    const MONTHS = ['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avgust', 'sentabr', 'oktabr', 'noyabr', 'dekabr'];
+
+    // A place's or a sticker's Korean name (js/passport.js), or the Uzbek one if unknown.
+    const place = (find, uz) => {
+        const P = root.Passport;
+        const hit = P && find(P);
+        return hit ? hit.ko : uz;
+    };
+
     // [pattern, Korean, an example of the Uzbek (for the reviewer and the tests)]
     const PATTERNS = [
         [/^(\d+) ta interaktiv kitob$/, '인터랙티브 책 $1권', '23 ta interaktiv kitob'],
+        [/^(\d+) ta so'z$/, '낱말 $1개', "12 ta so'z"],
+        [/^🎮 O'yinlar uchun kamida (\d+) ta so'z kerak\. Yana (\d+) ta so'z yig'ing!$/, '🎮 게임을 하려면 낱말이 $1개 이상 필요해요. $2개 더 모아요!', "🎮 O'yinlar uchun kamida 4 ta so'z kerak. Yana 3 ta so'z yig'ing!"],
+        [/^🎉 (\d+) kundan keyin bayram:$/, '🎉 $1일 뒤는', '🎉 8 kundan keyin bayram:'],
+        [/^(\d+) sahifa$/, '$1쪽', '5 sahifa'],
+        [/^▶ (\d+)-sahifadan$/, '▶ $1쪽부터', '▶ 4-sahifadan'],
+        [/^Xayrli tun, (.+)! 🌙$/, '잘 자요, $1! 🌙', 'Xayrli tun, Asal! 🌙'],
+        [/^Ertaga shu yerdan davom etamiz: «(.+)», (\d+)-sahifa\.$/, '내일은 여기서부터 읽어요: «$1», $2쪽.', "Ertaga shu yerdan davom etamiz: «Oyqiz Sirlari», 4-sahifa."],
+        [/^📍 Bu ertak seni (.+) olib bordi!$/, (all, to) => `📍 이 이야기를 따라 ${place((P) => P.byDative(to), to)}에 다녀왔어요!`, '📍 Bu ertak seni Xorazmga olib bordi!'],
+        [/^🗺️ Yangi muhr: (.+)!$/, (all, name) => `🗺️ 새 도장: ${place((P) => P.byName(name), name)}!`, '🗺️ Yangi muhr: Xorazm!'],
+        [/^🎁 Yangi stiker: (.+)!$/, (all, name) => `🎁 새 스티커: ${place((P) => P.STICKERS.find((x) => x.name === name), name)}!`, '🎁 Yangi stiker: Kalta minor!'],
+        [/^(\d+) \/ (\d+) muhr$/, '도장 $1 / $2개', '3 / 15 muhr'],
+        [/^(\d+) \/ (\d+) stiker$/, '스티커 $1 / $2개', '2 / 30 stiker'],
+        [/^Har bir stiker — (\d+) ball\. Viloyat stikerlari uning muhri bosilgach ochiladi\.$/, '스티커는 하나에 $1점이에요. 지역의 도장을 받으면 그곳 스티커가 열려요.', 'Har bir stiker — 50 ball. Viloyat stikerlari uning muhri bosilgach ochiladi.'],
+        [/^Yana (\d+) ball kerak$/, '$1점 더 필요해요', 'Yana 20 ball kerak'],
+        [/^⭐ Ball yetmaydi: yana (\d+) ball kerak$/, '⭐ 점수가 모자라요. $1점 더 필요해요', '⭐ Ball yetmaydi: yana 20 ball kerak'],
+        [new RegExp(`^🎉 (\\d+)-(${MONTHS.join('|')})$`), (all, d, m) => `🎉 ${MONTHS.indexOf(m) + 1}월 ${d}일`, '🎉 9-oktabr'],
         [/^📄 (\d+) sahifali rasmli kitob$/, '📄 $1쪽 그림책', '📄 12 sahifali rasmli kitob'],
         [/^(\d+) yulduz$/, '별 $1개', '3 yulduz'],
         [/^⭐ (\d+) ball$/, '⭐ $1점', '⭐ 150 ball'],
@@ -205,6 +367,12 @@
         [/^(.+) ovozi va uning barcha yozuvlari o'chirilsinmi\?$/, '‘$1’ 목소리와 모든 녹음을 지울까요?', "Buvijon ovozi va uning barcha yozuvlari o'chirilsinmi?"],
         [/^🔴 (\d+:\d\d) — o'qing\.\.\.$/, '🔴 $1 — 읽어 주세요…', "🔴 0:07 — o'qing..."],
         [/^Rang (\d+)$/, '$1번 색', 'Rang 4'],
+        [/^🔒 «(.+)»ni o'qib tugating$/, '🔒 «$1» 다 읽으면 열려요', "🔒 «Oltin Tarvuz»ni o'qib tugating"],
+        [/^Avval «(.+)» ertagini oxirigacha o'qing\. Shunda uning Koreyadagi egizagi ochiladi!$/, '먼저 «$1» 이야기를 끝까지 읽어 보세요. 그러면 한국의 쌍둥이 이야기가 열려요!', "Avval «Oltin Tarvuz» ertagini oxirigacha o'qing. Shunda uning Koreyadagi egizagi ochiladi!"],
+        [/^🔓 Yangi ertak ochildi: «(.+)»!$/, '🔓 새 이야기가 열렸어요: «$1»!', '🔓 Yangi ertak ochildi: «Hungbu va Nolbu»!'],
+        [/^(\d+)–(\d+) yosh$/, '$1~$2세', '5–8 yosh'],
+        [/^(\d+)\+ yosh$/, '$1세 이상', '9+ yosh'],
+        [/^(\d+) yosh$/, '$1세', '6 yosh'],
         [/^✓ (.+): (\d+) ta sahifa qo'shildi\.( Diqqat: bu telefon bu yozuvlarni o'qiy olmasligi mumkin\.)?$/,
             (all, who, n, warn) => `✓ ${who}: ${n}쪽을 추가했어요.${warn ? ' 주의: 이 휴대폰에서는 이 녹음이 재생되지 않을 수도 있어요.' : ''}`,
             "✓ 👵 Buvijon: 12 ta sahifa qo'shildi. Diqqat: bu telefon bu yozuvlarni o'qiy olmasligi mumkin."],

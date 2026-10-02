@@ -66,6 +66,8 @@
                     <span class="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider backdrop-blur-md">📚 Haqiqiy kitobdek varaqlanadi</span>
                     <h2 class="text-3xl md:text-4xl font-bold leading-tight">O'zbek xalq ertaklari, Navoiy dostonlari va sehrli sarguzashtlar</h2>
                     <p class="text-orange-100 text-sm md:text-base">Kitobni oching, sahifani chetidan tortib varaqlang, rasmlarga bosib qahramonlarni jonlantiring va savollarga javob bering!</p>
+                    <!-- A holiday coming up, when the suggested book is its story (js/holidays.js) -->
+                    <p id="heroHoliday" class="hidden bg-white/25 text-white text-sm font-bold px-3 py-1.5 rounded-2xl backdrop-blur-md w-fit mx-auto md:mx-0"></p>
                     <div class="pt-2 space-y-2">
                         <button onclick="app.openHeroBook()" class="px-6 py-3 bg-white text-brand-700 font-bold rounded-2xl shadow-lg hover:bg-orange-50 transform hover:scale-105 transition flex items-center justify-center space-x-2 mx-auto md:mx-0">
                             <i class="fa-solid fa-book-open text-brand-500"></i>
@@ -75,6 +77,18 @@
                         <div class="flex flex-wrap items-center justify-center md:justify-start gap-2 pt-1">
                             <button id="installBtn" onclick="app.installApp()" class="hidden min-h-[40px] px-3.5 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl backdrop-blur-md transition items-center gap-2">
                                 <i class="fa-solid fa-mobile-screen-button"></i> Telefonga o'rnatish
+                            </button>
+                            <!-- Uxlash vaqti: a calm book before sleep (js/bedtime.js); it glows in the evening -->
+                            <button onclick="app.bedtime.open()" id="bedBtn" class="min-h-[40px] px-3.5 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl backdrop-blur-md transition flex items-center gap-2">
+                                <span aria-hidden="true">🌙</span> <span>Uxlash vaqti</span>
+                            </button>
+                            <!-- Mening lug'atim: the words this child has met (js/dictionary.js) -->
+                            <button onclick="app.openDictionary()" id="dictBtn" class="min-h-[40px] px-3.5 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl backdrop-blur-md transition flex items-center gap-2">
+                                <span aria-hidden="true">📖</span> <span>Mening lug'atim</span> <span id="dictCount"></span>
+                            </button>
+                            <!-- Madaniyat pasporti: a stamp for each place a finished book took this child to (js/passport.js) -->
+                            <button onclick="app.openPassport()" id="passBtn" class="min-h-[40px] px-3.5 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl backdrop-blur-md transition flex items-center gap-2">
+                                <span aria-hidden="true">🗺️</span> <span>Pasportim</span> <span id="passCount"></span>
                             </button>
                             <button onclick="app.share()" class="min-h-[40px] px-3.5 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl backdrop-blur-md transition flex items-center gap-2">
                                 <i class="fa-solid fa-share-nodes"></i> Ulashish
@@ -90,10 +104,24 @@
             <!-- Category Filters -->
             <div class="flex items-center space-x-2 overflow-x-auto pb-2">
                 <button onclick="app.filterCategory('all')" id="cat-all" class="px-4 py-2 bg-brand-500 text-white text-sm font-bold rounded-xl shadow-sm whitespace-nowrap transition">Barchasi <span data-count></span></button>
+                <button onclick="app.filterCategory('alifbo')" id="cat-alifbo" class="px-4 py-2 bg-white text-gray-600 hover:bg-brand-50 text-sm font-bold rounded-xl border border-orange-100 whitespace-nowrap transition">🔤 Alifbo <span data-count></span></button>
                 <button onclick="app.filterCategory('folk')" id="cat-folk" class="px-4 py-2 bg-white text-gray-600 hover:bg-brand-50 text-sm font-bold rounded-xl border border-orange-100 whitespace-nowrap transition">Xalq Ertaklari <span data-count></span></button>
                 <button onclick="app.filterCategory('classic')" id="cat-classic" class="px-4 py-2 bg-white text-gray-600 hover:bg-brand-50 text-sm font-bold rounded-xl border border-orange-100 whitespace-nowrap transition">Klassik Asarlar <span data-count></span></button>
                 <button onclick="app.filterCategory('navoiy')" id="cat-navoiy" class="px-4 py-2 bg-white text-gray-600 hover:bg-brand-50 text-sm font-bold rounded-xl border border-orange-100 whitespace-nowrap transition">Alisher Navoiy <span data-count></span></button>
                 <button onclick="app.filterCategory('modern')" id="cat-modern" class="px-4 py-2 bg-white text-gray-600 hover:bg-brand-50 text-sm font-bold rounded-xl border border-orange-100 whitespace-nowrap transition">Zamonaviy Sirlar <span data-count></span></button>
+                <button onclick="app.filterCategory('twins')" id="cat-twins" class="px-4 py-2 bg-white text-gray-600 hover:bg-brand-50 text-sm font-bold rounded-xl border border-orange-100 whitespace-nowrap transition">🇰🇷 Ikki xalq — bir ertak <span data-count></span></button>
+                <button onclick="app.filterCategory('korea')" id="cat-korea" class="px-4 py-2 bg-white text-gray-600 hover:bg-brand-50 text-sm font-bold rounded-xl border border-orange-100 whitespace-nowrap transition">🏙️ Koreyadagi hayotim <span data-count></span></button>
+                <button onclick="app.filterCategory('holiday')" id="cat-holiday" class="px-4 py-2 bg-white text-gray-600 hover:bg-brand-50 text-sm font-bold rounded-xl border border-orange-100 whitespace-nowrap transition">🎉 Bayramlar <span data-count></span></button>
+                <button onclick="app.filterCategory('kichik')" id="cat-kichik" class="px-4 py-2 bg-white text-gray-600 hover:bg-brand-50 text-sm font-bold rounded-xl border border-orange-100 whitespace-nowrap transition">🧩 Qisqa va qiziq <span data-count></span></button>
+            </div>
+
+            <!-- Age shelves (js/levels.js); a child's age picks theirs -->
+            <div id="ageFilter" role="group" aria-label="Yosh bo'yicha" class="flex items-center gap-2 overflow-x-auto pb-2 -mt-3">
+                <span class="text-sm font-bold text-gray-500 whitespace-nowrap">🎈 Yoshi:</span>
+                <button type="button" data-shelf="all" onclick="app.filterAge('all')">Barcha yoshlar</button>
+                <button type="button" data-shelf="4-6" onclick="app.filterAge('4-6')"><span data-mine aria-hidden="true"></span><span>4–6 yosh</span></button>
+                <button type="button" data-shelf="7-8" onclick="app.filterAge('7-8')"><span data-mine aria-hidden="true"></span><span>7–8 yosh</span></button>
+                <button type="button" data-shelf="9+" onclick="app.filterAge('9+')"><span data-mine aria-hidden="true"></span><span>9+ yosh</span></button>
             </div>
 
             <!-- Library Grid -->
@@ -104,6 +132,10 @@
                 </h3>
                 <div id="libraryGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     <!-- Populated via JS -->
+                </div>
+                <div id="libraryEmpty" class="hidden bg-white/70 rounded-2xl border border-dashed border-orange-200 p-6 text-center space-y-3">
+                    <p class="font-bold text-gray-600">📚 Bu yoshga mos kitob hali yo'q.</p>
+                    <button type="button" onclick="app.filterAge('all')" class="min-h-[44px] px-4 bg-brand-500 hover:bg-brand-600 text-white text-sm font-bold rounded-xl transition">Barcha kitoblarni ko'rsatish</button>
                 </div>
             </div>
         </div>
@@ -122,6 +154,8 @@
                     <span id="storyProgressText" class="text-xs font-bold text-brand-700 bg-amber-100 px-2.5 py-1 rounded-lg whitespace-nowrap">Muqova</span>
                 </div>
                 <div class="flex items-center space-x-2">
+                    <!-- At bedtime: tonight's page out of tonight's pages -->
+                    <span id="bedtimeChip" class="hidden bed-count" aria-live="polite"></span>
                     <!-- For grown-ups: read this book aloud for the children (js/studio.js) -->
                     <button onclick="app.openStudio()" id="studioBtn" class="px-3 py-2 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-xl font-bold text-xs transition flex items-center space-x-1.5" aria-label="Ovoz yozish (kattalar uchun)">
                         <i class="fa-solid fa-microphone"></i>
@@ -149,6 +183,8 @@
                     <!-- Read-along (js/narrator.js): shown when someone has read this book aloud -->
                     <button onclick="app.toggleListen()" id="listenBtn" class="hidden" aria-pressed="false"></button>
                     <button onclick="app.nextVoice()" id="voiceChip" class="hidden w-12 h-12 flex-shrink-0 rounded-2xl bg-white border-2 border-emerald-200 hover:bg-emerald-50 text-2xl leading-none transition"></button>
+                    <!-- Saves this book's built-in narration on the phone, to listen without internet -->
+                    <button onclick="app.toggleOfflineVoice()" id="offlineBtn" class="hidden min-w-[48px] h-12 px-2 flex-shrink-0 items-center justify-center rounded-2xl bg-white border-2 border-sky-200 hover:bg-sky-50 text-sky-700 text-sm font-bold transition"></button>
                     <div class="hidden sm:block text-center">
                         <span id="bookPageIndicator" class="text-xs sm:text-sm font-bold text-amber-900 bg-amber-100 px-3 sm:px-4 py-1.5 rounded-xl whitespace-nowrap">Muqova</span>
                         <p class="text-[11px] text-gray-500 mt-1 hidden md:block">Sahifani chetidan torting, burchagiga bosing yoki ← → tugmalarini ishlating</p>
@@ -183,6 +219,47 @@
         </div>
 
         <!-- Recording studio (js/studio.js): a grown-up reads the book aloud, page by page -->
+        <!-- Mening lug'atim: picture cards of the words this child has met, and three games -->
+        <div id="dictView" class="hidden space-y-4 max-w-6xl mx-auto w-full">
+            <div class="bg-white p-3 md:p-4 rounded-3xl shadow-sm border border-orange-100 flex flex-wrap items-center gap-3">
+                <button onclick="app.goHome()" class="min-h-[40px] px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-sm transition flex items-center gap-2"><i class="fa-solid fa-arrow-left"></i> Kutubxona</button>
+                <h2 class="font-heading text-xl md:text-2xl font-bold text-gray-800">📖 Mening lug'atim</h2>
+                <span id="dictTotal" class="text-xs font-bold text-amber-800 bg-amber-100 px-3 py-1 rounded-full"></span>
+            </div>
+            <div class="dict-games" id="dictGames">
+                <button type="button" class="dict-game-btn" data-game="listen"><span class="text-2xl" aria-hidden="true">🔊</span><b>Eshit va top</b><small>So'zni eshitib, rasmini toping</small></button>
+                <button type="button" class="dict-game-btn" data-game="match"><span class="text-2xl" aria-hidden="true">🇰🇷</span><b>Juftini top</b><small>O'zbekcha va koreyscha juftlar</small></button>
+                <button type="button" class="dict-game-btn" data-game="spell"><span class="text-2xl" aria-hidden="true">🔤</span><b>So'zni yig'ing</b><small>Harflardan so'z tuzing</small></button>
+            </div>
+            <p id="dictHint" class="hidden text-sm font-bold text-amber-800 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3"></p>
+            <p id="dictEmpty" class="hidden text-center text-gray-500 font-bold py-10">📚 Hali so'z yo'q. Kitob o'qing — yangi so'zlar shu yerga yig'iladi!</p>
+            <div id="dictGrid" class="dict-grid"></div>
+        </div>
+
+        <!-- Madaniyat pasporti: the map of Uzbekistan, a stamp for each place a finished book took this
+             child to, and the sticker album (stickers are bought with points) -->
+        <div id="passView" class="hidden space-y-4 max-w-6xl mx-auto w-full">
+            <div class="bg-white p-3 md:p-4 rounded-3xl shadow-sm border border-orange-100 flex flex-wrap items-center gap-3">
+                <button onclick="app.goHome()" class="min-h-[40px] px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-sm transition flex items-center gap-2"><i class="fa-solid fa-arrow-left"></i> Kutubxona</button>
+                <h2 class="font-heading text-xl md:text-2xl font-bold text-gray-800">🗺️ Mening pasportim</h2>
+                <span id="passStamped" class="text-xs font-bold text-amber-800 bg-amber-100 px-3 py-1 rounded-full"></span>
+                <span id="passOwned" class="text-xs font-bold text-sky-800 bg-sky-100 px-3 py-1 rounded-full"></span>
+            </div>
+            <div class="pass-card">
+                <div id="passMap"></div>
+                <p class="pass-hint">👆 Viloyatni bosing: u yerning muhri, kitoblari va stikerlari ochiladi.</p>
+            </div>
+            <section>
+                <h3 class="pass-title">🛂 Muhrlar</h3>
+                <div id="passStamps" class="pass-stamps"></div>
+            </section>
+            <section>
+                <h3 class="pass-title">🎁 Stikerlar albomi</h3>
+                <p id="passPrice" class="pass-hint pass-price"></p>
+                <div id="passAlbum" class="pass-album"></div>
+            </section>
+        </div>
+
         <div id="studioView" class="hidden space-y-3 max-w-3xl mx-auto w-full">
             <div class="bg-white/90 backdrop-blur-md p-3 rounded-2xl shadow-sm border border-orange-100 flex items-center justify-between gap-2">
                 <button onclick="app.closeStudio()" class="min-h-[48px] px-3.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-sm transition flex items-center gap-2">
@@ -253,6 +330,16 @@
     </div>
 
     <!-- Play corner (js/games.js): colouring page and story-order game -->
+    <!-- Xayrli tun: the end of a bedtime read (js/bedtime.js); it fades to dark, a tap wakes it -->
+    <div id="goodnight" class="goodnight hidden" role="dialog" aria-modal="true" aria-labelledby="goodnightTitle">
+        <div class="goodnight-art"></div>
+        <h2 id="goodnightTitle" class="goodnight-title"></h2>
+        <p class="goodnight-sub">Shirin tushlar ko'ring!</p>
+        <p class="goodnight-next"></p>
+        <div class="goodnight-stamp"></div>
+        <button type="button" class="goodnight-btn" data-goodnight>📚 Kutubxonaga qaytish</button>
+    </div>
+
     <div id="playModal" class="play-modal hidden" role="dialog" aria-modal="true" aria-label="O'yin">
         <div class="play-card"></div>
     </div>
@@ -290,6 +377,11 @@
                 <div class="space-y-1.5">
                     <span class="text-sm font-bold text-gray-700">Rasm tanlang</span>
                     <div id="avatarPicker" class="grid grid-cols-4 gap-2"></div>
+                </div>
+                <div class="space-y-1.5">
+                    <span class="text-sm font-bold text-gray-700">Yoshi</span>
+                    <div id="agePicker" class="grid grid-cols-4 gap-2" role="group" aria-label="Yoshi"></div>
+                    <p class="text-xs text-gray-500">Kutubxona shu yoshga mos kitoblarni ko'rsatadi.</p>
                 </div>
                 <div class="flex gap-2 pt-1">
                     <button type="submit" class="flex-1 min-h-[48px] px-4 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-2xl shadow-md transition">Saqlash</button>
@@ -361,18 +453,31 @@
     <script src="js/art/animals.js"></script>
     <script src="js/art/world.js"></script>
     <script src="js/art/fx.js"></script>
+    <script src="js/art/landmarks.js"></script>
     <script src="js/stories-folk.js"></script>
     <script src="js/stories-classic.js"></script>
+    <script src="js/stories-twins.js"></script>
+    <script src="js/stories-korea.js"></script>
+    <script src="js/stories-holiday.js"></script>
+    <script src="js/stories-short.js"></script>
+    <script src="js/stories-alifbo.js"></script>
     <script src="js/stories-ko.js"></script>
     <script src="js/i18n.js"></script>
     <script src="js/translit.js"></script>
     <script src="js/store.js"></script>
+    <script src="js/levels.js"></script>
+    <script src="js/holidays.js"></script>
+    <script src="js/hangul.js"></script>
+    <script src="js/dictionary.js"></script>
+    <script src="js/uzmap.js"></script>
+    <script src="js/passport.js"></script>
     <script src="js/book.js"></script>
     <script src="audio/narration.js"></script>
     <script src="js/voices.js"></script>
     <script src="js/narrator.js"></script>
     <script src="js/studio.js"></script>
     <script src="js/games.js"></script>
+    <script src="js/bedtime.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

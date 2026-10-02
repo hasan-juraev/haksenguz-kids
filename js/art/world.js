@@ -1,7 +1,14 @@
 /*
  * Places and props: skies, landscapes and interiors (Art.background), plus
  * trees, Uzbek houses, the kulba, palace portal and minaret, so'ri, tandir,
- * qozon, sandiq, tarvuz, dasturxon, arava, flying gilam and friends.
+ * qozon, sandiq, tarvuz, dasturxon, arava, flying gilam and friends; and for
+ * the Korean twin tales a Korean village and madang yard, the straw-roofed
+ * chogajip, the tiled giwajip, bak gourds, onggi jars and the gourd saw;
+ * and today's Korea for "Koreyadagi hayotim": Seoul streets of apartment
+ * blocks, a flat, a classroom, a school, a tablet that video-calls buvi,
+ * palov on a lagan, tteok, kimbap, somsa, honey and kimchi; and for the
+ * short pieces, a riddle's hidden answer, the beshik cradle, an onion, a
+ * needle and thread, shadows, a heap of autumn leaves and sea shells.
  */
 (function (Art) {
     'use strict';
@@ -216,6 +223,167 @@
         return `<path d="M150 ${H} C182 292 236 272 206 240 L214 236 C252 262 226 300 262 ${H}Z" fill="${col}" opacity=".9"/>`;
     }
 
+    // ---------- Korea ----------
+
+    // Soft green mountains behind a Korean village or madang (yard), with pines.
+    function korea(c, sc, hz, night, season) {
+        const lv = LEAVES[season] || LEAVES.summer;
+        const g = GROUND[season] || GROUND.summer;
+        let s = hills(c, hz - 34, night ? '#4c5d8f' : season === 'autumn' ? '#b9a27a' : '#8db3a6', 52);
+        s += hills(c, hz - 12, night ? '#3f5580' : season === 'autumn' ? '#a8894f' : '#6f9e7d', 30);
+        for (let i = 0; i < 9; i++) {
+            const x = 18 + i * 46 + c.rand(-10, 10);
+            const k = c.rand(0.4, 0.62);
+            s += `<g transform="translate(${n1(x)} ${n1(hz - 8 + c.rand(-6, 4))}) scale(${n1(k * 100) / 100})" opacity=".9">${Art.item(c, ['tree', 0, 0, { kind: 'pine', season, still: true }])}</g>`;
+        }
+        if (sc.bg === 'kvillage') {
+            s += `<g opacity=".85">${Art.item(c, ['chogajip', 66, hz + 6, { s: 0.34, porch: false }])}${Art.item(c, ['chogajip', 340, hz + 4, { s: 0.3, porch: false }])}</g>`;
+            s += ground(c, hz + 8, season, 'kvillage');
+            s += road();
+            return s;
+        }
+        // madang: packed earth inside an earthen wall capped with straw (or tiles, for the rich)
+        s += hills(c, hz + 2, shade(g[1], -12), 12);
+        const wt = hz - 52;
+        const tile = sc.wall === 'tile';
+        s += `<path d="M-10 ${hz + 4} L-10 ${wt + 8} L${W + 10} ${wt + 8} L${W + 10} ${hz + 4}Z" fill="${night ? '#a8977c' : '#dcc7a3'}" ${S(2)}/>`;
+        for (let i = 0; i < 26; i++) s += `<ellipse cx="${n1(c.rand(0, W))}" cy="${n1(c.rand(wt + 16, hz - 2))}" rx="${n1(c.rand(5, 9))}" ry="${n1(c.rand(3, 5))}" fill="${night ? '#958670' : '#c4ae8b'}" stroke="${OL}" stroke-width=".6" stroke-opacity=".4"/>`;
+        if (tile) {
+            s += `<path d="M-14 ${wt + 10} L-6 ${wt - 6} L${W + 6} ${wt - 6} L${W + 14} ${wt + 10}Z" fill="#4a4f5c" ${S(2)}/>`;
+            for (let x = -4; x < W + 8; x += 10) s += `<circle cx="${x}" cy="${wt + 9}" r="3.4" fill="#5b6170" ${S(1)}/>`;
+        } else {
+            s += `<path d="M-14 ${wt + 12} Q${W / 2} ${wt - 14} ${W + 14} ${wt + 12} Q${W / 2} ${wt + 2} -14 ${wt + 12}Z" fill="#d8b15c" ${S(2)}/>`;
+            for (let x = -8; x < W + 10; x += 8) s += `<path d="M${x} ${wt + 6} l2 6" stroke="#a9842f" stroke-width="1.2"/>`;
+        }
+        const gx = sc.gateX !== undefined ? sc.gateX : 312;
+        if (gx !== false) {
+            s += `<rect x="${gx - 24}" y="${wt + 4}" width="48" height="${hz - wt}" fill="#8a5a33" ${S(2)}/>`;
+            s += `<path d="M${gx} ${wt + 4} V${hz + 4} M${gx - 24} ${wt + 22} H${gx + 24} M${gx - 24} ${hz - 14} H${gx + 24}" stroke="${OL}" stroke-width="1.4"/>`;
+            s += tile
+                ? `<path d="M${gx - 36} ${wt + 6} L${gx - 28} ${wt - 10} L${gx + 28} ${wt - 10} L${gx + 36} ${wt + 6}Z" fill="#4a4f5c" ${S(1.8)}/>`
+                : `<path d="M${gx - 36} ${wt + 8} Q${gx} ${wt - 16} ${gx + 36} ${wt + 8} Q${gx} ${wt} ${gx - 36} ${wt + 8}Z" fill="#d8b15c" ${S(1.8)}/>`;
+        }
+        s += `<rect x="-10" y="${hz + 4}" width="${W + 20}" height="${H - hz}" fill="${season === 'winter' ? '#eef3f8' : night ? '#c9b48e' : '#e8d3a8'}"/>`;
+        s += `<rect x="-10" y="${hz + 4}" width="${W + 20}" height="8" fill="#000" opacity=".08"/>`;
+        for (let i = 0; i < 10; i++) s += `<ellipse cx="${n1(c.rand(0, W))}" cy="${n1(c.rand(hz + 16, H))}" rx="${n1(c.rand(6, 16))}" ry="2" fill="#d6bd8d"/>`;
+        return s;
+    }
+
+    // ---------- today's Korea ----------
+
+    // Apartment blocks (apateu) with numbered gables; lit windows at night.
+    function apartments(c, baseY, night, far) {
+        let s = '';
+        const cols = far ? ['#c9d6e3', '#d5dfe9', '#bfcfdf'] : ['#eef1f4', '#e6ebf0', '#f4efe8'];
+        let x = -12;
+        let i = 0;
+        while (x < W + 10) {
+            const w = c.rand(far ? 34 : 52, far ? 50 : 72);
+            const h = c.rand(far ? 70 : 96, far ? 110 : 150);
+            const col = cols[i % cols.length];
+            s += `<rect x="${n1(x)}" y="${n1(baseY - h)}" width="${n1(w)}" height="${n1(h)}" fill="${col}" ${far ? '' : S(1.8)}/>`;
+            if (!far) {
+                s += `<rect x="${n1(x)}" y="${n1(baseY - h)}" width="${n1(w)}" height="8" fill="#9db4c8" ${S(1.4)}/>`;
+                s += `<text x="${n1(x + w / 2)}" y="${n1(baseY - h + 22)}" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="800" font-size="9" fill="#5c7a96">${101 + i}</text>`;
+            }
+            const rows = Math.floor((h - (far ? 10 : 30)) / (far ? 9 : 12));
+            for (let r = 0; r < rows; r++) {
+                for (let k = 0; k < (far ? 3 : 4); k++) {
+                    const wx = x + 6 + k * ((w - 12) / (far ? 3 : 4));
+                    const wy = baseY - h + (far ? 8 : 28) + r * (far ? 9 : 12);
+                    const lit = night && c.r() < 0.55;
+                    const win = `<rect x="${n1(wx)}" y="${n1(wy)}" width="${n1((w - 12) / (far ? 3 : 4) - 3)}" height="${far ? 4 : 6}" fill="${lit ? '#ffd36b' : night ? '#3c4a7a' : '#a8c8e6'}"/>`;
+                    if (lit && !far) light(c, win);
+                    else s += win;
+                }
+            }
+            x += w + c.rand(far ? 2 : 6, far ? 8 : 16);
+            i++;
+        }
+        return s;
+    }
+
+    function seoul(c, sc, hz, night, season) {
+        let s = hills(c, hz - 64, night ? '#4c5d8f' : '#a9bfd0', 46);
+        s += apartments(c, hz - 6, night, true);
+        s += apartments(c, hz + 6, night, false);
+        const lv = LEAVES[season] || LEAVES.summer;
+        for (let i = 0; i < 6; i++) s += `<g transform="translate(${n1(20 + i * 74 + c.rand(-8, 8))} ${hz + 14}) scale(.55)">${Art.item(c, ['tree', 0, 0, { season, still: true, leaves: lv }])}</g>`;
+        s += `<rect x="-10" y="${hz + 12}" width="${W + 20}" height="${H - hz}" fill="${night ? '#8e8a99' : '#d8d4cc'}"/>`;
+        for (let x = -10; x < W + 10; x += 26) s += `<path d="M${x} ${hz + 12} l-18 ${H - hz}" stroke="${night ? '#7d798a' : '#c4bfb5'}" stroke-width="1.4"/>`;
+        s += `<path d="M-10 ${hz + 30} H${W + 10}" stroke="${night ? '#7d798a' : '#c4bfb5'}" stroke-width="1.4"/>`;
+        return s;
+    }
+
+    // A flat: light walls, wooden floor and a big window onto the blocks outside.
+    function flat(c, sc) {
+        const night = sc.time === 'night' || sc.time === 'dusk';
+        const t = c.top;
+        let s = `<rect y="${t}" width="${W}" height="${H - t}" fill="${linear(c, 'flatwall' + t, [[0, '#f7f2ea'], [1, '#ece4d6']])}"/>`;
+        const wx = sc.windowX !== undefined ? sc.windowX : 290;
+        s += `<rect x="${wx - 80}" y="48" width="160" height="128" fill="${night ? '#1c2659' : '#bde4f7'}" ${S(2.4)}/>`;
+        s += `<g clip-path="${c.def('flatwin' + wx, (id) => `<clipPath id="${id}"><rect x="${wx - 80}" y="48" width="160" height="128"/></clipPath>`)}">`;
+        s += hills(c, 150, night ? '#2f3d73' : '#a9c4d6', 26) + apartments(c, 176, night, true) + `</g>`;
+        if (night) s += `<path d="M${wx + 44} 70 A10 10 0 1 0 ${wx + 56} 82 A8 8 0 1 1 ${wx + 44} 70Z" fill="#fef3c7"/>`;
+        s += `<path d="M${wx} 48 V176" stroke="#f4f1ea" stroke-width="6"/><rect x="${wx - 80}" y="48" width="160" height="128" fill="none" ${S(2.4)}/>`;
+        s += `<path d="M${wx - 96} 40 Q${wx - 84} 110 ${wx - 92} 186 L${wx - 70} 186 Q${wx - 76} 110 ${wx - 72} 40Z" fill="#f4a261" ${S(1.8)}/>`;
+        s += `<path d="M${wx + 96} 40 Q${wx + 84} 110 ${wx + 92} 186 L${wx + 70} 186 Q${wx + 76} 110 ${wx + 72} 40Z" fill="#f4a261" ${S(1.8)}/>`;
+        s += `<rect x="${wx - 104}" y="36" width="208" height="6" rx="3" fill="#8a5a33" ${S(1.2)}/>`;
+        if (sc.clock !== false) {
+            const cx = wx > 200 ? 70 : 330;
+            s += `<circle cx="${cx}" cy="86" r="17" fill="#fff" ${S(2)}/><path d="M${cx} 86 V75 M${cx} 86 l8 4" stroke="${OL}" stroke-width="2" stroke-linecap="round"/>`;
+        }
+        s += `<rect y="214" width="${W}" height="${H - 214}" fill="#d9b48a"/>`;
+        for (let y = 222; y < H; y += 14) s += `<path d="M0 ${y} H${W}" stroke="#c49a6c" stroke-width="1.2"/>`;
+        for (let i = 0; i < 12; i++) s += `<path d="M${n1(c.rand(0, W))} ${n1(220 + Math.floor(c.rand(0, 7)) * 14)} v14" stroke="#c49a6c" stroke-width="1.2"/>`;
+        s += `<rect y="208" width="${W}" height="8" fill="#f4f1ea" ${S(1.4)}/>`;
+        return s;
+    }
+
+    // A Korean classroom: green chalkboard (sc.board: lines of chalk writing), window, wooden floor.
+    function classroom(c, sc) {
+        const t = c.top;
+        let s = `<rect y="${t}" width="${W}" height="${H - t}" fill="${linear(c, 'classwall' + t, [[0, '#f8f1e3'], [1, '#efe4cf']])}"/>`;
+        s += `<rect x="36" y="56" width="248" height="104" rx="4" fill="#2f6d50" stroke="#8a5a33" stroke-width="7"/>`;
+        s += `<rect x="36" y="56" width="248" height="104" rx="4" fill="none" ${S(1.6)}/>`;
+        s += `<rect x="40" y="160" width="240" height="6" fill="#b07a46" ${S(1.2)}/><rect x="70" y="157" width="14" height="4" fill="#fff"/><rect x="96" y="157" width="10" height="4" fill="#ffd6e0"/>`;
+        const lines = sc.board || [];
+        lines.forEach((ln, i) => {
+            s += `<text x="160" y="${n1(117 + i * 34 - (lines.length - 1) * 17)}" text-anchor="middle" font-family="Nunito, 'Gowun Dodum', sans-serif" font-weight="800" font-size="26" fill="#f8f9fa" opacity=".92">${Art.esc(ln)}</text>`;
+        });
+        s += `<rect x="314" y="54" width="70" height="112" fill="${sc.time === 'night' ? '#1c2659' : '#bde4f7'}" ${S(2.2)}/><path d="M349 54 V166 M314 110 H384" stroke="#f4f1ea" stroke-width="4"/>`;
+        s += `<circle cx="160" cy="34" r="11" fill="#fff" ${S(1.8)}/><path d="M160 34 V27 M160 34 l5 3" stroke="${OL}" stroke-width="1.6" stroke-linecap="round"/>`;
+        s += `<rect y="210" width="${W}" height="${H - 210}" fill="#cfa77a"/>`;
+        for (let y = 218; y < H; y += 14) s += `<path d="M0 ${y} H${W}" stroke="#b98e60" stroke-width="1.2"/>`;
+        s += `<rect y="204" width="${W}" height="8" fill="#a37b52" ${S(1.2)}/>`;
+        return s;
+    }
+
+    // A landing in an apartment block: the lift with its floor number (sc.floor,
+    // 12 unless given), a sign on the wall, tiles. Front doors are 'door' items
+    // standing on the wall line, y 236, so the people stand in front of them.
+    function hall(c, sc) {
+        const t = c.top;
+        const fl = String(sc.floor || 12);
+        const lx = sc.lift !== undefined ? sc.lift : 340;
+        let s = `<rect y="${t}" width="${W}" height="${H - t}" fill="${linear(c, 'hallwall' + t, [[0, '#f3f4f1'], [1, '#e3e7e3']])}"/>`;
+        s += `<rect y="178" width="${W}" height="58" fill="#d3dcd6"/><path d="M0 178 H${W}" stroke="#aebdb4" stroke-width="3"/>`;
+        for (const x of [100, 300]) s += `<rect x="${x - 30}" y="${t + 2}" width="60" height="8" rx="4" fill="#fffbe6" ${S(1.2)}/>`;
+        if (lx !== false) {
+            s += `<rect x="${lx - 44}" y="92" width="88" height="144" fill="#b9c3cb" ${S(2)}/>`;
+            s += `<rect x="${lx - 36}" y="110" width="72" height="126" fill="${linear(c, 'liftdoor', [[0, '#d5dde3'], [0.5, '#f4f6f8'], [1, '#c9d2d9']], false)}" ${S(1.6)}/>`;
+            s += `<path d="M${lx} 110 V236" stroke="${OL}" stroke-width="1.6"/>`;
+            s += `<rect x="${lx - 15}" y="96" width="30" height="11" rx="2" fill="#1f2937"/><text x="${lx}" y="105" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="800" font-size="9" fill="#ff6b6b">${Art.esc(fl)}</text>`;
+            s += `<rect x="${lx - 60}" y="150" width="11" height="24" rx="3" fill="#e2e8ec" ${S(1.2)}/>`;
+            s += `<path d="M${lx - 54.5} 155 l-3 4 h6Z M${lx - 54.5} 169 l-3 -4 h6Z" fill="#f59f00"/>`;
+        }
+        s += `<text x="${sc.signX || 40}" y="74" text-anchor="middle" font-family="Fredoka, Nunito, sans-serif" font-weight="700" font-size="24" fill="#8aa1b3">${Art.esc(fl)}F</text>`;
+        s += `<rect y="230" width="${W}" height="6" fill="#9fb0bc"/><rect y="236" width="${W}" height="${H - 236}" fill="#cdd3d6"/>`;
+        for (let y = 252; y < H; y += 18) s += `<path d="M0 ${y} H${W}" stroke="#b7bfc4" stroke-width="1.2"/>`;
+        for (let x = -20; x < W + 60; x += 52) s += `<path d="M${x} 236 L${n1(x - (x - 200) * 0.35)} ${H}" stroke="#b7bfc4" stroke-width="1.2"/>`;
+        return s;
+    }
+
     // ---------- interiors ----------
 
     function room(c, sc) {
@@ -302,6 +470,9 @@
         if (kind === 'palace') return palaceIn(c, sc);
         if (kind === 'cave') return cave(c, sc);
         if (kind === 'inn') return inn(c, sc);
+        if (kind === 'flat') return flat(c, sc);
+        if (kind === 'classroom') return classroom(c, sc);
+        if (kind === 'hall') return hall(c, sc);
 
         let s = sky(c, sc);
         const night = time === 'night' || time === 'dusk';
@@ -309,6 +480,8 @@
         const far = night ? '#5b6aa8' : time === 'sunset' ? '#b88fb7' : '#a9c4de';
         const near = night ? '#4a5896' : time === 'sunset' ? '#9c7fa8' : '#86a8cc';
         const snowy = season !== 'summer' || kind === 'mountains';
+        if (kind === 'kvillage' || kind === 'kyard') return s + korea(c, sc, hz, night, season);
+        if (kind === 'seoul') return s + seoul(c, sc, hz, night, season);
 
         if (kind === 'space') {
             c.lights.push(stars(c, 60, H));
@@ -418,7 +591,7 @@
     // Time-of-day wash drawn over the whole scene (lights go on top of it).
     Art.tint = function (c, sc) {
         const t = sc.time;
-        const inner = ['room', 'hutin', 'palace', 'cave', 'inn'].includes(sc.bg);
+        const inner = ['room', 'hutin', 'palace', 'cave', 'inn', 'flat', 'classroom', 'hall'].includes(sc.bg);
         const y = c.top;
         if (t === 'night') return `<rect y="${y}" width="${W}" height="${H - y}" fill="${inner ? '#2c3570' : '#27336e'}" opacity="${inner ? 0.34 : 0.38}" style="mix-blend-mode:multiply"/>`;
         if (t === 'dusk') return `<rect y="${y}" width="${W}" height="${H - y}" fill="#6d5ba8" opacity=".28" style="mix-blend-mode:multiply"/>`;
@@ -490,7 +663,7 @@
         }
         const fruit = o.fruit || (kind === 'apple' ? '#e63946' : kind === 'gold' ? '#fbbf24' : kind === 'pomegranate' ? '#c1121f' : kind === 'mulberry' ? '#5a189a' : kind === 'apricot' ? '#f8961e' : null);
         if (fruit) {
-            const nFruit = o.n || 9;
+            const nFruit = o.n !== undefined ? o.n : 9;
             for (let i = 0; i < nFruit; i++) {
                 const fx = c.rand(-32, 32) * k;
                 const fy = c.rand(-96, -52);
@@ -644,6 +817,440 @@
         s += `<ellipse cx="0" cy="-64" rx="10" ry="3" fill="#8b5a2b" ${S(1.4)}/>`;
         return s;
     });
+
+    // Hanji: cream paper in a wooden lattice, for Korean doors and windows.
+    function hanji(x, y, w, h, lit) {
+        let s = `<rect x="${n1(x)}" y="${n1(y)}" width="${n1(w)}" height="${n1(h)}" fill="${lit ? '#ffe9a8' : '#fbf6e9'}" ${S(1.6)}/>`;
+        for (let i = 1; i < 3; i++) s += `<path d="M${n1(x + (w * i) / 3)} ${n1(y)} V${n1(y + h)}" stroke="#8a5a33" stroke-width="1.1"/>`;
+        for (let i = 1; i < 4; i++) s += `<path d="M${n1(x)} ${n1(y + (h * i) / 4)} H${n1(x + w)}" stroke="#8a5a33" stroke-width="1.1"/>`;
+        return s;
+    }
+
+    // A swallow nest under the eaves, with chicks (Oltin tarvuz, Hungbu va Nolbu).
+    const eaveNest = (x, y) => `<g transform="translate(${n1(x)} ${n1(y)})"><path d="M-9 0 Q0 12 9 0Z" fill="#a47148" ${S(1.4)}/><circle cx="-3" cy="-1" r="3" fill="#233d8f" ${S(1)}/><circle cx="3" cy="-1" r="3" fill="#233d8f" ${S(1)}/><path d="M-3 -2 l-1 -3 l2 1z M3 -2 l1 -3 l-2 1z" fill="#f4a261"/></g>`;
+
+    // Bak: the Korean gourd, round and pale, with ribs and a curly stem.
+    function gourd(c, r, o = {}) {
+        let s = '';
+        if (o.glow) s += `<circle cy="${n1(-r)}" r="${n1(r * 2.2)}" fill="${radial(c, 'gourdglow', '#fff3b0', 0.7)}"/>`;
+        s += `<ellipse cx="0" cy="${n1(-r * 0.92)}" rx="${r}" ry="${n1(r * 0.92)}" fill="#eef3d8" ${S(2)}/>`;
+        s += [-0.55, 0, 0.55].map((k) => `<path d="M${n1(k * r * 0.5)} ${n1(-r * 1.8)} Q${n1(k * r * 1.35)} ${n1(-r * 0.92)} ${n1(k * r * 0.5)} ${n1(-r * 0.06)}" fill="none" stroke="#c7d3a2" stroke-width="1.6"/>`).join('');
+        s += `<ellipse cx="${n1(-r * 0.38)}" cy="${n1(-r * 1.3)}" rx="${n1(r * 0.22)}" ry="${n1(r * 0.14)}" fill="#fff" opacity=".8"/>`;
+        s += `<path d="M0 ${n1(-r * 1.82)} l-1 -6 l3 0z" fill="#7a5a2b" ${S(1)}/><path d="M1 ${n1(-r * 1.86 - 4)} q8 -6 6 2 q-2 5 4 4" fill="none" stroke="#5a8f3c" stroke-width="1.6"/>`;
+        return s;
+    }
+
+    Art.define('chogajip', (c, o) => {
+        // 초가집: earthen walls between wooden posts, hanji doors, a wooden maru
+        // porch, and a thick rounded straw roof tied down with rope.
+        const w = o.w || 120;
+        const h = o.h || 52;
+        const x0 = -w / 2;
+        const lit = !!o.lit;
+        let s = `<rect x="${x0 - 6}" y="-8" width="${w + 12}" height="8" rx="2" fill="#b7b0a3" ${S(1.8)}/>`;
+        s += [0.15, 0.4, 0.62, 0.85].map((k) => `<path d="M${n1(x0 - 6 + (w + 12) * k)} -8 v8" stroke="#8d867a" stroke-width="1.2"/>`).join('');
+        s += `<rect x="${x0}" y="${-h}" width="${w}" height="${h - 8}" fill="#e3c99a" ${S(2)}/>`;
+        for (const px of [x0, x0 + w / 2 - 3, x0 + w - 6]) s += `<rect x="${n1(px)}" y="${-h}" width="6" height="${h - 8}" fill="#8a5a33" ${S(1.4)}/>`;
+        s += `<rect x="${x0 - 2}" y="${-h - 2}" width="${w + 4}" height="6" fill="#7a4e2a" ${S(1.6)}/>`;
+        s += hanji(x0 + 12, -h + 9, w * 0.22, h * 0.6, lit) + hanji(x0 + w / 2 + 7, -h + 9, w * 0.22, h * 0.6, lit);
+        if (lit) light(c, `<circle cx="${n1(x0 + 12 + w * 0.11)}" cy="${n1(-h + 9 + h * 0.3)}" r="34" fill="${radial(c, 'hanji', '#ffcf5c', 0.65)}"/>${hanji(x0 + 12, -h + 9, w * 0.22, h * 0.6, true)}`);
+        if (o.porch !== false) s += `<rect x="${x0 + 4}" y="-16" width="${w - 8}" height="8" fill="#b07a46" ${S(1.6)}/><path d="M${x0 + 4} -12 H${x0 + w - 4}" stroke="#8a5a33" stroke-width="1"/>`;
+        const ey = -h - 2;
+        const Y1 = ey - 22;
+        const Yc = ey - (o.roofH || 44) - 10;
+        const X = x0 - 6;
+        s += `<path d="M${x0 - 18} ${ey + 6} Q${x0 - 22} ${ey - 10} ${X} ${Y1} Q0 ${Yc} ${-X} ${Y1} Q${-x0 + 22} ${ey - 10} ${-x0 + 18} ${ey + 6} Q0 ${ey + 12} ${x0 - 18} ${ey + 6}Z" fill="#d8b15c" ${S(2.2)}/>`;
+        s += `<path d="M${x0 - 18} ${ey + 6} Q0 ${ey + 12} ${-x0 + 18} ${ey + 6}" fill="none" stroke="#a9842f" stroke-width="3"/>`;
+        for (let k = -3; k <= 3; k++) s += `<path d="M${n1(k * w * 0.13)} ${n1((Y1 + Yc) / 2 - 2)} Q${n1(k * w * 0.19)} ${n1(ey - 12)} ${n1(k * w * 0.25)} ${ey + 8}" fill="none" stroke="#9b7a33" stroke-width="1.4"/>`;
+        s += `<path d="M${X + 4} ${ey - 10} Q0 ${Yc + 14} ${-X - 4} ${ey - 10}" fill="none" stroke="#9b7a33" stroke-width="1.4"/>`;
+        for (let x = x0 - 12; x < -x0 + 12; x += 7) s += `<path d="M${x} ${ey + 3} l2 6" stroke="#b8913f" stroke-width="1.2"/>`;
+        if (o.nest) s += eaveNest(x0 + 16, ey + 12);
+        const n = o.gourds || 0;
+        if (n) {
+            // vines over the roof, and big pale gourds lying on it
+            const roofY = (x) => {
+                const t = (1 - x / X) / 2;
+                return (1 - t) * (1 - t) * Y1 + 2 * t * (1 - t) * Yc + t * t * Y1;
+            };
+            s += blob([[x0 + 6, roofY(x0 + 6) + 6, 9], [x0 + 26, roofY(x0 + 26) + 2, 11], [-10, roofY(-10) + 1, 10], [x0 + w - 30, roofY(x0 + w - 30) + 2, 11], [x0 + w - 8, roofY(x0 + w - 8) + 6, 9]], '#5fa04e', 1.6);
+            const r = o.gourdR || 15;
+            for (let i = 0; i < n; i++) {
+                const gx = (i - (n - 1) / 2) * w * 0.3;
+                s += `<g transform="translate(${n1(gx)} ${n1(roofY(gx) + r * 0.5)})">${gourd(c, r * (i === Math.floor(n / 2) ? 1.15 : 1), { glow: o.glow })}</g>`;
+            }
+        }
+        return s;
+    });
+
+    Art.define('giwajip', (c, o) => {
+        // 기와집: a rich house of red-brown posts and white walls on a stone
+        // terrace, under a dark tiled roof whose eaves curl up at the corners.
+        const w = o.w || 150;
+        const h = o.h || 58;
+        const x0 = -w / 2;
+        let s = `<rect x="${x0 - 12}" y="-14" width="${w + 24}" height="14" fill="#c9c1b3" ${S(1.8)}/><path d="M${x0 - 12} -7 H${-x0 + 12}" stroke="#a39b8c" stroke-width="1.2"/>`;
+        s += `<rect x="-16" y="-7" width="32" height="7" fill="#b4ac9d" ${S(1.2)}/>`;
+        const top = -14 - h;
+        s += `<rect x="${x0}" y="${top}" width="${w}" height="${h}" fill="#f4efe6" ${S(2)}/>`;
+        const bay = (w - 7) / 3;
+        for (let i = 0; i < 3; i++) s += hanji(x0 + 7 + i * bay + 7, top + 12, bay - 21, h - 22, false);
+        for (let i = 0; i <= 3; i++) s += `<rect x="${n1(x0 + i * bay)}" y="${top}" width="7" height="${h}" fill="#7a3b1d" ${S(1.4)}/>`;
+        s += `<rect x="${x0 - 4}" y="${top - 8}" width="${w + 8}" height="9" fill="#5c2e16" ${S(1.6)}/>`;
+        s += Array.from({ length: 9 }, (_, i) => `<circle cx="${n1(x0 + 8 + (i * (w - 16)) / 8)}" cy="${top - 3.5}" r="2" fill="${['#2a9d8f', '#e63946', '#ffd166'][i % 3]}"/>`).join('');
+        const ey = top - 10;
+        const rt = ey - (o.roofH || 42);
+        const rx = w * 0.3;
+        s += `<path d="M${x0 - 36} ${ey - 12} Q0 ${ey + 18} ${-x0 + 36} ${ey - 12} Q${-x0 + 6} ${ey - 16} ${rx} ${rt} Q0 ${rt + 5} ${-rx} ${rt} Q${x0 - 6} ${ey - 16} ${x0 - 36} ${ey - 12}Z" fill="#4a4f5c" ${S(2.2)}/>`;
+        for (let k = -7; k <= 7; k++) s += `<path d="M${n1(k * rx / 7.5)} ${rt + 4} Q${n1(k * w / 13)} ${n1((rt + ey) / 2)} ${n1(k * (w + 60) / 15.5)} ${n1(ey + 2 - Math.abs(k) * 1.6)}" fill="none" stroke="#6b7282" stroke-width="1.4"/>`;
+        s += `<path d="M${-rx - 12} ${rt - 8} Q${-rx - 4} ${rt + 2} ${-rx + 8} ${rt} Q0 ${rt + 4} ${rx - 8} ${rt} Q${rx + 4} ${rt + 2} ${rx + 12} ${rt - 8}" fill="none" stroke="${OL}" stroke-width="8" stroke-linecap="round"/>`;
+        s += `<path d="M${-rx - 12} ${rt - 8} Q${-rx - 4} ${rt + 2} ${-rx + 8} ${rt} Q0 ${rt + 4} ${rx - 8} ${rt} Q${rx + 4} ${rt + 2} ${rx + 12} ${rt - 8}" fill="none" stroke="#2f333d" stroke-width="5" stroke-linecap="round"/>`;
+        for (let i = 0; i <= 16; i++) {
+            const t = i / 16;
+            const x = (1 - t) * (1 - t) * (x0 - 36) + 2 * t * (1 - t) * 0 + t * t * (-x0 + 36);
+            const y = (1 - t) * (1 - t) * (ey - 12) + 2 * t * (1 - t) * (ey + 18) + t * t * (ey - 12);
+            s += `<circle cx="${n1(x)}" cy="${n1(y)}" r="3.2" fill="#5b6170" ${S(1)}/>`;
+        }
+        if (o.nest) s += eaveNest(x0 + 20, ey + 8);
+        if (o.gourds) {
+            const r = o.gourdR || 15;
+            s += blob([[-rx, rt + 8, 9], [-rx * 0.3, rt + 6, 11], [rx * 0.4, rt + 6, 10], [rx, rt + 8, 9]], '#5fa04e', 1.6);
+            for (let i = 0; i < o.gourds; i++) s += `<g transform="translate(${n1((i - (o.gourds - 1) / 2) * rx * 0.9)} ${rt + 14})">${gourd(c, r)}</g>`;
+        }
+        return s;
+    });
+
+    Art.define('gourd', (c, o) => {
+        const r = o.r || 26;
+        if (!o.open) return gourd(c, r, o);
+        // sawn open: the bowl, what came out of it, and the lid lying beside it
+        let s = '';
+        const rimY = -r * 0.85;
+        if (o.open === 'gold' || o.open === 'rice') s += `<circle cy="${n1(rimY - r * 0.4)}" r="${n1(r * 2.3)}" fill="${radial(c, 'gourdopen', o.open === 'gold' ? '#ffd166' : '#ffffff', 0.75)}"/>`;
+        s += `<g transform="translate(${n1(r * 1.25)} ${n1(-r * 0.2)}) rotate(28)"><path d="M${-r * 0.9} 0 A${r * 0.9} ${r * 0.75} 0 0 1 ${r * 0.9} 0Z" fill="#eef3d8" ${S(1.8)}/><path d="M0 ${n1(-r * 0.75)} l-1 -5 l3 0z" fill="#7a5a2b" ${S(1)}/></g>`;
+        s += `<path d="M${-r} ${n1(rimY)} A${r} ${n1(r * 0.85)} 0 0 0 ${r} ${n1(rimY)}Z" fill="#e4edc6" ${S(2)}/>`;
+        s += [-0.5, 0, 0.5].map((k) => `<path d="M${n1(k * r * 1.3)} ${n1(rimY + 2)} Q${n1(k * r * 1.1)} ${n1(rimY + r * 0.55)} ${n1(k * r * 0.5)} ${n1(-r * 0.06)}" fill="none" stroke="#c2cf98" stroke-width="1.6"/>`).join('');
+        s += `<ellipse cx="0" cy="${n1(rimY)}" rx="${r}" ry="${n1(r * 0.24)}" fill="#fbfdf2" ${S(1.8)}/>`;
+        if (o.open === 'gold') {
+            s += [[-10, -2], [6, -4], [-2, -9], [14, -1], [-14, -8], [4, -14], [10, -9]].map(([x, y]) => `<ellipse cx="${n1(x * r / 26)}" cy="${n1(rimY + y * r / 26)}" rx="${n1(5 * r / 26)}" ry="${n1(3 * r / 26)}" fill="#fbbf24" ${S(1.2)}/>`).join('');
+            s += Art.parts.sparkles(c, { y: rimY - r * 0.9, w: r * 2.2, h: r * 1.6, n: 5 });
+        } else if (o.open === 'rice') {
+            s += `<path d="M${n1(-r * 0.85)} ${n1(rimY)} Q0 ${n1(rimY - r * 0.9)} ${n1(r * 0.85)} ${n1(rimY)}Z" fill="#fff" ${S(1.6)}/>`;
+            for (let i = 0; i < 16; i++) s += `<ellipse cx="${n1(c.rand(-r * 0.7, r * 0.7))}" cy="${n1(rimY - c.rand(2, r * 0.55))}" rx="1.8" ry="1.1" fill="#f1ede1"/>`;
+            for (let i = 0; i < 8; i++) s += `<ellipse cx="${n1(r + c.rand(2, 18))}" cy="${n1(-c.rand(0, 4))}" rx="1.8" ry="1.1" fill="#fff" stroke="${OL}" stroke-width=".5"/>`;
+        } else if (o.open === 'smoke') {
+            for (let i = 0; i < 3; i++) s += `<g transform="translate(${n1((i - 1) * r * 0.5)} ${n1(rimY - 8)})"><g ${c.anim('sv-rise', 3.2, i)}><circle r="${n1(r * 0.42)}" fill="#6c5b7b" opacity=".75"/></g></g>`;
+        }
+        return s;
+    });
+
+    Art.define('saw', (c, o) => {
+        const half = (o.w || 72) / 2;
+        let teeth = '';
+        for (let x = -half + 2; x < half - 2; x += 4) teeth += `l2 4 l2 -4 `;
+        return `<rect x="${-half}" y="-4" width="${half * 2}" height="8" rx="2" fill="#b9c2cc" ${S(1.4)}/><path d="M${-half + 2} 4 ${teeth}" fill="#b9c2cc" ${S(1)}/>` +
+            tube(-half - 4, -12, -half - 4, 10, 3.4, '#9c6b3f') + tube(half + 4, -12, half + 4, 10, 3.4, '#9c6b3f');
+    });
+
+    Art.define('onggi', (c, o) => {
+        // jangdok: brown earthenware jars of soy sauce, doenjang and kimchi
+        const jars = [[-28, 1], [8, 1.25], [40, 0.85], [-8, 0.7], [62, 0.72]].slice(0, o.n || 3);
+        return jars.map(([x, k]) => `<g transform="translate(${x} 0) scale(${k})"><path d="M-14 0 Q-21 -14 -16 -24 Q-12 -30 -8 -31 L8 -31 Q12 -30 16 -24 Q21 -14 14 0Z" fill="#6b3f2a" ${S(1.8)}/>` +
+            `<ellipse cx="0" cy="-32" rx="10" ry="3.2" fill="#55311f" ${S(1.4)}/><path d="M-12 -34 Q0 -42 12 -34 L10 -31 Q0 -36 -10 -31Z" fill="#7c4a31" ${S(1.4)}/>` +
+            `<path d="M-10 -22 Q-8 -12 -9 -4" stroke="#a87458" stroke-width="2" fill="none" opacity=".6"/></g>`).join('');
+    });
+
+    Art.define('school', (c, o) => {
+        // a three-storey school with a clock over the doors and a flag
+        const w = o.w || 230;
+        const h = o.h || 108;
+        const x0 = -w / 2;
+        let s = `<rect x="${x0 + w - 6}" y="${-h - 46}" width="3" height="${h + 46}" fill="#9aa5b1"/><path d="M${x0 + w - 3} ${-h - 46} h30 v18 h-30z" fill="#fff" ${S(1.4)}/><circle cx="${x0 + w + 12}" cy="${-h - 37}" r="5.5" fill="#e63946"/><path d="M${x0 + w + 6.5} ${-h - 37} a5.5 5.5 0 0 0 11 0z" fill="#1d4ed8"/>`;
+        s += `<rect x="${x0}" y="${-h}" width="${w}" height="${h}" fill="#f6e7c8" ${S(2)}/>`;
+        s += `<rect x="${x0 - 4}" y="${-h - 8}" width="${w + 8}" height="10" fill="#c2694f" ${S(1.6)}/>`;
+        for (let r = 0; r < 3; r++) {
+            for (let k = 0; k < 8; k++) {
+                if (r === 2 && (k === 3 || k === 4)) continue;
+                s += `<rect x="${n1(x0 + 10 + k * (w - 20) / 8)}" y="${-h + 10 + r * 32}" width="${n1((w - 20) / 8 - 8)}" height="20" fill="#a8d8f0" ${S(1.2)}/>`;
+            }
+        }
+        s += `<rect x="-26" y="-36" width="52" height="36" fill="#7fb7d6" ${S(1.8)}/><path d="M0 -36 V0" stroke="${OL}" stroke-width="1.6"/><rect x="-32" y="-40" width="64" height="6" fill="#c2694f" ${S(1.4)}/>`;
+        s += `<circle cx="0" cy="${-h + 2}" r="15" fill="#fff" ${S(2)}/><path d="M0 ${-h + 2} V${-h - 8} M0 ${-h + 2} l7 4" stroke="${OL}" stroke-width="2" stroke-linecap="round"/>`;
+        return s;
+    });
+
+    Art.define('desk', (c, o) => {
+        // a school desk with its chair; o.book: an open book on it
+        let s = `<rect x="18" y="-34" width="4" height="34" fill="#9aa5b1"/><rect x="40" y="-34" width="4" height="34" fill="#9aa5b1"/><rect x="14" y="-38" width="34" height="6" rx="2" fill="#e9c46a" ${S(1.4)}/><rect x="40" y="-62" width="6" height="28" rx="2" fill="#e9c46a" ${S(1.4)}/>`;
+        s += `<rect x="-30" y="-46" width="4" height="46" fill="#9aa5b1"/><rect x="22" y="-46" width="4" height="46" fill="#9aa5b1"/>`;
+        s += `<rect x="-36" y="-52" width="66" height="8" rx="2" fill="#e9c46a" ${S(1.6)}/>`;
+        if (o.book) s += `<path d="M-22 -54 L-6 -51 L10 -54 L10 -58 L-6 -55 L-22 -58Z" fill="#fff" ${S(1.2)}/>`;
+        return s;
+    });
+
+    Art.define('tablet', (c, o) => {
+        // a tablet on its stand, video-calling: o.show is 'buvi' (her face) or 'apricot' (her garden)
+        const sw = 78;
+        const sh = 56;
+        let s = `<path d="M-14 0 L-4 -20 L4 -20 L14 0Z" fill="#6c757d" ${S(1.6)}/>`;
+        s += `<rect x="${-sw / 2 - 6}" y="${-sh - 26}" width="${sw + 12}" height="${sh + 12}" rx="8" fill="#2b2d42" ${S(2)}/>`;
+        const clip = c.def('tabscreen', (id) => `<clipPath id="${id}"><rect x="${-sw / 2}" y="${-sh - 20}" width="${sw}" height="${sh}" rx="3"/></clipPath>`);
+        s += `<rect x="${-sw / 2}" y="${-sh - 20}" width="${sw}" height="${sh}" rx="3" fill="${o.show === 'apricot' ? '#cdebfa' : '#fbe7c6'}"/><g clip-path="${clip}">`;
+        if (o.show === 'apricot') {
+            s += `<rect x="${-sw / 2}" y="-34" width="${sw}" height="14" fill="#9bd06c"/><g transform="translate(0 -26) scale(.5)">${Art.parts.tree(c, { kind: 'blossom' })}</g>`;
+        } else {
+            const b = Object.assign({}, Art.cast.buvi, { mood: o.mood || 'joy' });
+            s += `<ellipse cx="0" cy="-20" rx="30" ry="18" fill="${b.color}" ${S(1.6)}/><g transform="translate(0 -52) scale(.86)">${Art.head(c, b)}</g>`;
+        }
+        s += `</g><circle cx="${sw / 2 - 6}" cy="${-sh - 14}" r="3" fill="#e63946"/>`;
+        return s;
+    });
+
+    // food on a plate, for sharing
+    const plate = (inner, rx = 30) => `<ellipse cx="0" cy="-4" rx="${rx}" ry="${n1(rx * 0.28)}" fill="#fff" ${S(1.8)}/><ellipse cx="0" cy="-5" rx="${rx - 6}" ry="${n1(rx * 0.2)}" fill="none" stroke="#5aa9e6" stroke-width="1.6" stroke-dasharray="4 3"/>${inner}`;
+
+    Art.define('lagan', (c, o) => {
+        // a lagan of osh: rice heaped with carrot and meat, steaming
+        const r = o.r || 36;
+        let s = plate(`<path d="M${-r + 8} -6 Q0 ${-r * 0.95} ${r - 8} -6Z" fill="#f4dd9a" ${S(1.8)}/>`, r);
+        for (let i = 0; i < 9; i++) s += `<path d="M${n1(c.rand(-r * 0.5, r * 0.5))} ${n1(c.rand(-r * 0.55, -10))} l6 -2" stroke="#f77f00" stroke-width="2.6" stroke-linecap="round"/>`;
+        s += `<circle cx="-6" cy="${n1(-r * 0.62)}" r="5" fill="#8c4b2a" ${S(1.2)}/><circle cx="7" cy="${n1(-r * 0.56)}" r="4.4" fill="#8c4b2a" ${S(1.2)}/>`;
+        if (o.steam !== false) s += [-10, 0, 10].map((x, i) => `<g transform="translate(${x} ${n1(-r * 0.9)})"><g ${c.anim('sv-rise', 2.6, i * 0.8)}><path d="M0 0 q4 -6 0 -12 q-4 -6 0 -12" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".8"/></g></g>`).join('');
+        return s;
+    });
+
+    Art.define('tteok', (c) => {
+        // songpyeon and other rice cakes, white, pink, green and yellow
+        let s = plate('', 30);
+        [[-14, -8, '#fff'], [0, -10, '#ffc8dd'], [14, -8, '#b7e4c7'], [-7, -15, '#ffe066'], [8, -16, '#fff']].forEach(([x, y, col]) => {
+            s += `<path d="M${x - 8} ${y} Q${x} ${y - 11} ${x + 8} ${y} Z" fill="${col}" ${S(1.4)}/>`;
+        });
+        return s;
+    });
+
+    Art.define('kimbap', (c) => {
+        let s = plate('', 30);
+        [[-14, -9], [0, -10], [14, -9], [-7, -16], [7, -16]].forEach(([x, y]) => {
+            s += `<circle cx="${x}" cy="${y}" r="6.6" fill="#1b4332" ${S(1.2)}/><circle cx="${x}" cy="${y}" r="5" fill="#fff"/><circle cx="${x - 1.5}" cy="${y - 1}" r="1.4" fill="#f77f00"/><circle cx="${x + 1.6}" cy="${y}" r="1.4" fill="#ffd166"/><circle cx="${x}" cy="${y + 1.8}" r="1.3" fill="#52b788"/>`;
+        });
+        return s;
+    });
+
+    Art.define('somsa', (c) => {
+        let s = plate('', 30);
+        [[-12, -8], [10, -8], [-1, -16]].forEach(([x, y]) => {
+            s += `<path d="M${x - 10} ${y + 4} L${x} ${y - 10} L${x + 10} ${y + 4}Z" fill="#e3a857" ${S(1.4)}/><circle cx="${x - 2}" cy="${y - 1}" r=".9" fill="#7a4f12"/><circle cx="${x + 2}" cy="${y + 1}" r=".9" fill="#7a4f12"/>`;
+        });
+        return s;
+    });
+
+    Art.define('honey', () => `<path d="M-14 0 Q-17 -14 -12 -26 L12 -26 Q17 -14 14 0Z" fill="#f2a516" ${S(1.8)}/><rect x="-14" y="-32" width="28" height="7" rx="2" fill="#c97c0a" ${S(1.4)}/>` +
+        `<rect x="-9" y="-18" width="18" height="10" rx="2" fill="#fff8e1" ${S(1)}/><path d="M-4 -13 h8" stroke="#c97c0a" stroke-width="1.6"/><path d="M-10 -22 q-2 6 1 10" stroke="#ffe08a" stroke-width="2.4" fill="none" stroke-linecap="round"/>`);
+
+    Art.define('kimchi', () => `<path d="M-18 -10 Q0 8 18 -10Z" fill="#fff" ${S(1.8)}/>` +
+        [[-9, -12], [0, -16], [9, -12], [-3, -10], [5, -9]].map(([x, y]) => `<path d="M${x - 6} ${y + 2} Q${x} ${y - 7} ${x + 6} ${y + 2}" fill="#e5383b" ${S(1.2)}/><path d="M${x - 3} ${y} q3 -3 6 0" stroke="#fff" stroke-width="1" fill="none"/>`).join(''));
+
+    Art.define('door', (c, o) => {
+        // a flat's front door with its number and keypad lock; o.open: swung
+        // open onto the lit flat inside
+        let s = `<rect x="-30" y="-120" width="60" height="120" fill="#e6ebf0" ${S(2)}/>`;
+        const leaf = o.color || '#6c8eae';
+        if (o.open) {
+            s += `<rect x="-24" y="-114" width="48" height="114" fill="#ffe7b3"/><rect x="-24" y="-30" width="48" height="30" fill="#e2b77f"/>`;
+            s += `<rect x="-24" y="-114" width="48" height="114" fill="none" ${S(1.8)}/>`;
+            s += `<path d="M24 -114 L40 -120 L40 6 L24 0Z" fill="${leaf}" ${S(1.8)}/>`;
+        } else {
+            s += `<rect x="-24" y="-114" width="48" height="114" fill="${leaf}" ${S(1.8)}/>`;
+            s += `<rect x="10" y="-84" width="11" height="16" rx="2" fill="#343a40" ${S(1)}/>`;
+            for (let r = 0; r < 3; r++) s += `<path d="M13 ${-81 + r * 4} h1.6 M17 ${-81 + r * 4} h1.6" stroke="#8de0ff" stroke-width="1.6"/>`;
+            s += `<rect x="12" y="-62" width="7" height="16" rx="2" fill="#adb5bd" ${S(1.2)}/>`;
+        }
+        // the number: on the door, or on the wall above an open one
+        const py = o.open ? -136 : -104;
+        s += `<rect x="-12" y="${py}" width="24" height="12" rx="2" fill="#fff" ${S(1.2)}/><text x="0" y="${py + 9}" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="800" font-size="9" fill="#2b2d42">${Art.esc(o.no || '1203')}</text>`;
+        return s;
+    });
+
+    Art.define('table', (c, o) => {
+        // a low wooden table at home; things stand on it at y -42
+        const w = o.w || 96;
+        let s = `<rect x="${-w / 2 + 6}" y="-36" width="7" height="36" rx="2" fill="#8a5a33" ${S(1.4)}/><rect x="${w / 2 - 13}" y="-36" width="7" height="36" rx="2" fill="#8a5a33" ${S(1.4)}/>`;
+        s += `<rect x="${-w / 2}" y="-42" width="${w}" height="8" rx="3" fill="#c08552" ${S(1.6)}/>`;
+        return s;
+    });
+
+    Art.define('sejong', (c, o) => {
+        // King Sejong's golden statue in Seoul: seated, with a book, on a stone pedestal
+        const gold = { skin: '#e3b440', hair: '#b8862a', hat: '#c99a30', hatBand: '#a87a22', color: '#d6a43a', color2: '#ecc960', pants: '#c99a30', shoes: '#a87a22', trim: '#f2d47c', goreum: '#f2d47c', beardColor: '#c4932c' };
+        light(c, `<circle cx="0" cy="-120" r="80" fill="${radial(c, 'sejongglow', '#fff3b0', 0.45)}"/>`);
+        let s = `<rect x="-60" y="-46" width="120" height="46" fill="#cfcabb" ${S(2)}/><rect x="-68" y="-54" width="136" height="10" rx="2" fill="#e5e1d5" ${S(1.8)}/>`;
+        s += `<rect x="-32" y="-36" width="64" height="20" rx="2" fill="#b8b2a1" ${S(1.2)}/><text x="0" y="-21" text-anchor="middle" font-family="'Gowun Dodum', sans-serif" font-weight="700" font-size="11" fill="#5a5345">세종대왕</text>`;
+        // the throne's back, the king (legs under his robe), then the robe over his knees and his feet
+        s += `<rect x="-38" y="-150" width="76" height="70" rx="8" fill="#b8862a" ${S(1.8)}/>`;
+        const king = Art.parts.person(c, Object.assign({ head: 'ikseon', beard: 'short', outfit: 'durumagi', noLegs: true, pose: 'give', hold: 'book', mood: 'happy' }, gold));
+        s += `<g transform="translate(0 -84) scale(1.3)">${king}</g>`;
+        s += `<path d="M-34 -90 Q0 -98 34 -90 L40 -60 Q0 -52 -40 -60Z" fill="#d6a43a" ${S(1.8)}/><path d="M0 -92 V-56" stroke="#b8862a" stroke-width="1.6"/>`;
+        s += `<ellipse cx="-16" cy="-57" rx="10" ry="4.6" fill="#a87a22" ${S(1.5)}/><ellipse cx="16" cy="-57" rx="10" ry="4.6" fill="#a87a22" ${S(1.5)}/>`;
+        return s;
+    });
+
+    Art.define('paper', (c, o) => {
+        // a sheet of handwriting, one line per o.lines; o.keep: shown as written in every script
+        const lines = o.lines || [];
+        const w = o.w || 100;
+        const h = 18 + lines.length * 26;
+        let s = `<rect x="${-w / 2}" y="${-h}" width="${w}" height="${h}" rx="3" fill="#fffdf6" ${S(1.8)}/>`;
+        s += `<path d="M${-w / 2 + 8} ${-h + 6} h${w - 16}" stroke="#ffadad" stroke-width="1.2"/>`;
+        lines.forEach((ln, i) => {
+            s += `<text x="0" y="${-h + 32 + i * 26}" text-anchor="middle" font-family="Nunito, 'Gowun Dodum', sans-serif" font-weight="800" font-size="19" fill="${['#1d4ed8', '#c1121f', '#2b9348'][i % 3]}"${o.keep ? ' translate="no"' : ''}>${Art.esc(ln)}</text>`;
+        });
+        return s;
+    });
+
+    // a soup or pudding bowl standing on a table
+    const kosa = (fill, inner, col = '#f8f9fa', pattern = '') => `<path d="M-21 -15 Q-19 2 0 3 Q19 2 21 -15Z" fill="${col}" ${S(1.8)}/>${pattern}` +
+        `<ellipse cx="0" cy="-15" rx="21" ry="5.4" fill="${fill}" ${S(1.6)}/>${inner}`;
+    const steam = (c, y) => [-8, 6].map((x, i) => `<g transform="translate(${x} ${y})"><g ${c.anim('sv-rise', 3.2, i * 1.3)}><path d="M0 0 q-4 -5 0 -10 q4 -5 0 -10" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" opacity=".85"/></g></g>`).join('');
+
+    Art.define('tteokguk', (c, o) => {
+        // tteokguk: New Year soup with white rice-cake slices, egg and spring onion
+        const slices = [[-10, -15], [-2, -13.5], [8, -15.5], [2, -17]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="5" ry="2.5" fill="#fff" ${S(1)}/>`).join('');
+        return kosa('#f1e6cf', slices + `<path d="M-6 -17.5 l3 -1 M6 -12.6 l3 1" stroke="#2b9348" stroke-width="1.8" stroke-linecap="round"/><path d="M-12 -12.6 h4 M10 -18 h3" stroke="#f4a261" stroke-width="1.8" stroke-linecap="round"/>`) +
+            (o.steam === false ? '' : steam(c, -22));
+    });
+
+    Art.define('sumalak', (c, o) => {
+        // a kosa of sumalak in the blue cotton-flower pattern; o.stone: the lucky pebble on top
+        const cotton = [-12, 0, 12].map((x) => `<g transform="translate(${x} -6)"><circle r="2.6" fill="#fff"/><path d="M0 -4 v-2 M-3.6 -2 l-1.6 -1 M3.6 -2 l1.6 -1" stroke="#fff" stroke-width="1.2"/></g>`).join('');
+        const stone = o.stone ? `<ellipse cx="4" cy="-16.5" rx="3.6" ry="2.6" fill="#adb5bd" ${S(1.2)}/>` : '';
+        return kosa('#6b3e26', `<path d="M-14 -15 q4 -2 8 0 M2 -14 q4 -2 8 0" stroke="#8a5536" stroke-width="1.4" fill="none"/>${stone}`, '#1d4ed8', cotton) + (o.steam ? steam(c, -22) : '');
+    });
+
+    Art.define('yut', (c, o) => {
+        // yutnori: four yut sticks thrown over the yutpan mat
+        let s = `<ellipse cx="0" cy="-4" rx="58" ry="11" fill="#f4e3c1" ${S(1.8)}/><path d="M-40 -4 L40 -4 M0 -12 L0 4 M-28 -11 L28 3 M-28 3 L28 -11" stroke="#c49a6c" stroke-width="1.2"/>`;
+        const sticks = o.air ? [[-24, -64, -30], [-6, -78, 20], [14, -60, 60], [30, -74, -10]] : [[-22, -10, 4], [-8, -11, -6], [8, -10, 8], [22, -11, -4]];
+        sticks.forEach(([x, y, r], i) => {
+            const flat = i % 2 === 0;
+            s += `<g transform="translate(${x} ${y}) rotate(${r})"><rect x="-4" y="-18" width="8" height="36" rx="3.6" fill="${flat ? '#f1dcae' : '#c8a165'}" ${S(1.5)}/>` +
+                (flat ? '<path d="M-2 -8 l4 4 M2 -8 l-4 4 M-2 4 l4 4 M2 4 l-4 4" stroke="#8a5a33" stroke-width="1.1"/>' : '') + `</g>`;
+        });
+        if (o.air) s += [[-34, -88], [38, -92], [4, -100]].map(([x, y]) => `<path d="M${x} ${y} l4 -4 M${x + 6} ${y + 2} l5 -2" stroke="#ffd166" stroke-width="2" stroke-linecap="round"/>`).join('');
+        return s;
+    });
+
+    Art.define('maysa', () => {
+        // a plate of green wheat sprouts, grown for Navro'z (and for sumalak)
+        let s = `<ellipse cx="0" cy="-4" rx="30" ry="8" fill="#fff" ${S(1.8)}/><ellipse cx="0" cy="-6" rx="24" ry="5" fill="#d9b48a"/>`;
+        for (let i = 0; i < 15; i++) {
+            const x = -20 + i * 2.9;
+            const h = 22 + ((i * 7) % 11);
+            s += `<path d="M${n1(x)} -6 q${i % 2 ? 2 : -2} ${-h / 2} ${i % 2 ? 1 : -1} ${-h}" fill="none" stroke="${i % 3 ? '#52b788' : '#2d6a4f'}" stroke-width="2.4" stroke-linecap="round"/>`;
+        }
+        return s + `<path d="M-22 -10 Q0 -6 22 -10" fill="none" stroke="#e63946" stroke-width="2.4"/>`;
+    });
+
+    Art.define('mirror', (c, o) => {
+        // a round magic mirror on a carved stand; o.show: 'arman' (stone mountains and a
+        // canal, as Farhod saw them) or 'moon' (moonlight caught in it)
+        const r = 34;
+        light(c, `<circle cx="0" cy="-${r + 34}" r="${r + 30}" fill="${radial(c, 'mirrorglow', o.show === 'moon' ? '#e0f2ff' : '#fff3b0', 0.7)}"/>`);
+        let s = `<path d="M-22 0 Q-12 -14 -6 -26 L6 -26 Q12 -14 22 0Z" fill="#b8862a" ${S(1.8)}/><rect x="-5" y="-36" width="10" height="12" fill="#c99a30" ${S(1.4)}/>`;
+        s += `<circle cx="0" cy="${-r - 36}" r="${r + 6}" fill="#e9c46a" ${S(2)}/>`;
+        const clip = c.def('mirrorclip', (id) => `<clipPath id="${id}"><circle cx="0" cy="${-r - 36}" r="${r}"/></clipPath>`);
+        s += `<circle cx="0" cy="${-r - 36}" r="${r}" fill="${o.show === 'moon' ? '#1c2659' : '#cfe8ff'}"/><g clip-path="${clip}">`;
+        if (o.show === 'arman') {
+            s += `<path d="M-40 -66 L-22 -96 L-8 -78 L8 -104 L26 -80 L40 -94 V-36 H-40Z" fill="#a8a29e"/><path d="M-40 -58 Q0 -66 40 -52 V-36 H-40Z" fill="#8fbf6a"/>`;
+            s += `<path d="M-36 -48 Q0 -58 36 -46" fill="none" stroke="#5fb3e4" stroke-width="4"/><circle cx="-6" cy="-60" r="2.6" fill="#1d3557"/><circle cx="8" cy="-58" r="2.6" fill="#c9184a"/>`;
+        } else if (o.show === 'moon') {
+            s += `<circle cx="10" cy="-80" r="12" fill="#fef3c7"/><circle cx="16" cy="-84" r="10" fill="#1c2659"/>`;
+        }
+        s += `</g><path d="M-18 ${-r - 52} Q-8 ${-r - 62} 4 ${-r - 60}" fill="none" stroke="#fff" stroke-width="3" opacity=".7" stroke-linecap="round"/>`;
+        return s;
+    });
+
+    Art.define('suzani', (c, o) => {
+        // a so'zana: a hand-embroidered hanging with big red flowers, hung on the wall
+        const w = o.w || 130;
+        const h = o.h || 90;
+        let s = `<rect x="${-w / 2}" y="${-h}" width="${w}" height="${h}" rx="3" fill="#f7ecd6" ${S(1.8)}/>`;
+        s += `<rect x="${-w / 2 + 6}" y="${-h + 6}" width="${w - 12}" height="${h - 12}" fill="none" stroke="#2a9d8f" stroke-width="3" stroke-dasharray="6 4"/>`;
+        const rose = (x, y, r) => `<g transform="translate(${n1(x)} ${n1(y)})">${[0, 45, 90, 135].map((a) => `<ellipse rx="${r}" ry="${n1(r * 0.42)}" transform="rotate(${a})" fill="#d62828" ${S(1)}/>`).join('')}<circle r="${n1(r * 0.42)}" fill="#ffd166" ${S(1)}/></g>`;
+        s += rose(0, -h / 2, 17) + rose(-w / 3, -h * 0.28, 10) + rose(w / 3, -h * 0.28, 10) + rose(-w / 3, -h * 0.72, 10) + rose(w / 3, -h * 0.72, 10);
+        s += [[-w / 6, -h / 2], [w / 6, -h / 2]].map(([x, y]) => `<path d="M${n1(x)} ${n1(y - 8)} q6 8 0 16 q-6 -8 0 -16Z" fill="#2a9d8f" ${S(0.8)}/>`).join('');
+        return s;
+    });
+
+    Art.define('kosa', (c, o) => {
+        // a Rishton bowl: turquoise and blue glaze with white flowers
+        let s = `<path d="M-24 -18 Q-22 2 0 3 Q22 2 24 -18Z" fill="#0f7bbf" ${S(1.8)}/><path d="M-18 -10 Q0 -2 18 -10" fill="none" stroke="#7fd3e8" stroke-width="2.4"/>`;
+        s += [-12, 0, 12].map((x) => `<g transform="translate(${x} -8)"><circle r="2.8" fill="#fff"/><circle r="1.2" fill="#f4a261"/></g>`).join('');
+        s += `<ellipse cx="0" cy="-18" rx="24" ry="6" fill="#bde9f2" ${S(1.6)}/><ellipse cx="0" cy="-18" rx="15" ry="3.4" fill="none" stroke="#0f7bbf" stroke-width="1.6"/>`;
+        return s + `<rect x="-10" y="1" width="20" height="4" rx="1.6" fill="#0b5f94" ${S(1.2)}/>`;
+    });
+
+    Art.define('rasadxona', (c, o) => {
+        // Mirzo Ulug'bek's observatory in Samarkand: the round brick drum and, cut deep
+        // into the hill, the great arc of his sextant
+        let s = `<path d="M-110 0 Q-100 -60 0 -64 Q100 -60 110 0Z" fill="#c9a876" ${S(1.8)}/>`;
+        s += `<path d="M-70 -44 L-70 -112 Q0 -132 70 -112 L70 -44 Q0 -56 -70 -44Z" fill="#d9b27c" ${S(2)}/>`;
+        for (let x = -60; x <= 60; x += 15) s += `<path d="M${x} -50 V-114" stroke="#b8864f" stroke-width="1.4"/>`;
+        s += `<path d="M-70 -78 Q0 -92 70 -78" fill="none" stroke="#2563eb" stroke-width="5"/>`;
+        s += `<path d="M-16 -2 Q-34 -50 -12 -100 L12 -100 Q-8 -50 16 -2Z" fill="#f4efe4" ${S(1.8)}/>`;
+        for (let i = 1; i < 9; i++) {
+            const t = i / 9;
+            const y = -2 - t * 98;
+            const x = -16 + Math.sin(t * Math.PI) * -12 + t * 4;
+            s += `<path d="M${n1(x + 2)} ${n1(y)} h${n1(26 - t * 4)}" stroke="#a37b52" stroke-width="1.2"/>`;
+        }
+        return s;
+    });
+
+    Art.define('kaltaminor', (c) => {
+        // Kalta minor in Khiva: short and wide, never finished, covered in turquoise tiles
+        const tiles = c.def('kaltatile', (id) => `<pattern id="${id}" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="12" fill="#14a3a8"/><path d="M6 1 L11 6 L6 11 L1 6Z" fill="#0b6e8a"/><circle cx="6" cy="6" r="1.6" fill="#fff"/></pattern>`);
+        let s = `<path d="M-40 0 L-30 -118 L30 -118 L40 0Z" fill="${tiles}" ${S(2)}/>`;
+        [-24, -52, -80, -104].forEach((y, i) => { s += `<path d="M${-39 + i * 2.6} ${y} H${39 - i * 2.6}" stroke="#f4d58d" stroke-width="5"/>`; });
+        s += `<path d="M-32 -118 H32" stroke="#0b3d4a" stroke-width="3"/><path d="M-12 0 V-30 Q0 -40 12 -30 V0Z" fill="#7c4a1e" ${S(1.6)}/>`;
+        return s;
+    });
+
+    Art.define('sabzi', (c, o) => {
+        // carrots, orange and the yellow ones that go into palov
+        const n = o.n || 3;
+        let s = '';
+        for (let i = 0; i < n; i++) {
+            const col = i % 2 ? '#f4c430' : '#f77f00';
+            s += `<g transform="translate(${n1((i - (n - 1) / 2) * 22)} 0) rotate(${(i - (n - 1) / 2) * 14})"><path d="M-7 -40 Q0 -44 7 -40 L1 0 Q0 2 -1 0Z" fill="${col}" ${S(1.6)}/>` +
+                `<path d="M-4 -30 h4 M-3 -20 h4 M-2 -11 h3" stroke="#b35400" stroke-width="1.2"/><path d="M0 -40 l-7 -14 M0 -40 l0 -16 M0 -40 l7 -14" stroke="#2d6a4f" stroke-width="3" stroke-linecap="round"/></g>`;
+        }
+        return s;
+    });
+
+    Art.define('shar', (c, o) => {
+        // balloons on strings, held together at the origin
+        const cols = ['#ef476f', '#ffd166', '#06d6a0', '#118ab2', '#9d4edd'];
+        const n = o.n || 3;
+        let s = '';
+        for (let i = 0; i < n; i++) {
+            const x = n1((i - (n - 1) / 2) * 30);
+            const y = -96 - (i % 2) * 18;
+            s += `<path d="M0 0 Q${n1(x / 2)} ${y / 2} ${x} ${y + 26}" fill="none" stroke="#6b7280" stroke-width="1.2"/>`;
+            s += `<g ${c.anim('sv-bob', 2.4, i * 0.4)}><ellipse cx="${x}" cy="${y}" rx="18" ry="22" fill="${cols[i % 5]}" ${S(1.8)}/><path d="M${x - 3} ${y + 22} l3 5 l3 -5Z" fill="${cols[i % 5]}" ${S(1.2)}/><ellipse cx="${x - 6}" cy="${y - 8}" rx="4" ry="6" fill="#fff" opacity=".6"/></g>`;
+        }
+        return s;
+    });
+
+    Art.define('drawing', () => {
+        // a child's drawing: Seoul's tower and blocks, Samarkand's dome, a heart between them
+        let s = `<rect x="-62" y="-80" width="124" height="80" rx="3" fill="#fff" ${S(2)}/>`;
+        s += `<path d="M-50 -10 V-46 H-38 V-10 M-34 -10 V-36 H-24 V-10" fill="#a8d8f0" ${S(1.4)}/><path d="M-12 -10 V-50 M-16 -50 H-8 L-12 -62Z" fill="#e63946" ${S(1.4)}/>`;
+        s += `<path d="M24 -10 V-34 H54 V-10" fill="#f4d58d" ${S(1.4)}/><path d="M24 -34 Q39 -58 54 -34Z" fill="#2a9df4" ${S(1.4)}/>`;
+        s += `<path d="M0 -24 C-10 -32 -12 -44 -4 -46 C0 -46 0 -42 0 -40 C0 -42 0 -46 4 -46 C12 -44 10 -32 0 -24Z" fill="#ef476f" ${S(1.2)}/>`;
+        return s;
+    });
+
+    Art.define('slide', () => `<path d="M-40 0 L-40 -60 M-24 0 L-24 -60" stroke="#e63946" stroke-width="5"/>${[-12, -24, -36, -48].map((y) => `<path d="M-40 ${y} H-24" stroke="#ffd166" stroke-width="3"/>`).join('')}` +
+        `<rect x="-46" y="-66" width="28" height="8" rx="3" fill="#3a86ff" ${S(1.6)}/><path d="M-20 -62 Q10 -50 24 -12 Q30 0 46 0 L46 -8 Q34 -8 30 -18 Q16 -58 -20 -70Z" fill="#ffd166" ${S(1.8)}/>`);
 
     Art.define('palace', (c) => {
         const tile = c.def('tileOut', (id) => `<pattern id="${id}" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="10" fill="#1d4ed8"/><path d="M5 0 L10 5 L5 10 L0 5Z" fill="#38bdf8"/><circle cx="5" cy="5" r="1.5" fill="#fff"/></pattern>`);
@@ -1081,6 +1688,92 @@
         const cy = o.cy || 250;
         const r = o.r || 170;
         return `<g opacity="${o.op || 0.55}">` + cols.map((col, i) => `<path d="M${cx - r + i * 7} ${cy} A${r - i * 7} ${r - i * 7} 0 0 1 ${cx + r - i * 7} ${cy}" fill="none" stroke="${col}" stroke-width="7"/>`).join('') + `</g>`;
+    });
+
+    // ---------- short pieces (js/stories-short.js): riddles, lullabies, tongue twisters ----------
+
+    Art.define('sirli', (c) => {
+        // a riddle's answer, hidden under an atlas cloth until it is guessed
+        const cloth = Art.fabric(c, { pattern: 'ikat', color: '#7b2cbf', color2: '#ffd166', color3: '#4cc9f0' });
+        let s = `<ellipse cx="0" cy="-2" rx="54" ry="8" fill="#000" opacity=".12"/>`;
+        s += `<path d="M-50 0 C-48 -40 -30 -66 0 -66 C30 -66 48 -40 50 0 Q38 -6 26 0 Q13 -6 0 0 Q-13 -6 -26 0 Q-38 -6 -50 0Z" fill="${cloth}" ${S(2.2)}/>`;
+        s += [-38, -13, 13, 38].map((x) => `<path d="M${x} -2 l-3 9 h6z" fill="#ffd166" ${S(1.2)}/>`).join('');
+        s += `<g ${c.anim('sv-bob', 2.2)}><circle cx="0" cy="-96" r="21" fill="#ffd166" ${S(2.2)}/>` +
+            `<text x="0" y="-85" text-anchor="middle" font-family="Fredoka, Nunito, sans-serif" font-size="32" font-weight="700" fill="${OL}" translate="no">?</text></g>`;
+        return s;
+    });
+
+    Art.define('beshik', (c, o) => {
+        // the Uzbek cradle: painted ends on rockers, the arched bar, a quilt; baby asleep inside
+        const wood = o.color || '#c0392b';
+        let s = `<path d="M-60 0 Q0 14 60 0" fill="none" stroke="${OL}" stroke-width="7" stroke-linecap="round"/><path d="M-60 0 Q0 14 60 0" fill="none" stroke="#8b5a2b" stroke-width="4" stroke-linecap="round"/>`;
+        for (const k of [-1, 1]) {
+            s += `<path d="M${k * 48} 4 L${k * 44} -62 Q${k * 40} -72 ${k * 32} -62 L${k * 34} 4Z" fill="${wood}" ${S(2)}/>`;
+            s += `<circle cx="${k * 40}" cy="-40" r="4" fill="#ffd166" ${S(1.1)}/><path d="M${k * 46} -20 h${-k * 10}" stroke="#ffd166" stroke-width="2.4"/>`;
+        }
+        s += `<path d="M-36 -64 Q0 -96 36 -64" fill="none" stroke="${OL}" stroke-width="7" stroke-linecap="round"/><path d="M-36 -64 Q0 -96 36 -64" fill="none" stroke="#e9c46a" stroke-width="4" stroke-linecap="round"/>`;
+        s += `<path d="M-36 -2 L-36 -34 L36 -34 L36 -2Z" fill="#8b5a2b" ${S(2)}/>`;
+        const quilt = Art.fabric(c, { pattern: 'ikat', color: o.quilt || '#f72585', color2: '#ffd166', color3: '#4cc9f0' });
+        s += `<path d="M-8 -34 Q14 -42 38 -38 L38 -16 Q10 -10 -8 -16Z" fill="${quilt}" ${S(1.8)}/>`;
+        if (o.baby !== false) {
+            s += `<g transform="translate(-20 -40)"><circle r="12" fill="#f6cda5" ${S(1.7)}/><path d="M-12 -1 C-12 -17 12 -17 12 -1 Q0 -7 -12 -1Z" fill="#e63946" ${S(1.5)}/>` +
+                `<path d="M-6 2 q2.4 2.4 4.8 0 M2 2 q2.4 2.4 4.8 0" fill="none" ${S(1.4)}/><circle cx="-7" cy="6" r="2.2" fill="#f4978e" opacity=".7"/><circle cx="7" cy="6" r="2.2" fill="#f4978e" opacity=".7"/></g>`;
+        }
+        return o.rock ? `<g ${c.anim('sv-sway', 3.2)}>${s}</g>` : s;
+    });
+
+    Art.define('piyoz', (c, o) => {
+        // an onion: seven coats and not one button
+        const col = o.color || '#c77d3a';
+        let s = `<path d="M-6 0 q-4 6 -10 7 M0 0 q0 7 -2 9 M6 0 q4 6 10 7" fill="none" stroke="#b08968" stroke-width="1.6" stroke-linecap="round"/>`;
+        s += `<path d="M0 -2 C-26 -4 -30 -30 -12 -44 Q-4 -50 0 -62 Q4 -50 12 -44 C30 -30 26 -4 0 -2Z" fill="${col}" ${S(2)}/>`;
+        s += `<path d="M0 -6 C-14 -10 -18 -30 -6 -44 M0 -6 C14 -10 18 -30 6 -44 M0 -6 V-54" fill="none" stroke="#9c5a24" stroke-width="1.4"/>`;
+        s += `<path d="M-12 -34 Q-14 -22 -6 -14" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="3" stroke-linecap="round"/>`;
+        s += `<path d="M0 -60 q-6 -12 -2 -22 M0 -60 q6 -10 4 -20" fill="none" stroke="${OL}" stroke-width="5" stroke-linecap="round"/><path d="M0 -60 q-6 -12 -2 -22 M0 -60 q6 -10 4 -20" fill="none" stroke="#52b788" stroke-width="2.6" stroke-linecap="round"/>`;
+        return s;
+    });
+
+    Art.define('igna', (c, o) => {
+        // a needle with one eye and a long thread for a tail
+        const ip = o.color || '#e63946';
+        return `<path d="M-30 0 L26 -36" stroke="${OL}" stroke-width="5" stroke-linecap="round"/><path d="M-30 0 L26 -36" stroke="#cbd5e1" stroke-width="2.6" stroke-linecap="round"/>` +
+            `<ellipse cx="21" cy="-33" rx="3" ry="1.4" transform="rotate(-33 21 -33)" fill="#fff" ${S(0.8)}/>` +
+            `<path d="M21 -33 C34 -46 46 -30 38 -18 C30 -6 44 4 56 -4" fill="none" stroke="${ip}" stroke-width="2.4" stroke-linecap="round"/>`;
+    });
+
+    Art.define('soya', (c, o) => {
+        // a shadow: the given part, flattened on the ground behind it, dark and soft
+        const ink = c.def('shadowink', (id) => `<filter id="${id}"><feFlood flood-color="#2b2118"/><feComposite in2="SourceAlpha" operator="in"/></filter>`);
+        const of = o.of || ['kid1', 0, 0, {}];
+        return `<g transform="matrix(1 0 -1.4 -.42 0 0)" opacity=".34" filter="${ink}">${Art.item(c, [of[0], of[1] || 0, of[2] || 0, Object.assign({ still: true }, of[3] || {})])}</g>`;
+    });
+
+    Art.define('xazon', (c, o) => {
+        // a heap of fallen autumn leaves, "tog'dek"
+        const w = o.w || 70;
+        const cols = ['#e0892b', '#f2b33d', '#c25b1f', '#d4a017'];
+        let s = `<path d="M${-w} 0 Q${-w * 0.7} ${-w * 0.62} 0 ${-w * 0.7} Q${w * 0.7} ${-w * 0.62} ${w} 0Z" fill="#c97b2a" ${S(2)}/>`;
+        for (let i = 0; i < 26; i++) {
+            const x = c.rand(-w * 0.85, w * 0.85);
+            const top = -w * 0.62 * (1 - (x / w) ** 2);
+            const y = c.rand(top + 4, -4);
+            s += `<path transform="translate(${n1(x)} ${n1(y)}) rotate(${n1(c.rand(0, 180))})" d="M0 0 q5 -5 10 0 q-5 5 -10 0z" fill="${c.pick(cols)}" ${S(0.7)}/>`;
+        }
+        return s;
+    });
+
+    Art.define('chiganoq', (c, o) => {
+        // sea shells on the sand
+        const cols = ['#ffd6a5', '#ffadad', '#fdffb6', '#caffbf'];
+        const n = o.n || 4;
+        let s = '';
+        for (let i = 0; i < n; i++) {
+            const x = (i - (n - 1) / 2) * 22;
+            const y = (i % 2) * 6;
+            s += `<g transform="translate(${x} ${y}) rotate(${(i % 3 - 1) * 14})"><path d="M0 0 L-11 -14 Q0 -24 11 -14Z" fill="${cols[i % 4]}" ${S(1.5)}/>` +
+                `<path d="M0 0 L-6 -18 M0 0 L0 -20 M0 0 L6 -18" stroke="#c08552" stroke-width="1.1"/><path d="M-3 0 h6 v3 h-6z" fill="${cols[i % 4]}" ${S(1)}/></g>`;
+        }
+        return s;
     });
 
     Art.define('beam', (c, o) => {
