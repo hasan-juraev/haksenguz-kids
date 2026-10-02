@@ -61,6 +61,13 @@
         // The child's books on this device, newest first, as stories (in app.db).
         sync() {
             const { db } = this.app;
+            // another child now (the profile was switched): the editor's book is
+            // saved, and the editor closes, since that book isn't theirs
+            if (this.book && this.books()[this.book.id] !== this.book) {
+                this.flush();
+                this.book = null;
+                if (!$('makerView').classList.contains('hidden')) this.app.show('homeView');
+            }
             Object.keys(db).forEach((k) => {
                 if (db[k].mine && k !== GUEST) delete db[k];
             });
@@ -314,10 +321,11 @@
             const before = v.slice(0, a);
             const after = v.slice(z);
             const add = (before && !/\s$/.test(before) ? ' ' : '') + str + (after && /^\s/.test(after) ? '' : ' ');
-            const next = (before + add + after).slice(0, M.LIMITS.text);
-            ta.value = next;
-            const pos = Math.min(before.length + add.length, next.length);
             ta.focus();
+            // a full page: nothing is cut off the end to make room
+            if (before.length + add.length + after.length > M.LIMITS.text) return;
+            ta.value = before + add + after;
+            const pos = before.length + add.length;
             ta.setSelectionRange(pos, pos);
             this.onText();
         }
@@ -599,6 +607,7 @@
             let id = h.id;
             if (id) {
                 const kept = heroes.find((x) => x.id === id);
+                if (!kept) return;
                 kept.name = name;
                 kept.look = M.cleanLook(h.look);
             } else {
