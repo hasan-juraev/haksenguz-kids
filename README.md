@@ -18,6 +18,8 @@ The "Qisqa va qiziq" shelf (short and fun) has four small books:
 - lullabies for grandparents to record;
 - tongue twisters that practise the Uzbek sounds Korean lacks (q/k, x/h, l/r...).
 
+At bedtime, "🌙 Uxlash vaqti" offers a calm book and how many pages to read tonight. The screen goes dark and warm, the questions rest, and a recorded voice reads on by itself. "Xayrli tun" (good night) ends the reading and fades to dark, and the book goes on from there tomorrow.
+
 The library has shelves by age (4–6, 7–8, 9+); a child's profile can have an age, which opens their shelf.
 
 "Ikki xalq — bir ertak": finishing *Oltin tarvuz* opens its Korean twin, 흥부와 놀부 retold in Uzbek as *Hungbu va Nolbu*, which ends with a game of finding what the two tales share and where they differ.

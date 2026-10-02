@@ -709,3 +709,26 @@ fonts/gowun-dodum-ko.*   # built Korean font + the letters in it
   * `piyoz`, `igna`, `xazon` (a heap of autumn leaves) and `chiganoq` (shells);
   * `soya`: draws any part as its shadow on the ground, e.g. `['soya', x, y, { of: ['kid3', 0, 0, {}] }]`.
 
+## 23. Update: Uxlash Vaqti, Bedtime (Roadmap item 14)
+
+### How it works (`js/bedtime.js`, `app.bedtime`)
+* The calm books carry `bedtime: true` (12 books). `tests/stories.test.js` checks there are at least 8, that their pictures have no dev, dokkebi, snake, wolf or club, and that none is a twin tale (those open only later).
+* `open()` shows the picker in the play-corner modal:
+  * the number of pages (`settings.bedtimePages`: 3, 5 or 0 for the whole book);
+  * the calm books, the one under way first.
+* `start(key)` begins the reading:
+  * it opens the book on its page (`record.page`) or page 1;
+  * it sets `book.calm` (no questions) and `book.limit` (tonight's last page);
+  * it puts `data-bedtime="on"` on `<html>` for the dark theme;
+  * if the book has a voice (`loadVoices`), it starts read-along. The audio is unlocked during the tap, so phones allow it.
+* `BookEngine`:
+  * `canNext()` stops at `limit`;
+  * `next()` past it calls `opts.onLimit`, which shows good night. This covers the button, the arrow keys, a swipe, the page corner and read-along's own page turns.
+* The narrator doesn't wait for answers while `book.calm` is on.
+* `goodnight()` fills `#goodnight`:
+  * the night picture, "Xayrli tun, {name}! 🌙" and where tomorrow begins;
+  * or, after the last page, "Ertak tugadi!": the book is saved as finished (`saveProgress` with `end`), with its new passport stamp if any.
+  * After `fadeAfter` (15 s), it fades to near black. A tap wakes it; the button or Escape returns to the library.
+* `stop()` (also from `goHome`, or when another book opens) puts everything back.
+* At bedtime the page-turn sound plays at a third of its volume and the chimes are silent. In the evening (19:00–05:00) the banner button glows.
+

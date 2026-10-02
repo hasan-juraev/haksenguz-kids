@@ -1319,3 +1319,145 @@ h1, h2, h3, h4, .font-heading {
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: #fff9ed; }
 ::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 9999px; }
+
+/* ---------- bedtime (js/bedtime.js) ---------- */
+
+/* the room goes dark and the book warm, as under a night lamp */
+html[data-bedtime='on'] body {
+    background:
+        radial-gradient(1.5px 1.5px at 12% 18%, rgba(255, 255, 255, .55) 50%, transparent 52%),
+        radial-gradient(1.5px 1.5px at 72% 9%, rgba(255, 255, 255, .45) 50%, transparent 52%),
+        radial-gradient(2px 2px at 88% 32%, rgba(255, 255, 255, .5) 50%, transparent 52%),
+        radial-gradient(1.5px 1.5px at 33% 6%, rgba(255, 255, 255, .4) 50%, transparent 52%),
+        radial-gradient(1.5px 1.5px at 52% 26%, rgba(255, 255, 255, .35) 50%, transparent 52%),
+        linear-gradient(#0b1026, #1e2a5a) fixed;
+}
+
+html[data-bedtime='on'] header,
+html[data-bedtime='on'] #storyView > :first-child,
+html[data-bedtime='on'] #storyView > :last-child {
+    opacity: .62;
+    filter: saturate(.6);
+    transition: opacity .8s;
+}
+
+html[data-bedtime='on'] .book {
+    filter: brightness(.86) sepia(.22) saturate(.85);
+    transition: filter 1s;
+}
+
+html[data-bedtime='on'] #studioBtn,
+html[data-bedtime='on'] #soundToggleBtn {
+    display: none;
+}
+
+.bed-count {
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #1e2a5a;
+    color: #fde68a;
+    font-size: 13px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+/* Xayrli tun: good night, fading to dark */
+.goodnight {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 24px 16px;
+    overflow-y: auto;
+    background: radial-gradient(circle at 50% 30%, #1e2a5a, #070b1d 72%);
+    color: #e0e7ff;
+    text-align: center;
+}
+
+.goodnight.hidden {
+    display: none;
+}
+
+.goodnight > * {
+    transition: opacity 6s ease;
+}
+
+.goodnight.is-faded > * {
+    opacity: .05;
+}
+
+.goodnight-art {
+    width: min(420px, 86vw);
+    aspect-ratio: 400 / 320;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 0 60px rgba(255, 236, 160, .14);
+}
+
+.goodnight-art svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.goodnight-title {
+    margin: 8px 0 0;
+    font-family: 'Fredoka', 'Nunito', 'Gowun Dodum', sans-serif;
+    font-size: clamp(26px, 6vw, 40px);
+    color: #fde68a;
+}
+
+.goodnight-sub {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #c7d2fe;
+}
+
+.goodnight-next {
+    max-width: 32rem;
+    margin: 0;
+    font-size: 15px;
+    color: #a5b4fc;
+}
+
+.goodnight-stamp:empty {
+    display: none;
+}
+
+.goodnight-stamp .stamp-svg {
+    width: 104px;
+    height: 104px;
+    margin: 0 auto 6px;
+    padding: 4px;
+    border-radius: 50%;
+    background: #fdf6e3;
+}
+
+.goodnight-stamp p {
+    margin: 0;
+    font-weight: 800;
+    color: #fde68a;
+}
+
+.goodnight-btn {
+    min-height: 48px;
+    margin-top: 8px;
+    padding: 0 20px;
+    border: 2px solid #4c5aa0;
+    border-radius: 16px;
+    background: #1e2a5a;
+    color: #e0e7ff;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .goodnight > * {
+        transition: none;
+    }
+}

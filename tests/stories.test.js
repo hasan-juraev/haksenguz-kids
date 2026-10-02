@@ -38,6 +38,7 @@ const goodQuestion = (q, where) => {
 };
 
 const CATEGORIES = ['alifbo', 'folk', 'classic', 'navoiy', 'modern', 'twins', 'korea', 'holiday', 'kichik'];
+const SCARY = ['dev', 'dokkebi', 'dokkebi2', 'snake', 'wolf', 'club'];
 
 Object.entries(db).forEach(([key, st]) => {
     check(/^[a-z0-9_]+$/.test(key), `${key}: book keys are used in links (#${key}), so only a-z, 0-9 and _`);
@@ -63,6 +64,13 @@ Object.entries(db).forEach(([key, st]) => {
     // Every story takes the child to a place of the culture passport (js/passport.js); the Alifbo and the short pieces don't.
     if (st.category === 'alifbo' || st.category === 'kichik') check(!st.region, `${key}: the Alifbo and the short pieces have no place in the passport`);
     else check(!!window.Passport.region(st.region), `${key}: region "${st.region}" is not a place in js/passport.js`);
+    // A bedtime book (js/bedtime.js) is gentle: nothing frightening in its pictures.
+    check(st.bedtime === undefined || st.bedtime === true, `${key}: bedtime is true or left out`);
+    if (st.bedtime) {
+        const scary = st.pages.flatMap((p) => [p.scene, p.reveal && p.reveal.scene]).filter(Boolean).flatMap((sc) => sc.items).map((it) => it[0]).filter((part) => SCARY.includes(part));
+        check(scary.length === 0, `${key}: a bedtime book shows ${[...new Set(scary)].join(', ')}`);
+        check(!st.twin, `${key}: a twin tale opens only after its Uzbek tale, so it can't be a bedtime book`);
+    }
     // The short pieces (js/stories-short.js): riddles uncover their answer, proverbs
     // have their Korean twin, tongue twisters name the sounds they practise.
     check(st.order === undefined || st.order === false, `${key}: order is false or left out`);
@@ -124,5 +132,6 @@ SHELVES.forEach((s) => {
     check(n >= 5, `the ${s.label} shelf has only ${n} books`);
 });
 
+check(Object.values(db).filter((st) => st.bedtime).length >= 8, 'at least 8 calm books for bedtime');
 console.log(`${total - failed}/${total} passed (${Object.keys(db).length} books)`);
 process.exit(failed ? 1 : 0);

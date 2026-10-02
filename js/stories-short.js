@@ -187,6 +187,7 @@ Object.assign(window.storiesDatabase, {
         title: "Alla, bolam, alla",
         category: "kichik",
         age: [3, 7],
+        bedtime: true,
         tag: "Allalar • Xalq allalari ruhida",
         hue: "#6366f1",
         verse: true,

@@ -393,7 +393,8 @@
                 return;
             }
             const p = this.book.story.pages[view - 1];
-            const answered = !p.question || (this.book.record.answers[view] || {}).done;
+            // at bedtime the questions rest, so nothing to wait for
+            const answered = !p.question || this.book.calm || (this.book.record.answers[view] || {}).done;
             if (!answered) {
                 this.waiting = view;
                 this.emit();

@@ -55,6 +55,10 @@
             // 가: every page read out in Hangul, for children who read Korean letters first
             // (js/hangul.js); it stays on from page to page until turned off
             this.reading = !!opts.reading;
+            // Bedtime (js/bedtime.js): `limit` is the last page that may be reached
+            // (turning on calls opts.onLimit instead), and `calm` rests the questions.
+            this.limit = null;
+            this.calm = false;
             this.spread = this.isSpread();
             this.reduced = root.matchMedia ? root.matchMedia('(prefers-reduced-motion: reduce)').matches : false;
 
@@ -100,6 +104,8 @@
             this.ko = (root.storiesKorean || {})[key] || null;
             this.gloss = ((this.ko && this.ko.words) || []).map(([, , forms], i) => ({ i, match: BookEngine.glossForms(forms) }));
             this.koView = null;
+            this.limit = null;
+            this.calm = false;
             this.spread = this.isSpread();
             this.view = this.spread ? -1 : 0;
             this.el.style.setProperty('--cover', story.hue || '#7c2d12');
@@ -115,7 +121,11 @@
         }
 
         canNext() {
-            return !!this.story && this.view < this.lastView;
+            return !!this.story && this.view < this.lastView && !this.atLimit();
+        }
+
+        atLimit() {
+            return !!this.limit && this.view >= this.limit;
         }
 
         canPrev() {
@@ -127,7 +137,11 @@
         }
 
         next() {
-            if (this.turn || !this.canNext()) return false;
+            if (this.turn) return false;
+            if (!this.canNext()) {
+                if (this.story && this.atLimit() && this.opts.onLimit) this.opts.onLimit();
+                return false;
+            }
             if (!this.spread) return this.slide(1);
             this.beginTurn('fwd');
             this.animateTo(1, this.turn.cover ? COVER_MS : FLIP_MS, easeInOut);
@@ -236,7 +250,7 @@
         }
 
         questionHTML(view, p, ko, rd) {
-            if (!p.question) return '';
+            if (!p.question || this.calm) return '';
             const state = this.record.answers[view] || {};
             const koQ = ko && ko.q;
             const readQ = !koQ && rd;

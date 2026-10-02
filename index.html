@@ -78,6 +78,10 @@
                             <button id="installBtn" onclick="app.installApp()" class="hidden min-h-[40px] px-3.5 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl backdrop-blur-md transition items-center gap-2">
                                 <i class="fa-solid fa-mobile-screen-button"></i> Telefonga o'rnatish
                             </button>
+                            <!-- Uxlash vaqti: a calm book before sleep (js/bedtime.js); it glows in the evening -->
+                            <button onclick="app.bedtime.open()" id="bedBtn" class="min-h-[40px] px-3.5 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl backdrop-blur-md transition flex items-center gap-2">
+                                <span aria-hidden="true">🌙</span> <span>Uxlash vaqti</span>
+                            </button>
                             <!-- Mening lug'atim: the words this child has met (js/dictionary.js) -->
                             <button onclick="app.openDictionary()" id="dictBtn" class="min-h-[40px] px-3.5 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl backdrop-blur-md transition flex items-center gap-2">
                                 <span aria-hidden="true">📖</span> <span>Mening lug'atim</span> <span id="dictCount"></span>
@@ -150,6 +154,8 @@
                     <span id="storyProgressText" class="text-xs font-bold text-brand-700 bg-amber-100 px-2.5 py-1 rounded-lg whitespace-nowrap">Muqova</span>
                 </div>
                 <div class="flex items-center space-x-2">
+                    <!-- At bedtime: tonight's page out of tonight's pages -->
+                    <span id="bedtimeChip" class="hidden bed-count" aria-live="polite"></span>
                     <!-- For grown-ups: read this book aloud for the children (js/studio.js) -->
                     <button onclick="app.openStudio()" id="studioBtn" class="px-3 py-2 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-xl font-bold text-xs transition flex items-center space-x-1.5" aria-label="Ovoz yozish (kattalar uchun)">
                         <i class="fa-solid fa-microphone"></i>
@@ -324,6 +330,16 @@
     </div>
 
     <!-- Play corner (js/games.js): colouring page and story-order game -->
+    <!-- Xayrli tun: the end of a bedtime read (js/bedtime.js); it fades to dark, a tap wakes it -->
+    <div id="goodnight" class="goodnight hidden" role="dialog" aria-modal="true" aria-labelledby="goodnightTitle">
+        <div class="goodnight-art"></div>
+        <h2 id="goodnightTitle" class="goodnight-title"></h2>
+        <p class="goodnight-sub">Shirin tushlar ko'ring!</p>
+        <p class="goodnight-next"></p>
+        <div class="goodnight-stamp"></div>
+        <button type="button" class="goodnight-btn" data-goodnight>📚 Kutubxonaga qaytish</button>
+    </div>
+
     <div id="playModal" class="play-modal hidden" role="dialog" aria-modal="true" aria-label="O'yin">
         <div class="play-card"></div>
     </div>
@@ -461,6 +477,7 @@
     <script src="js/narrator.js"></script>
     <script src="js/studio.js"></script>
     <script src="js/games.js"></script>
+    <script src="js/bedtime.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

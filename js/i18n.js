@@ -266,6 +266,17 @@
         '🇰🇷 Koreyada ham shunday deyishadi:': '🇰🇷 한국에도 같은 뜻의 속담이 있어요:',
         '🔁 Uch marta, tez-tez ayting!': '🔁 세 번, 빠르게 말해 보세요!',
     });
+    // Uxlash vaqti: bedtime (js/bedtime.js)
+    Object.assign(EXACT, {
+        'Uxlash vaqti': '잘 시간',
+        '🌙 Uxlash vaqti': '🌙 잘 시간',
+        "Bugun kechqurun qaysi ertakni o'qiymiz?": '오늘 밤에는 어떤 이야기를 읽을까요?',
+        'Nechta sahifa?': '몇 쪽 읽을까요?',
+        'Butun kitob': '책 전체',
+        "Shirin tushlar ko'ring!": '좋은 꿈 꾸세요!',
+        "Ertak tugadi! Ertaga yangisini o'qiymiz.": '이야기가 끝났어요! 내일은 새 이야기를 읽어요.',
+        '📚 Kutubxonaga qaytish': '📚 도서관으로 돌아가기',
+    });
     // Madaniyat pasporti: the map, stamps and stickers (js/passport.js). Place
     // names come in Korean from js/passport.js itself.
     Object.assign(EXACT, {
@@ -319,6 +330,10 @@
         [/^(\d+) ta so'z$/, '낱말 $1개', "12 ta so'z"],
         [/^🎮 O'yinlar uchun kamida (\d+) ta so'z kerak\. Yana (\d+) ta so'z yig'ing!$/, '🎮 게임을 하려면 낱말이 $1개 이상 필요해요. $2개 더 모아요!', "🎮 O'yinlar uchun kamida 4 ta so'z kerak. Yana 3 ta so'z yig'ing!"],
         [/^🎉 (\d+) kundan keyin bayram:$/, '🎉 $1일 뒤는', '🎉 8 kundan keyin bayram:'],
+        [/^(\d+) sahifa$/, '$1쪽', '5 sahifa'],
+        [/^▶ (\d+)-sahifadan$/, '▶ $1쪽부터', '▶ 4-sahifadan'],
+        [/^Xayrli tun, (.+)! 🌙$/, '잘 자요, $1! 🌙', 'Xayrli tun, Asal! 🌙'],
+        [/^Ertaga shu yerdan davom etamiz: «(.+)», (\d+)-sahifa\.$/, '내일은 여기서부터 읽어요: «$1», $2쪽.', "Ertaga shu yerdan davom etamiz: «Oyqiz Sirlari», 4-sahifa."],
         [/^📍 Bu ertak seni (.+) olib bordi!$/, (all, to) => `📍 이 이야기를 따라 ${place((P) => P.byDative(to), to)}에 다녀왔어요!`, '📍 Bu ertak seni Xorazmga olib bordi!'],
         [/^🗺️ Yangi muhr: (.+)!$/, (all, name) => `🗺️ 새 도장: ${place((P) => P.byName(name), name)}!`, '🗺️ Yangi muhr: Xorazm!'],
         [/^🎁 Yangi stiker: (.+)!$/, (all, name) => `🎁 새 스티커: ${place((P) => P.STICKERS.find((x) => x.name === name), name)}!`, '🎁 Yangi stiker: Kalta minor!'],

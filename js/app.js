@@ -44,7 +44,10 @@
                     this.updateControls(s);
                     this.saveProgress(s);
                     this.reader.onChange(s);
+                    if (this.bedtime) this.bedtime.renderChip();
                 },
+                // at bedtime, past tonight's last page: good night (js/bedtime.js)
+                onLimit: () => this.bedtime && this.bedtime.goodnight(),
                 onTurnStart: (t) => this.playPageTurnSound(t.cover ? 'cover' : 'page'),
                 onAnswer: (ok, praise) => this.onAnswer(ok, praise),
                 onAction: (act, el) => this.onBookAction(act, el),
@@ -62,6 +65,7 @@
                 toast: (msg) => this.toast(msg),
             });
             this.studio = new root.Studio(this);
+            this.bedtime = root.Bedtime ? new root.Bedtime(this) : null;
 
             document.addEventListener('keydown', (e) => this.onKey(e));
             document.getElementById('profileList').addEventListener('click', (e) => this.onProfileListClick(e));
@@ -117,6 +121,10 @@
             const hero = document.getElementById('heroArt');
             if (hero && story && root.Art) hero.innerHTML = root.Art.render(story.cover || story.pages[0].scene, { still: false, seed: 'hero:' + this.heroBook });
             document.getElementById('heroBtnLabel').textContent = this.heroKey ? 'Davom ettirish' : 'Kitobni Ochish';
+            // in the evening, "Uxlash vaqti" glows
+            const hour = new Date().getHours();
+            const bed = document.getElementById('bedBtn');
+            if (bed) bed.classList.toggle('is-evening', hour >= 19 || hour < 5);
             const caption = document.getElementById('heroResume');
             caption.textContent = this.heroKey ? `📖 ${story.title} · ${rec.page} / ${story.pages.length}` : '';
             caption.classList.toggle('hidden', !this.heroKey);
@@ -276,6 +284,7 @@
         }
 
         goHome() {
+            if (this.bedtime) this.bedtime.stop();
             this.book.stopTurn();
             this.reader.stop();
             this.studio.close();
@@ -297,6 +306,7 @@
         startStory(storyKey, resume) {
             const story = this.db[storyKey];
             if (!story) return;
+            if (this.bedtime && this.bedtime.on && this.bedtime.key !== storyKey) this.bedtime.stop();
             this.currentStoryKey = storyKey;
             this.currentStoryObj = story;
             // The address names the open book, so it can be shared as is.
@@ -728,8 +738,9 @@
                 bp.frequency.exponentialRampToValueAtTime(kind === 'cover' ? 180 : 700, t + dur);
                 bp.Q.value = 1.4;
                 const g = ac.createGain();
+                const soft = this.bedtime && this.bedtime.on ? 0.35 : 1; // a whisper of paper at bedtime
                 g.gain.setValueAtTime(0.0001, t);
-                g.gain.exponentialRampToValueAtTime(kind === 'cover' ? 0.45 : 0.3, t + 0.06);
+                g.gain.exponentialRampToValueAtTime((kind === 'cover' ? 0.45 : 0.3) * soft, t + 0.06);
                 g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
                 src.connect(bp).connect(g).connect(ac.destination);
                 src.start();
@@ -739,7 +750,7 @@
         }
 
         playChime(happy) {
-            const ac = this.ctx();
+            const ac = this.bedtime && this.bedtime.on ? null : this.ctx(); // quiet at bedtime
             if (!ac) return;
             try {
                 const notes = happy ? [660, 880, 1320] : [880, 1175];

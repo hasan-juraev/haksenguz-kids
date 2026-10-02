@@ -12,7 +12,8 @@
  *   quiz      passed the final quiz (its points are given only once)
  *   order     solved the story-order game (likewise paid once)
  *   compare   sorted a twin tale's "find the differences" cards (likewise)
- * Settings (script, menu language, page sound) belong to the device.
+ * Settings (script, menu language, page sound, 가, pages at bedtime) belong
+ * to the device.
  */
 (function (root) {
     'use strict';
@@ -25,7 +26,7 @@
     // A child's age in years, or null when not given (or not believable).
     const cleanAge = (age) => (Number.isInteger(age) && age >= 2 && age <= 18 ? age : null);
 
-    const blank = () => ({ v: VERSION, settings: { script: 'lat', lang: 'uz', sound: true, reading: false }, active: null, profiles: {} });
+    const blank = () => ({ v: VERSION, settings: { script: 'lat', lang: 'uz', sound: true, reading: false, bedtimePages: 5 }, active: null, profiles: {} });
 
     function read() {
         try {

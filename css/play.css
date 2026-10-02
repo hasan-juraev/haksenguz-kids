@@ -1509,3 +1509,96 @@
         height: 88px;
     }
 }
+
+/* ---------- bedtime: choosing tonight's book (js/bedtime.js) ---------- */
+
+#bedBtn.is-evening {
+    box-shadow: 0 0 0 2px #fde68a, 0 0 18px rgba(253, 230, 138, .65);
+}
+
+.play-card--bedtime {
+    width: min(660px, 100%);
+    background: linear-gradient(#1e2a5a, #111a3d);
+    color: #e0e7ff;
+}
+
+.play-card--bedtime .play-head h3 {
+    color: #fde68a;
+}
+
+.play-card--bedtime .play-sub {
+    color: #c7d2fe;
+}
+
+.play-card--bedtime .play-x {
+    background: #2b3870;
+    color: #e0e7ff;
+}
+
+.bed-pages {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 14px;
+    font-weight: 800;
+    color: #c7d2fe;
+}
+
+.bed-chip {
+    min-height: 40px;
+    padding: 0 14px;
+    border: 2px solid #4c5aa0;
+    border-radius: 999px;
+    background: transparent;
+    color: #e0e7ff;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.bed-chip[aria-pressed='true'] {
+    border-color: #fde68a;
+    background: #fde68a;
+    color: #1e2a5a;
+}
+
+.bed-books {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 10px;
+}
+
+.bed-book {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border: 2px solid #33407a;
+    border-radius: 16px;
+    background: #18224a;
+    color: #e0e7ff;
+    text-align: left;
+    cursor: pointer;
+}
+
+.bed-book:hover,
+.bed-book:focus-visible {
+    border-color: #fde68a;
+}
+
+.bed-book .thumb-art {
+    flex: 0 0 auto;
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.bed-book b {
+    display: block;
+}
+
+.bed-book small {
+    font-weight: 700;
+    color: #a5b4fc;
+}

@@ -341,6 +341,20 @@ reading it.
     where four pictures from the story are put in order (+30 points once).
 14. **Later:** bedtime mode, a character maker, "make your own story".
 
+    ✅ **Bedtime mode built ("🌙 Uxlash vaqti").** A grown-up picks one of 12
+    calm books (no monsters, snakes or wolves in their pictures) and
+    tonight's pages: 3, 5 or the whole book. The button glows after 7 pm.
+    - **Reading.** The room goes dark and starry, and the book warm, like
+      under a night lamp. The bar shows "🌙 2 / 5".
+      - The questions rest, the page sound is a whisper, and there are no
+        chimes.
+      - If someone has read the book aloud, their voice reads on by itself.
+    - **Good night.** After tonight's last page, "Xayrli tun, Asal! 🌙"
+      appears and fades to dark (a tap wakes it).
+      - Tomorrow the book opens on the next page ("▶ 4-sahifadan").
+      - A book read to the end counts as read, and its passport stamp
+        shows on the good-night screen.
+
 ## Privacy
 
 Korean law (PIPA) requires a guardian's consent to collect personal data from
