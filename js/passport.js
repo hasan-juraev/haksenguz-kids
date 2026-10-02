@@ -160,8 +160,8 @@
             // not on the map of Uzbekistan: the small map of Korea in its corner
             id: 'koreya', name: 'Koreya', ko: '한국', city: 'Seul', koCity: '서울', capital: true,
             ink: '#1e40af', fill: '#9cc3f5',
-            fact: "Koreya — ko'p o'zbek oilalarining ikkinchi uyi. Toshkentdan Seulgacha taxminan 4900 km: samolyotda 7 soatcha uchiladi.",
-            koFact: '한국은 많은 우즈베크 가족의 두 번째 집이에요. 타슈켄트에서 서울까지는 약 4,900km이고, 비행기로 7시간쯤 걸려요.',
+            fact: "Koreya — ko'p o'zbek oilalarining ikkinchi uyi. Toshkentdan Seulgacha taxminan 4900 km: samolyotda 6–7 soat uchiladi.",
+            koFact: '한국은 많은 우즈베크 가족의 두 번째 집이에요. 타슈켄트에서 서울까지는 약 4,900km이고, 비행기로 6~7시간 걸려요.',
             stickers: [
                 { id: 'hanok', name: 'Hanok', ko: '한옥', art: [['giwajip', 0, 0, { s: 0.45 }]] },
                 { id: 'onggi', name: 'Onggi', ko: '옹기', art: [['onggi', 0, -10, { s: 1 }]] },
