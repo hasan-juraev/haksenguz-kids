@@ -14,7 +14,7 @@ global.window = {
 require('../js/art/core.js');
 ['people', 'animals', 'world', 'fx', 'landmarks'].forEach((f) => require(`../js/art/${f}.js`));
 require('../js/book.js');
-['folk', 'classic', 'twins', 'korea', 'holiday', 'alifbo', 'ko'].forEach((f) => require(`../js/stories-${f}.js`));
+['folk', 'classic', 'twins', 'korea', 'holiday', 'short', 'alifbo', 'ko'].forEach((f) => require(`../js/stories-${f}.js`));
 require('../js/i18n.js');
 require('../js/store.js');
 require('../js/uzmap.js');
@@ -50,9 +50,9 @@ P.REGIONS.forEach((r) => {
 });
 check(P.dative('Xorazm') === 'Xorazmga' && P.dative('Toshkent viloyati') === 'Toshkent viloyatiga' && P.dative('Ipak') === 'Ipakka' && P.dative('Iroq') === 'Iroqqa', 'dative: -ga, -ka after k, -qa after q');
 
-// Every book but the Alifbo goes somewhere; Korean-life and Korean tales go to Korea.
+// Every story goes somewhere (not the Alifbo, not the short pieces); Korean-life and Korean tales go to Korea.
 Object.entries(db).forEach(([key, st]) => {
-    if (st.category === 'alifbo') return;
+    if (st.category === 'alifbo' || st.category === 'kichik') return;
     check(P.regionOf(st), `${key}: has a place`);
     if (['korea', 'twins'].includes(st.category) && key !== 'buvijon_qongiroq') check(st.region === 'koreya', `${key}: a story set in Korea goes to Korea`);
 });

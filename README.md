@@ -12,6 +12,12 @@ Every new word a child meets in a book goes into their own dictionary, *Mening l
 
 Every book takes the child somewhere: to one of Uzbekistan's 14 regions, or to Korea. Finishing a book stamps that place in the child's passport (*Pasportim*). Its map of Uzbekistan colours each place visited, and each place has a card with a true fact about it. Points buy each place's stickers (Registon, the Kalta minor, a Chust do'ppi, the Tashkent metro...) for the passport's album.
 
+The "Qisqa va qiziq" shelf (short and fun) has four small books:
+- riddles whose picture uncovers once guessed;
+- Uzbek proverbs, each paired with the Korean proverb that says the same (*Tomchi-tomchi ko'l bo'lur* ↔ 티끌 모아 태산);
+- lullabies for grandparents to record;
+- tongue twisters that practise the Uzbek sounds Korean lacks (q/k, x/h, l/r...).
+
 The library has shelves by age (4–6, 7–8, 9+); a child's profile can have an age, which opens their shelf.
 
 "Ikki xalq — bir ertak": finishing *Oltin tarvuz* opens its Korean twin, 흥부와 놀부 retold in Uzbek as *Hungbu va Nolbu*, which ends with a game of finding what the two tales share and where they differ.

@@ -682,3 +682,30 @@ fonts/gowun-dodum-ko.*   # built Korean font + the letters in it
 * New animals: `tuya` (a two-humped camel) and `qoplon` (a snow leopard).
 * A new person preset, `navoiy` (the poet with his scroll).
 
+## 22. Update: Qisqa va Qiziq, the Short Pieces (Roadmap Phase 3, item 12)
+
+### The books (`js/stories-short.js`, category `kichik`)
+* `topishmoqlar`: 10 riddles on folk riddle images. `maqollar`: 10 Uzbek proverbs and their Korean twins. `allalar`: 6 lullabies. `tez_aytish`: 8 tongue twisters.
+* Only folk material and our own writing. The riddle images and the proverbs are folk; the lullabies and twisters were written for the app (their tags say "Xalq allalari ruhida", "Tilni charxlaymiz").
+* New page and book fields, read by `js/book.js`:
+  * `reveal: { answer, scene }` on a riddle page:
+    * Its picture (`scene`, with the `sirli` cloth) stays covered until the question is answered right.
+    * Then `sceneOf(view)` returns `reveal.scene`, the left page is redrawn, and "🎉 Javob: …" shows under the question.
+    * The colouring page uses the same picture.
+  * `proverbKo: [korean, uzbekMeaning]` replaces the word card with "🇰🇷 Koreyada ham shunday deyishadi:".
+  * `sounds: ['q', 'k']` shows "🔁 Uch marta, tez-tez ayting!" and the sounds; they stay letters, in Cyrillic too.
+  * `verse: true` (a book) sets each sentence on its own line, centred, without a drop cap.
+  * `order: false` (a book) drops the "Voqealar tartibi" game at the end.
+* The short pieces have no `region`, so they stamp nothing in the passport.
+* `tests/stories.test.js` checks:
+  * a riddle's answer is its right choice, and it has no word card to give it away;
+  * every `proverbKo` is [Korean, Uzbek];
+  * every twister uses its sounds.
+
+### Pictures
+* New props in `js/art/world.js`:
+  * `sirli`: a riddle's hidden answer, under an atlas cloth with a bobbing "?";
+  * `beshik`: the cradle, with the baby asleep; `rock: true` rocks it;
+  * `piyoz`, `igna`, `xazon` (a heap of autumn leaves) and `chiganoq` (shells);
+  * `soya`: draws any part as its shadow on the ground, e.g. `['soya', x, y, { of: ['kid3', 0, 0, {}] }]`.
+

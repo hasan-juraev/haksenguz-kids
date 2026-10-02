@@ -173,16 +173,41 @@
                 </div></div>`;
             }
             const p = st.pages[view - 1];
-            const ko = this.koShown(view) && p.word ? this.koWord(p.word[0]) : null;
-            const note = p.word
-                ? `<div class="word-card"><span class="word-label">📖 Yangi so'z</span><span class="word-term" data-content>${esc(p.word[0])}${this.readsOut(view) ? ` <span class="word-read" lang="ko">${esc(root.Hangul.read(p.word[0]))}</span>` : ''}</span><span class="word-mean" data-content>${esc(p.word[1])}</span>${ko ? `<span class="word-ko" lang="ko">🇰🇷 ${esc(ko[1])}</span>` : ''}</div>`
-                : `<p class="art-hint">👆 Rasmga bosing — qahramonlar jonlanadi!</p>`;
             return `<div class="sheet sheet--left"><div class="page-pad">
                 <div class="page-head"><span class="chapter-chip">${view}-sahifa</span><span class="running-head" data-content>${esc(st.title)}</span></div>
-                <figure class="page-art" data-action="poke" title="Rasmga bosing">${this.art(p.scene, true, view)}${this.colorButton(view)}</figure>
-                ${note}
+                <figure class="page-art" data-action="poke" title="Rasmga bosing">${this.art(this.sceneOf(view), true, view)}${this.colorButton(view)}</figure>
+                ${this.noteHTML(view, p)}
                 <div class="page-foot"><span class="page-num">${this.pageNo(view, 'left')}</span><span>Ertaklar Olami</span></div>
             </div></div>`;
+        }
+
+        // A riddle's page shows its hidden answer (`reveal.scene`) once it is guessed.
+        sceneOf(view) {
+            const p = this.story.pages[view - 1];
+            if (!p) return null;
+            return p.reveal && this.solved(view) ? p.reveal.scene : p.scene;
+        }
+
+        solved(view) {
+            const st = this.record && this.record.answers[view];
+            return !!(st && st.done);
+        }
+
+        // Under the picture: the page's new word, a proverb's Korean twin, a tongue
+        // twister's sounds, a riddle's "guess first" or the poke hint.
+        noteHTML(view, p) {
+            if (p.proverbKo) {
+                return `<div class="word-card proverb-card"><span class="word-label">🇰🇷 Koreyada ham shunday deyishadi:</span>` +
+                    `<span class="proverb-ko" lang="ko">${esc(p.proverbKo[0])}</span><span class="word-mean" data-content>«${esc(p.proverbKo[1])}»</span></div>`;
+            }
+            if (p.sounds) {
+                return `<div class="word-card twister-card"><span class="word-label">🔁 Uch marta, tez-tez ayting!</span>` +
+                    `<span class="twister-sounds" data-content>${p.sounds.map(esc).join(' · ')}</span></div>`;
+            }
+            if (p.reveal && !this.solved(view)) return `<p class="art-hint">🤔 Javobini toping — rasm ochiladi!</p>`;
+            if (!p.word) return `<p class="art-hint">👆 Rasmga bosing — qahramonlar jonlanadi!</p>`;
+            const ko = this.koShown(view) ? this.koWord(p.word[0]) : null;
+            return `<div class="word-card"><span class="word-label">📖 Yangi so'z</span><span class="word-term" data-content>${esc(p.word[0])}${this.readsOut(view) ? ` <span class="word-read" lang="ko">${esc(root.Hangul.read(p.word[0]))}</span>` : ''}</span><span class="word-mean" data-content>${esc(p.word[1])}</span>${ko ? `<span class="word-ko" lang="ko">🇰🇷 ${esc(ko[1])}</span>` : ''}</div>`;
         }
 
         rightHTML(view) {
@@ -202,7 +227,7 @@
                 <div class="page-body" data-fit="21">
                     <h2 class="page-title" data-content data-action="say" data-seg="0">${esc(title)}</h2>${ko ? `<p class="ko-line ko-line--title" lang="ko">${esc(ko.s[0])}</p>` : rd ? `<p class="read-line read-line--title" lang="ko">${esc(root.Hangul.read(title))}</p>` : ''}
                     ${this.letterHTML(p)}
-                    <p class="page-text${ko || rd ? ' is-ko' : ''}${/^\d/.test(sents[0] || '') ? ' no-cap' : ''}" data-content>${sentHTML}</p>
+                    <p class="page-text${ko || rd ? ' is-ko' : ''}${st.verse ? ' is-verse' : ''}${/^\d/.test(sents[0] || '') ? ' no-cap' : ''}" data-content>${sentHTML}</p>
                     <p class="page-flourish" aria-hidden="true">❦ ❦ ❦</p>
                     ${this.questionHTML(view, p, ko, rd)}
                 </div>
@@ -222,7 +247,8 @@
                 return `<button type="button" class="${cls}" data-content data-action="answer" data-view="${view}" data-idx="${i}"${state.done ? ' disabled' : ''}>${esc(txt)}${koQ ? `<span class="ko-line" lang="ko">${esc(koQ[i + 1] || '')}</span>` : readQ ? this.readLine(txt) : ''}</button>`;
             }).join('');
             const feedback = state.done
-                ? `<p class="quiz-feedback quiz-feedback--ok">⭐ ${esc(state.praise || 'Barakalla!')} +10 ball</p>`
+                ? `<p class="quiz-feedback quiz-feedback--ok">⭐ ${esc(state.praise || 'Barakalla!')} +10 ball</p>` +
+                  (p.reveal ? `<p class="riddle-answer"><span>🎉 Javob:</span> <b data-content>${esc(p.reveal.answer)}</b></p>` : '')
                 : state.wrong && state.wrong.length ? `<p class="quiz-feedback">🤔 Yana bir o'ylab ko'ring!</p>` : '';
             return `<div class="page-question">
                 <div class="question-label">💡 Bolajonlar uchun savol</div>
@@ -362,7 +388,7 @@
                 ${special}
                 <div class="finale-actions">
                     <button type="button" class="btn-quiz" data-action="quiz">🏆 Bilimdon testi</button>
-                    <button type="button" class="btn-game" data-action="order">🧩 Voqealar tartibi</button>
+                    ${st.order === false ? '' : '<button type="button" class="btn-game" data-action="order">🧩 Voqealar tartibi</button>'}
                     <button type="button" class="btn-reread" data-action="restart">↺ Boshidan o'qish</button>
                     <button type="button" class="btn-reread" data-action="share">📤 Ulashish</button>
                 </div>
@@ -634,7 +660,11 @@
                 st.wrong.push(idx);
                 if (this.opts.onAnswer) this.opts.onAnswer(false);
             }
-            if (this.view === view) this.put(this.right, this.rightHTML(view));
+            if (this.view === view) {
+                this.put(this.right, this.rightHTML(view));
+                // a guessed riddle uncovers its picture
+                if (right && p.reveal) this.put(this.left, this.leftHTML(view));
+            }
         }
 
         onPointerDown(e) {

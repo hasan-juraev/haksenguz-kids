@@ -7,7 +7,7 @@
 
 global.window = { matchMedia: () => ({ matches: false }) };
 require('../js/book.js');
-['folk', 'classic', 'twins', 'korea', 'holiday', 'alifbo', 'ko'].forEach((f) => require(`../js/stories-${f}.js`));
+['folk', 'classic', 'twins', 'korea', 'holiday', 'short', 'alifbo', 'ko'].forEach((f) => require(`../js/stories-${f}.js`));
 require('../js/dictionary.js');
 const db = window.storiesDatabase;
 const { letters, compare, koMeaning, entries, spellable, pick } = window.Dictionary;

@@ -7,7 +7,7 @@
 global.window = { matchMedia: () => ({ matches: false }) };
 require('../js/hangul.js');
 require('../js/book.js');
-['folk', 'classic', 'twins', 'korea', 'holiday', 'alifbo'].forEach((f) => {
+['folk', 'classic', 'twins', 'korea', 'holiday', 'short', 'alifbo'].forEach((f) => {
     try {
         require(`../js/stories-${f}.js`);
     } catch (e) {

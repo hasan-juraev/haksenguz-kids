@@ -514,6 +514,78 @@ h1, h2, h3, h4, .font-heading {
     line-height: 1.35;
 }
 
+/* a proverb's Korean twin (js/stories-short.js) */
+.proverb-card {
+    grid-template-columns: 1fr;
+    background: linear-gradient(135deg, #eff6ff, #fdf2f8);
+    border-color: #a5b4fc;
+}
+
+.proverb-card .word-label {
+    color: #4338ca;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 12px;
+}
+
+.proverb-ko {
+    font-family: 'Gowun Dodum', sans-serif;
+    font-size: 19px;
+    font-weight: 700;
+    color: #1e3a8a;
+    line-height: 1.3;
+}
+
+/* a tongue twister's sounds to practise */
+.twister-card {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    background: linear-gradient(135deg, #fff7ed, #fef9c3);
+    border-color: #fbbf24;
+}
+
+.twister-card .word-label {
+    color: #b45309;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 13px;
+}
+
+.twister-sounds {
+    font-family: 'Fredoka', 'Nunito', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    color: #c2410c;
+}
+
+/* a lullaby: one line of verse to a line */
+.page-text.is-verse {
+    text-align: center;
+    font-style: italic;
+}
+
+.page-text.is-verse .sent {
+    display: block;
+}
+
+.page-text.is-verse::first-letter {
+    all: unset;
+}
+
+/* a guessed riddle's answer */
+.riddle-answer {
+    margin: 4px 0 0;
+    font-weight: 800;
+    color: #7c2d12;
+}
+
+.riddle-answer b {
+    font-family: 'Fredoka', 'Nunito', sans-serif;
+    font-size: 1.25em;
+    color: #15803d;
+}
+
 /* text page */
 .page-body {
     --fs: 19px;

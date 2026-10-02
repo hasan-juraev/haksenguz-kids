@@ -308,6 +308,32 @@ reading it.
       Marg'ilon atlas, and more.
 12. **Short pieces.** Riddles, proverbs, lullabies and tongue twisters. Folk
     material is free to use; modern authors need permission.
+
+    ✅ **Built**: a new shelf, "🧩 Qisqa va qiziq" (short and fun), with four
+    books and no modern author's text.
+    - **Topishmoqlar.** 10 riddles on the images of Uzbek folk riddles: an
+      onion in seven coats, stars as scattered millet, letters as black
+      seeds on a white field.
+      - The picture stays under a cloth until the child guesses the answer
+        (+10 points).
+      - Then the cloth comes off ("🎉 Javob: Piyoz"), and the picture shows
+        the answer.
+    - **Ikki xalq — bir maqol.** 10 real Uzbek proverbs, each explained for
+      children.
+      - Each has the Korean proverb that says the same, under its picture,
+        with what it says word for word.
+      - *Tomchi-tomchi ko'l bo'lur* ↔ 티끌 모아 태산; *Yetti o'lchab, bir
+        kes* ↔ 돌다리도 두들겨 보고 건너라; *Nima eksang, shuni o'rasan* ↔
+        콩 심은 데 콩 나고 팥 심은 데 팥 난다.
+    - **Alla, bolam, alla.** 6 lullabies written in the way of Uzbek allas,
+      set out line by line.
+      - The beshik rocks in the pictures.
+      - One is sung by a grandmother over a video call from far away.
+      - They are meant for a grandparent to record in the studio.
+    - **Tez ayting!** 8 tongue twisters written for this book. Each works on
+      two sounds that Korean doesn't tell apart: q/k, x/h, o/o', g/g',
+      sh/ch, ng, l/r, v/b. The 가 readings help with them too.
+    - These books have no story-order game and no passport place.
 13. **Colouring mode.** ✅ Built. Any story picture becomes a colouring page,
     printable for community classes and multicultural lessons. The 🎨 on a
     picture opens it; colour on screen, save it as a picture, or print it

@@ -33,6 +33,7 @@
         '🇰🇷 Ikki xalq — bir ertak': '🇰🇷 두 나라, 한 이야기',
         '🏙️ Koreyadagi hayotim': '🏙️ 한국에서의 내 생활',
         '🎉 Bayramlar': '🎉 명절과 기념일',
+        '🧩 Qisqa va qiziq': '🧩 짧고 재미있는 글',
         '🔤 Alifbo': '🔤 우즈베크 알파벳',
         'Interaktiv Kitoblar Kutubxonasi': '인터랙티브 책 도서관',
         'Yangi': '새 책',
@@ -52,6 +53,10 @@
         'Fantastik sarguzasht': '판타지 모험',
         'Milliy qadriyatlar': '우즈베크 전통',
         'Sharq hikmati': '동양의 지혜',
+        "O'zbek xalq topishmoqlari asosida": '우즈베크 전래 수수께끼',
+        "O'zbek va koreys maqollari": '우즈베크와 한국의 속담',
+        'Allalar': '자장가',
+        'Tez aytishlar': '잰말놀이',
         "O'qildi": '다 읽었어요',
 
         // reading
@@ -253,6 +258,13 @@
         "🤔 Harfdan chetga chiqib ketdi. Qaytadan urinib ko'ring!": '🤔 글자 밖으로 많이 나갔어요. 다시 해 볼까요?',
         "👍 Davom eting, harf ustidan yurgizing!": '👍 계속해요, 글자 위를 따라 그려요!',
         "Koreys harflarida o'qilishi": '한글로 읽기',
+    });
+    // Short pieces (js/stories-short.js): a riddle's answer, a proverb's Korean twin, a tongue twister's task
+    Object.assign(EXACT, {
+        '🎉 Javob:': '🎉 정답:',
+        '🤔 Javobini toping — rasm ochiladi!': '🤔 답을 맞혀 보세요. 그림이 열려요!',
+        '🇰🇷 Koreyada ham shunday deyishadi:': '🇰🇷 한국에도 같은 뜻의 속담이 있어요:',
+        '🔁 Uch marta, tez-tez ayting!': '🔁 세 번, 빠르게 말해 보세요!',
     });
     // Madaniyat pasporti: the map, stamps and stickers (js/passport.js). Place
     // names come in Korean from js/passport.js itself.

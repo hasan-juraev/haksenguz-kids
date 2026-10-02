@@ -6,7 +6,7 @@
 (function (root) {
     'use strict';
 
-    const CATEGORIES = ['all', 'alifbo', 'folk', 'classic', 'navoiy', 'modern', 'twins', 'korea', 'holiday'];
+    const CATEGORIES = ['all', 'alifbo', 'folk', 'classic', 'navoiy', 'modern', 'twins', 'korea', 'holiday', 'kichik'];
     const DEFAULT_QUIZ = {
         q: "Kitobdan olgan xulosangiz qanday?",
         a: ["Ezgulik, ilm, birdamlik va halollik har doim g'alaba qozonadi ✨", "Dangasalik va yomon niyatlar hamisha mukofotlanadi 💤", "Faqat yolg'izlik va janjallashish yaxshi natija beradi 🍃"],
@@ -605,10 +605,11 @@
         openColoring(view) {
             const st = this.currentStoryObj;
             if (!st || !root.Games) return;
-            const page = st.pages[Math.min(Math.max(view, 1), st.pages.length) - 1];
+            const v = Math.min(Math.max(view, 1), st.pages.length);
+            const page = st.pages[v - 1];
             this.reader.stop();
             root.Games.color({
-                scene: page.scene,
+                scene: this.book.sceneOf(v), // a guessed riddle's uncovered picture
                 title: view > st.pages.length ? st.title : page.title,
                 seed: `${this.currentStoryKey}:${view}`,
                 onPaint: () => this.playChime(),

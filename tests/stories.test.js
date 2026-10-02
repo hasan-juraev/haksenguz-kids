@@ -13,6 +13,7 @@ require('../js/stories-classic.js');
 require('../js/stories-twins.js');
 require('../js/stories-korea.js');
 require('../js/stories-holiday.js');
+require('../js/stories-short.js');
 require('../js/stories-alifbo.js');
 require('../js/levels.js');
 require('../js/holidays.js');
@@ -36,7 +37,7 @@ const goodQuestion = (q, where) => {
     check(Number.isInteger(q.ok) && q.ok < q.a.length, `${where}: the right answer (ok: ${q.ok}) is not one of the answers`);
 };
 
-const CATEGORIES = ['alifbo', 'folk', 'classic', 'navoiy', 'modern', 'twins', 'korea', 'holiday'];
+const CATEGORIES = ['alifbo', 'folk', 'classic', 'navoiy', 'modern', 'twins', 'korea', 'holiday', 'kichik'];
 
 Object.entries(db).forEach(([key, st]) => {
     check(/^[a-z0-9_]+$/.test(key), `${key}: book keys are used in links (#${key}), so only a-z, 0-9 and _`);
@@ -59,9 +60,23 @@ Object.entries(db).forEach(([key, st]) => {
     const days = st.holidays || [];
     check((st.category === 'holiday') === days.length > 0, `${key}: the holiday shelf's books, and only they, have holidays`);
     days.forEach((id) => check(!!window.Holidays.DAYS[id], `${key}: unknown holiday "${id}" (see js/holidays.js)`));
-    // Every story takes the child to a place of the culture passport (js/passport.js); the Alifbo doesn't.
-    if (st.category === 'alifbo') check(!st.region, `${key}: the Alifbo has no place in the passport`);
+    // Every story takes the child to a place of the culture passport (js/passport.js); the Alifbo and the short pieces don't.
+    if (st.category === 'alifbo' || st.category === 'kichik') check(!st.region, `${key}: the Alifbo and the short pieces have no place in the passport`);
     else check(!!window.Passport.region(st.region), `${key}: region "${st.region}" is not a place in js/passport.js`);
+    // The short pieces (js/stories-short.js): riddles uncover their answer, proverbs
+    // have their Korean twin, tongue twisters name the sounds they practise.
+    check(st.order === undefined || st.order === false, `${key}: order is false or left out`);
+    check(st.verse === undefined || st.verse === true, `${key}: verse is true or left out`);
+    st.pages.forEach((p, i) => {
+        const where = `${key} p${i + 1}`;
+        if (p.reveal) {
+            check(p.question && text(p.reveal.answer) && p.reveal.scene && Array.isArray(p.reveal.scene.items), `${where}: a riddle needs its question, answer and uncovered picture`);
+            if (p.question) check(p.question.a[p.question.ok].startsWith(p.reveal.answer), `${where}: the answer "${p.reveal.answer}" is the right choice`);
+            check(!p.word, `${where}: a riddle's word card would give it away`);
+        }
+        if (p.proverbKo) check(p.proverbKo.length === 2 && /[\uac00-\ud7a3]/.test(p.proverbKo[0]) && text(p.proverbKo[1]) && !/[\uac00-\ud7a3]/.test(p.proverbKo[1]), `${where}: proverbKo is [Korean, its meaning in Uzbek]`);
+        if (p.sounds) check(p.sounds.length >= 1 && p.sounds.every((x) => p.text.toLowerCase().includes(x)), `${where}: the twister uses its sounds ${p.sounds.join(' ')}`);
+    });
     // A Korean twin tale opens after its Uzbek tale, and ends with sorting cards.
     if (st.twin) {
         check(!!db[st.twin] && !db[st.twin].twin, `${key}: twin "${st.twin}" must be an existing Uzbek tale`);

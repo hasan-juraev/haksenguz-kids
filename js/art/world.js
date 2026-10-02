@@ -6,7 +6,9 @@
  * chogajip, the tiled giwajip, bak gourds, onggi jars and the gourd saw;
  * and today's Korea for "Koreyadagi hayotim": Seoul streets of apartment
  * blocks, a flat, a classroom, a school, a tablet that video-calls buvi,
- * palov on a lagan, tteok, kimbap, somsa, honey and kimchi.
+ * palov on a lagan, tteok, kimbap, somsa, honey and kimchi; and for the
+ * short pieces, a riddle's hidden answer, the beshik cradle, an onion, a
+ * needle and thread, shadows, a heap of autumn leaves and sea shells.
  */
 (function (Art) {
     'use strict';
@@ -1686,6 +1688,92 @@
         const cy = o.cy || 250;
         const r = o.r || 170;
         return `<g opacity="${o.op || 0.55}">` + cols.map((col, i) => `<path d="M${cx - r + i * 7} ${cy} A${r - i * 7} ${r - i * 7} 0 0 1 ${cx + r - i * 7} ${cy}" fill="none" stroke="${col}" stroke-width="7"/>`).join('') + `</g>`;
+    });
+
+    // ---------- short pieces (js/stories-short.js): riddles, lullabies, tongue twisters ----------
+
+    Art.define('sirli', (c) => {
+        // a riddle's answer, hidden under an atlas cloth until it is guessed
+        const cloth = Art.fabric(c, { pattern: 'ikat', color: '#7b2cbf', color2: '#ffd166', color3: '#4cc9f0' });
+        let s = `<ellipse cx="0" cy="-2" rx="54" ry="8" fill="#000" opacity=".12"/>`;
+        s += `<path d="M-50 0 C-48 -40 -30 -66 0 -66 C30 -66 48 -40 50 0 Q38 -6 26 0 Q13 -6 0 0 Q-13 -6 -26 0 Q-38 -6 -50 0Z" fill="${cloth}" ${S(2.2)}/>`;
+        s += [-38, -13, 13, 38].map((x) => `<path d="M${x} -2 l-3 9 h6z" fill="#ffd166" ${S(1.2)}/>`).join('');
+        s += `<g ${c.anim('sv-bob', 2.2)}><circle cx="0" cy="-96" r="21" fill="#ffd166" ${S(2.2)}/>` +
+            `<text x="0" y="-85" text-anchor="middle" font-family="Fredoka, Nunito, sans-serif" font-size="32" font-weight="700" fill="${OL}" translate="no">?</text></g>`;
+        return s;
+    });
+
+    Art.define('beshik', (c, o) => {
+        // the Uzbek cradle: painted ends on rockers, the arched bar, a quilt; baby asleep inside
+        const wood = o.color || '#c0392b';
+        let s = `<path d="M-60 0 Q0 14 60 0" fill="none" stroke="${OL}" stroke-width="7" stroke-linecap="round"/><path d="M-60 0 Q0 14 60 0" fill="none" stroke="#8b5a2b" stroke-width="4" stroke-linecap="round"/>`;
+        for (const k of [-1, 1]) {
+            s += `<path d="M${k * 48} 4 L${k * 44} -62 Q${k * 40} -72 ${k * 32} -62 L${k * 34} 4Z" fill="${wood}" ${S(2)}/>`;
+            s += `<circle cx="${k * 40}" cy="-40" r="4" fill="#ffd166" ${S(1.1)}/><path d="M${k * 46} -20 h${-k * 10}" stroke="#ffd166" stroke-width="2.4"/>`;
+        }
+        s += `<path d="M-36 -64 Q0 -96 36 -64" fill="none" stroke="${OL}" stroke-width="7" stroke-linecap="round"/><path d="M-36 -64 Q0 -96 36 -64" fill="none" stroke="#e9c46a" stroke-width="4" stroke-linecap="round"/>`;
+        s += `<path d="M-36 -2 L-36 -34 L36 -34 L36 -2Z" fill="#8b5a2b" ${S(2)}/>`;
+        const quilt = Art.fabric(c, { pattern: 'ikat', color: o.quilt || '#f72585', color2: '#ffd166', color3: '#4cc9f0' });
+        s += `<path d="M-8 -34 Q14 -42 38 -38 L38 -16 Q10 -10 -8 -16Z" fill="${quilt}" ${S(1.8)}/>`;
+        if (o.baby !== false) {
+            s += `<g transform="translate(-20 -40)"><circle r="12" fill="#f6cda5" ${S(1.7)}/><path d="M-12 -1 C-12 -17 12 -17 12 -1 Q0 -7 -12 -1Z" fill="#e63946" ${S(1.5)}/>` +
+                `<path d="M-6 2 q2.4 2.4 4.8 0 M2 2 q2.4 2.4 4.8 0" fill="none" ${S(1.4)}/><circle cx="-7" cy="6" r="2.2" fill="#f4978e" opacity=".7"/><circle cx="7" cy="6" r="2.2" fill="#f4978e" opacity=".7"/></g>`;
+        }
+        return o.rock ? `<g ${c.anim('sv-sway', 3.2)}>${s}</g>` : s;
+    });
+
+    Art.define('piyoz', (c, o) => {
+        // an onion: seven coats and not one button
+        const col = o.color || '#c77d3a';
+        let s = `<path d="M-6 0 q-4 6 -10 7 M0 0 q0 7 -2 9 M6 0 q4 6 10 7" fill="none" stroke="#b08968" stroke-width="1.6" stroke-linecap="round"/>`;
+        s += `<path d="M0 -2 C-26 -4 -30 -30 -12 -44 Q-4 -50 0 -62 Q4 -50 12 -44 C30 -30 26 -4 0 -2Z" fill="${col}" ${S(2)}/>`;
+        s += `<path d="M0 -6 C-14 -10 -18 -30 -6 -44 M0 -6 C14 -10 18 -30 6 -44 M0 -6 V-54" fill="none" stroke="#9c5a24" stroke-width="1.4"/>`;
+        s += `<path d="M-12 -34 Q-14 -22 -6 -14" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="3" stroke-linecap="round"/>`;
+        s += `<path d="M0 -60 q-6 -12 -2 -22 M0 -60 q6 -10 4 -20" fill="none" stroke="${OL}" stroke-width="5" stroke-linecap="round"/><path d="M0 -60 q-6 -12 -2 -22 M0 -60 q6 -10 4 -20" fill="none" stroke="#52b788" stroke-width="2.6" stroke-linecap="round"/>`;
+        return s;
+    });
+
+    Art.define('igna', (c, o) => {
+        // a needle with one eye and a long thread for a tail
+        const ip = o.color || '#e63946';
+        return `<path d="M-30 0 L26 -36" stroke="${OL}" stroke-width="5" stroke-linecap="round"/><path d="M-30 0 L26 -36" stroke="#cbd5e1" stroke-width="2.6" stroke-linecap="round"/>` +
+            `<ellipse cx="21" cy="-33" rx="3" ry="1.4" transform="rotate(-33 21 -33)" fill="#fff" ${S(0.8)}/>` +
+            `<path d="M21 -33 C34 -46 46 -30 38 -18 C30 -6 44 4 56 -4" fill="none" stroke="${ip}" stroke-width="2.4" stroke-linecap="round"/>`;
+    });
+
+    Art.define('soya', (c, o) => {
+        // a shadow: the given part, flattened on the ground behind it, dark and soft
+        const ink = c.def('shadowink', (id) => `<filter id="${id}"><feFlood flood-color="#2b2118"/><feComposite in2="SourceAlpha" operator="in"/></filter>`);
+        const of = o.of || ['kid1', 0, 0, {}];
+        return `<g transform="matrix(1 0 -1.4 -.42 0 0)" opacity=".34" filter="${ink}">${Art.item(c, [of[0], of[1] || 0, of[2] || 0, Object.assign({ still: true }, of[3] || {})])}</g>`;
+    });
+
+    Art.define('xazon', (c, o) => {
+        // a heap of fallen autumn leaves, "tog'dek"
+        const w = o.w || 70;
+        const cols = ['#e0892b', '#f2b33d', '#c25b1f', '#d4a017'];
+        let s = `<path d="M${-w} 0 Q${-w * 0.7} ${-w * 0.62} 0 ${-w * 0.7} Q${w * 0.7} ${-w * 0.62} ${w} 0Z" fill="#c97b2a" ${S(2)}/>`;
+        for (let i = 0; i < 26; i++) {
+            const x = c.rand(-w * 0.85, w * 0.85);
+            const top = -w * 0.62 * (1 - (x / w) ** 2);
+            const y = c.rand(top + 4, -4);
+            s += `<path transform="translate(${n1(x)} ${n1(y)}) rotate(${n1(c.rand(0, 180))})" d="M0 0 q5 -5 10 0 q-5 5 -10 0z" fill="${c.pick(cols)}" ${S(0.7)}/>`;
+        }
+        return s;
+    });
+
+    Art.define('chiganoq', (c, o) => {
+        // sea shells on the sand
+        const cols = ['#ffd6a5', '#ffadad', '#fdffb6', '#caffbf'];
+        const n = o.n || 4;
+        let s = '';
+        for (let i = 0; i < n; i++) {
+            const x = (i - (n - 1) / 2) * 22;
+            const y = (i % 2) * 6;
+            s += `<g transform="translate(${x} ${y}) rotate(${(i % 3 - 1) * 14})"><path d="M0 0 L-11 -14 Q0 -24 11 -14Z" fill="${cols[i % 4]}" ${S(1.5)}/>` +
+                `<path d="M0 0 L-6 -18 M0 0 L0 -20 M0 0 L6 -18" stroke="#c08552" stroke-width="1.1"/><path d="M-3 0 h6 v3 h-6z" fill="${cols[i % 4]}" ${S(1)}/></g>`;
+        }
+        return s;
     });
 
     Art.define('beam', (c, o) => {
