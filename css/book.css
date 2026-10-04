@@ -1545,3 +1545,85 @@ html[data-bedtime='on'] #soundToggleBtn {
         animation: none;
     }
 }
+
+/* 📞 Birga o'qiymiz (js/together.js): big page numbers, and the bar with
+   the page picker and the link to this page */
+
+.book.is-together .chapter-chip {
+    padding: 4px 14px;
+    border-radius: 14px;
+    background: #0284c7;
+    color: #fff;
+    font-size: 22px;
+    line-height: 1.15;
+}
+
+#togetherBtn.is-on {
+    background: #0284c7;
+    color: #fff;
+}
+
+.together-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    padding: 8px 12px;
+    border-radius: 16px;
+    border: 1px solid #7dd3fc;
+    background: #e0f2fe;
+    color: #075985;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.together-bar.hidden {
+    display: none;
+}
+
+.together-hint {
+    flex: 1 1 180px;
+    font-weight: 600;
+    color: #0369a1;
+}
+
+.together-jump {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.together-jump select {
+    min-height: 40px;
+    padding: 0 8px;
+    border-radius: 10px;
+    border: 2px solid #7dd3fc;
+    background: #fff;
+    color: #075985;
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.together-link {
+    min-height: 40px;
+    padding: 0 12px;
+    border-radius: 10px;
+    background: #0284c7;
+    color: #fff;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.together-link.hidden {
+    display: none;
+}
+
+.together-x {
+    width: 36px;
+    height: 36px;
+    margin-left: auto;
+    border-radius: 50%;
+    background: #fff;
+    color: #075985;
+    cursor: pointer;
+}

@@ -246,6 +246,15 @@
         '🤔 Bu harf emas. Qaysi harf keladi?': '🤔 그 글자가 아니에요. 어떤 글자가 올까요?',
         "🎉 Barakalla! So'zlarni yig'dingiz!": '🎉 잘했어요! 낱말을 다 만들었어요!',
     });
+    // Birga o'qiymiz: reading together on a video call (js/together.js, js/app.js)
+    Object.assign(EXACT, {
+        "Birga o'qiymiz": '같이 읽어요',
+        "📞 Birga o'qiymiz": '📞 같이 읽어요',
+        "Videoqo'ng'iroqda bir xil sahifani oching.": '영상 통화를 하면서 같은 쪽을 펴요.',
+        'Sahifa:': '쪽:',
+        '🔗 Shu sahifa havolasi': '🔗 이 쪽 링크 보내기',
+        "Birga o'qishni tugatish": '같이 읽기 끝내기',
+    });
     // O'qish daraxti: the reading tree (js/tree.js, js/app.js)
     Object.assign(EXACT, {
         'Daraxtim': '나의 나무',
@@ -482,6 +491,8 @@
         [/^(\d+) \/ (\d+) sahifa yozildi$/, '$2쪽 중 $1쪽 녹음했어요', '4 / 12 sahifa yozildi'],
         [/^(\d+)-sahifa \(yozilgan\)$/, '$1쪽 (녹음함)', '3-sahifa (yozilgan)'],
         [/^(\d+)-sahifa$/, '$1쪽', '3-sahifa'],
+        [/^«(.+)», (\d+)-sahifa — birga o'qiymiz!$/, '«$1» $2쪽 — 같이 읽어요!', "«Zumrad va Qimmat», 3-sahifa — birga o'qiymiz!"],
+        [/^«(.+)» — birga o'qiymiz!$/, '«$1» — 같이 읽어요!', "«Zumrad va Qimmat» — birga o'qiymiz!"],
         [/^▶ Davom ettirish · (\d+)-sahifa$/, '▶ 이어 읽기 · $1쪽', '▶ Davom ettirish · 3-sahifa'],
         [/^📄 (\d+) sahifa · ⏱ ~(\d+) daqiqa$/, '📄 $1쪽 · ⏱ 약 $2분', '📄 12 sahifa · ⏱ ~6 daqiqa'],
         [/^Savollarga javoblar: (\d+) \/ (\d+)$/, '맞힌 질문: $1 / $2', 'Savollarga javoblar: 4 / 5'],

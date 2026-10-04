@@ -557,6 +557,7 @@
             document.getElementById('storyProgressBar').style.width = `${pct}%`;
             document.getElementById('storyProgressText').textContent = s.view >= 1 && !s.end ? `${s.view} / ${total} sahifa` : label;
             this.updateStarChip();
+            if (this.together) this.renderTogether();
             document.getElementById('bookPageIndicator').textContent = label;
             document.getElementById('prevPageBtn').disabled = !s.canPrev;
             const next = document.getElementById('nextPageBtn');
@@ -1140,6 +1141,43 @@
             });
         }
 
+        // ---------- Birga o'qiymiz (js/together.js) ----------
+
+        // Reading together on a video call: big page numbers, a page picker,
+        // and a link to this page for the grandparent.
+        toggleTogether(on = !this.together) {
+            this.together = !!on;
+            this.renderTogether();
+        }
+
+        renderTogether() {
+            const on = !!this.together;
+            document.getElementById('book').classList.toggle('is-together', on);
+            const btn = document.getElementById('togetherBtn');
+            btn.setAttribute('aria-pressed', String(on));
+            btn.classList.toggle('is-on', on);
+            document.getElementById('togetherBar').classList.toggle('hidden', !on);
+            const st = this.currentStoryObj;
+            if (!on || !st) return;
+            const n = st.pages.length;
+            const pick = document.getElementById('togetherPage');
+            if (pick.dataset.key !== this.currentStoryKey || pick.options.length !== n + 2) {
+                pick.innerHTML = `<option value="0">Sarlavha</option>${st.pages.map((_, i) => `<option value="${i + 1}">${i + 1}-sahifa</option>`).join('')}<option value="${n + 1}">Tamom</option>`;
+                pick.dataset.key = this.currentStoryKey;
+            }
+            pick.value = String(Math.max(0, Math.min(n + 1, this.book.view)));
+            // a made book's link is the whole book: no page in it
+            document.getElementById('togetherLink').classList.toggle('hidden', !!st.mine);
+        }
+
+        async shareTogether() {
+            const st = this.currentStoryObj;
+            if (!st || st.mine) return;
+            const page = Math.max(0, Math.min(st.pages.length, this.book.view));
+            const url = root.Together.link(root.location.href, this.currentStoryKey, page);
+            await this.sendLink(st.title, this.tx(page >= 1 ? `«${st.title}», ${page}-sahifa — birga o'qiymiz!` : `«${st.title}» — birga o'qiymiz!`), url);
+        }
+
         // ---------- O'qish daraxti (js/tree.js) ----------
 
         updateTreeCount() {
@@ -1686,9 +1724,13 @@
             const text = this.tx(story
                 ? `«${story.title}» — o'zbek ertagi: rasmli, varaqlanadigan kitob`
                 : "Ertaklar Olami — o'zbek xalq ertaklari bolalar uchun");
+            await this.sendLink(story ? story.title : 'Ertaklar Olami', text, url);
+        }
+
+        async sendLink(title, text, url) {
             if (root.navigator.share) {
                 try {
-                    await root.navigator.share({ title: story ? story.title : 'Ertaklar Olami', text, url });
+                    await root.navigator.share({ title, text, url });
                     return;
                 } catch (e) {
                     if (e.name === 'AbortError') return;
@@ -1710,13 +1752,15 @@
                 if (!(open && open.link === root.Maker.LINK + shared && this.currentStoryKey === root.StoryMaker.GUEST)) this.maker.openShared(shared);
                 return;
             }
-            let key = '';
-            try {
-                key = decodeURIComponent(root.location.hash.slice(1));
-            } catch (e) {
-                return;
+            // a book, or a page of it for reading together (js/together.js: "#zumrad/3")
+            const { key, page } = root.Together.parse(root.location.hash);
+            if (!this.db[key]) return;
+            if (key !== this.currentStoryKey) this.startStory(key);
+            if (page >= 1) {
+                this.together = true;
+                this.book.goTo(Math.min(page, this.db[key].pages.length));
+                this.renderTogether();
             }
-            if (this.db[key] && key !== this.currentStoryKey) this.startStory(key);
         }
 
         // ---------- modal ----------

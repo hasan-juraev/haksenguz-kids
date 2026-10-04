@@ -490,6 +490,20 @@ them stay on the device, like everything else (see Privacy).
 21. **Birga o'qiymiz (reading together on a video call).** A link to the
     page a child is on, and big page numbers, so a grandparent on a call can
     turn to the same page.
+
+    ✅ **Built.** "📞 Birga o'qiymiz" in the book's toolbar turns on reading
+    together.
+    - **Big page numbers** on both pages ("4-sahifa", "4 / 12").
+    - **A page picker** for jumping to the page the other one names.
+    - **"🔗 Shu sahifa havolasi"** sends a link to the page (`#zumrad/4`)
+      with "«Zumrad va Qimmat», 4-sahifa — birga o'qiymiz!". Opened on the
+      grandparent's phone, it opens the same book at the same page, with
+      big page numbers on. A page past the end opens the last page, and old
+      book links work as before.
+    - A book a child made has no page link (its link is the whole book),
+      but its picker and big numbers work.
+    - On a narrow phone, the book's toolbar takes two tidy rows instead of
+      squeezing its buttons together.
 22. **Men o'qidim (I read it).** The child records themselves reading a page,
     sends it to the grandparents, and hears how much they have grown.
 23. **Mening oilam (my family).** A family tree made with the hero maker,

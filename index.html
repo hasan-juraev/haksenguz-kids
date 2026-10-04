@@ -151,23 +151,28 @@
         </div>
 
         <div id="storyView" class="hidden space-y-3 max-w-6xl mx-auto w-full">
-            <!-- Book Top Control Bar -->
-            <div class="bg-white/90 backdrop-blur-md p-3 rounded-2xl shadow-sm border border-orange-100 flex items-center justify-between gap-2">
+            <!-- Book Top Control Bar (on a narrow phone, its buttons wrap to a second row) -->
+            <div class="bg-white/90 backdrop-blur-md p-3 rounded-2xl shadow-sm border border-orange-100 flex flex-wrap items-center justify-between gap-2">
                 <button onclick="app.goHome()" class="px-3.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-sm transition flex items-center space-x-2">
                     <i class="fa-solid fa-arrow-left"></i>
                     <span class="hidden sm:inline">Kutubxona</span>
                 </button>
                 <div class="flex items-center space-x-3 min-w-0">
-                    <div class="w-24 sm:w-48 bg-gray-200 h-3 rounded-full overflow-hidden shadow-inner">
+                    <div class="hidden lg:block w-48 bg-gray-200 h-3 rounded-full overflow-hidden shadow-inner">
                         <div id="storyProgressBar" class="bg-gradient-to-r from-amber-500 to-brand-500 h-full w-0 transition-all duration-500 rounded-full"></div>
                     </div>
                     <span id="storyProgressText" class="text-xs font-bold text-brand-700 bg-amber-100 px-2.5 py-1 rounded-lg whitespace-nowrap">Muqova</span>
                     <!-- Yashirin yulduz: this book's hidden stars found so far (js/hiddenstar.js) -->
                     <span id="starChip" class="hidden star-chip" title="Yashirin yulduzlar" aria-live="polite"></span>
                 </div>
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center space-x-2 ml-auto">
                     <!-- At bedtime: tonight's page out of tonight's pages -->
                     <span id="bedtimeChip" class="hidden bed-count" aria-live="polite"></span>
+                    <!-- Birga o'qiymiz: reading together on a video call (js/together.js) -->
+                    <button onclick="app.toggleTogether()" id="togetherBtn" class="px-3 py-2 bg-sky-50 text-sky-700 hover:bg-sky-100 rounded-xl font-bold text-xs transition flex items-center space-x-1.5" aria-pressed="false" title="Birga o'qiymiz">
+                        <span aria-hidden="true">📞</span>
+                        <span class="hidden lg:inline">Birga o'qiymiz</span>
+                    </button>
                     <!-- For grown-ups: read this book aloud for the children (js/studio.js) -->
                     <button onclick="app.openStudio()" id="studioBtn" class="px-3 py-2 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-xl font-bold text-xs transition flex items-center space-x-1.5" aria-label="Ovoz yozish (kattalar uchun)">
                         <i class="fa-solid fa-microphone"></i>
@@ -178,6 +183,15 @@
                         <span class="hidden md:inline">Varaqlash Ovozi</span>
                     </button>
                 </div>
+            </div>
+
+            <!-- Birga o'qiymiz: big page numbers on, a page picker and a link to this page -->
+            <div id="togetherBar" class="hidden together-bar">
+                <span class="together-title">📞 Birga o'qiymiz</span>
+                <span class="together-hint">Videoqo'ng'iroqda bir xil sahifani oching.</span>
+                <label class="together-jump"><span>Sahifa:</span> <select id="togetherPage" onchange="app.book.goTo(+this.value)"></select></label>
+                <button type="button" id="togetherLink" class="together-link" onclick="app.shareTogether()">🔗 Shu sahifa havolasi</button>
+                <button type="button" class="together-x" onclick="app.toggleTogether(false)" aria-label="Birga o'qishni tugatish">✕</button>
             </div>
 
             <!-- 3D Book: pages, turning sheet and covers are built by js/book.js -->
@@ -553,6 +567,7 @@
     <script src="js/review.js"></script>
     <script src="js/hiddenstar.js"></script>
     <script src="js/tree.js"></script>
+    <script src="js/together.js"></script>
     <script src="js/stories-folk.js"></script>
     <script src="js/stories-classic.js"></script>
     <script src="js/stories-twins.js"></script>

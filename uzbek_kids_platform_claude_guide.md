@@ -957,3 +957,23 @@ fonts/gowun-dodum-ko.*   # built Korean font + the letters in it
   * touching a leaf, or Enter or Space on one, names its book and offers "📖 Ochish", which opens it (`startStory`, or `maker.read` for a flower).
 * No points, goals or rankings.
 * `tests/tree.test.js` checks the order, the shapes up to 60 books, the colours, and the menus in Korean.
+
+## 31. Update: Birga O'qiymiz, Reading Together on a Video Call (Roadmap item 21)
+
+### Page links (`js/together.js`, `window.Together`)
+* `link(base, key, page)` makes `#zumrad/4`, or `#zumrad` for the title page.
+* `parse(hash)` reads it back as `{ key, page }`.
+  * A plain book link (`#zumrad`) has page 0.
+  * A broken or odd link (`#zumrad/abc`, a bad escape, more than three digits) has no page.
+  * A made book's link (`#ertak=...`) is not a page link.
+* `app.openFromLink()` uses it. A page link opens the book, turns reading together on, and goes to the page, clamped to the book's last page.
+
+### Reading together (`js/app.js`, `css/book.css`)
+* `#togetherBtn` (📞) in the book's toolbar runs `toggleTogether()`, which turns `.is-together` on `#book` and shows `#togetherBar`.
+  * `.is-together .chapter-chip` makes both pages' numbers big.
+  * The bar has a hint, a picker (`#togetherPage`: Sarlavha, each page, Tamom) that calls `book.goTo()`, "🔗 Shu sahifa havolasi" (`shareTogether()`), and ✕.
+* `renderTogether()` keeps the picker on the page shown; `updateControls()` runs it on every page change.
+* A made book (`st.mine`) hides the link button, since its link carries the whole book.
+* `sendLink(title, text, url)` is the one way the app sends a link: the phone's share sheet, else the clipboard and a toast, else a modal with the link. `share()` and `shareTogether()` both use it.
+* The toolbar wraps on narrow phones (`flex-wrap`, buttons `ml-auto`). Its progress bar shows from `lg` up, since below that it had no room.
+* `tests/together.test.js` checks that every book's page links read back, the odd links, and the menus in Korean.
