@@ -426,6 +426,25 @@ them stay on the device, like everything else (see Privacy).
     comes last and endings stack on words. A game teaches the Uzbek endings
     through the Korean particles children already know: -ni ↔ 을/를,
     -ga ↔ 에게/에, -da ↔ 에서/에, -dan ↔ 에서/부터, -ning ↔ 의, -lar ↔ 들.
+
+    ✅ **Built.** The dictionary's fourth game, "🧩 Qo'shimcha ↔ 조사"
+    (조사 짝꿍 in Korean menus), is open from the first day, with no words
+    needed.
+    - **The table first.** It opens on the six endings, each with its Korean
+      twins and an example (*tulkini* = 여우를, *ertalabdan* = 아침부터).
+    - **Then six sentences**, one for each ending, from 142. Each has a
+      picture and the Korean sentence with its particle marked. Below is the
+      Uzbek sentence with the ending left out, and the child taps the
+      ending. The sentences come from animals, places (Toshkent, Seul,
+      Samarqand, Xiva...) and food, and some stand on their own
+      (*Ertalabdan kechgacha o'ynadim*, *Bolalar o'ynayapti*).
+    - **A wrong pick says why.** 에서 is both -da and -dan ("qayerda? →
+      -da, qayerdan? → -dan"), and 에 is both -ga and -da. A right pick
+      fills the gap and says the sentence aloud.
+    - **The spelling rule.** The game only asks for -ga where Uzbek writes
+      it so: after k, g it is -ka, and after q, g' it is -qa (*mushukka,
+      tog'qa*).
+    - The first win each day is worth 10 points, as with the other games.
 18. **Five words a day.** A short daily review of the child's own
     dictionary, each word coming back just before it would be forgotten.
 19. **A hidden star on every page.** Find it, collect it, and look closer at

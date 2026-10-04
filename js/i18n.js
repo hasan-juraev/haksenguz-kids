@@ -246,6 +246,19 @@
         '🤔 Bu harf emas. Qaysi harf keladi?': '🤔 그 글자가 아니에요. 어떤 글자가 올까요?',
         "🎉 Barakalla! So'zlarni yig'dingiz!": '🎉 잘했어요! 낱말을 다 만들었어요!',
     });
+    // Qo'shimcha ↔ 조사: the Uzbek endings through the Korean particles (js/suffix.js, js/games.js)
+    Object.assign(EXACT, {
+        "Qo'shimcha ↔ 조사": '조사 짝꿍',
+        "을/를, 에, 에서… o'zbekchada qanday?": '을/를, 에, 에서… 우즈베크어로는?',
+        "🧩 Qo'shimcha ↔ 조사": '🧩 조사 짝꿍',
+        "O'zbek va koreys tillari qarindosh: ikkalasida ham so'z oxiriga qo'shimcha qo'shiladi, fe'l esa gap oxirida keladi.": '우즈베크어와 한국어는 사촌이에요. 둘 다 낱말 끝에 꼬리가 붙고, 동사는 문장 맨 끝에 와요.',
+        '▶ Boshladik!': '▶ 시작해요!',
+        "Koreyscha gapni o'qing. O'zbekchada qaysi qo'shimcha keladi?": '한국어 문장을 읽어요. 우즈베크어로는 어떤 꼬리가 붙을까요?',
+        "🤔 Yana o'ylab ko'ring! Koreyscha gapga qarang.": '🤔 다시 생각해 봐요! 한국어 문장을 보세요.',
+        '🤔 에서 ikki xil: qayerda? →\u00a0-\u2060da, qayerdan? →\u00a0-\u2060dan': '🤔 에서는 두 가지예요: 어디에서 놀아요? →\u00a0-\u2060da, 어디에서 와요? →\u00a0-\u2060dan',
+        '🤔 에 ikki xil: qayerga? →\u00a0-\u2060ga, qayerda? →\u00a0-\u2060da': '🤔 에는 두 가지예요: 어디에 가요? →\u00a0-\u2060ga, 어디에 있어요? →\u00a0-\u2060da',
+        "🎉 Barakalla! Hamma qo'shimchalarni topdingiz!": '🎉 잘했어요! 짝꿍을 모두 찾았어요!',
+    });
     // Alifbo: tracing letters (js/games.js) and 가, the Korean-letter readings (js/hangul.js)
     Object.assign(EXACT, {
         "✍️ Yozib ko'r": '✍️ 따라 쓰기',

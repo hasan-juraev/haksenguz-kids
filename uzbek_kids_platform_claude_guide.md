@@ -841,3 +841,44 @@ fonts/gowun-dodum-ko.*   # built Korean font + the letters in it
   * "✍️ Davomini yozish" (`keepGuest(true)`), which keeps or updates the book, then opens the editor on a new last page with the "✍️ Kim yozdi?" field in focus.
 * Updating a book replaces its title, moral and pages with the ones that came back, after a confirm.
 * The share text asks the family to write the next page and send it back.
+
+## 27. Update: Qo'shimcha ↔ 조사, Uzbek Endings Through Korean Particles (Roadmap item 17)
+
+### Data (`js/suffix.js`, `window.Suffix`)
+* `ENDINGS`: the six endings in order (`ni, ga, da, dan, ning, lar`), each with its Korean twins (`'에서/부터'`) and examples for the table.
+* `NOUNS`: the words the sentences use, `[Uzbek, Korean, picture]`, by kind:
+  * `who`: animals, the dokkebi and the pari;
+  * `place`: the home, school, Toshkent, Seul...;
+  * `food`.
+  * A picture is a word's drawing (`'bird:dove'`, as in `js/picwords.js`) or a list of `[part, x, y, options]`.
+* `FRAMES` make a sentence from a kind and an ending: Uzbek `[before, after]`, Korean `[before, particle, after]`. For `-ni`, the particle is chosen from the word: 을 after a final consonant, 를 after a vowel (`batchim()`).
+* `MORE` holds sentences of their own (*Mushuk uyda.* = 고양이가 집에 있어요.).
+* `all()` lists every sentence as `{ id, end, uz: [before, word, after], ko: [before, word, particle, after], art }`.
+  * `sentence(r)` and `korean(r)` give the whole sentences.
+  * `word(r)` is the word as it stands in its sentence, capitalised at the start.
+* `join(word, end)` writes an ending as Uzbek does: `-ga` is `-ka` after k, g and `-qa` after q, g'. `fits()` is true when an ending joins as written on its button. The game only asks for those, so *mushuk* is never asked with -ga.
+* `pick(n)` gives a game's sentences: every ending once, then more at random, in a mixed order.
+* `hint(r, picked)` says why a pick was wrong:
+  * `eseo`: 에서 is both -da and -dan;
+  * `e`: 에 is both -ga and -da;
+  * `look`: anything else.
+  * `HINTS` has the texts. A no-break space and a word joiner (`⁠`) keep "→ -da" whole at the end of a line.
+* `picture(r)` draws the sentence's picture as a sticker; `PicWords.fit` frames it once it is on screen. In a `-lar` sentence the word stands three times, spaced by its size (`GAP`).
+
+### The game (`Games.suffix` in `js/games.js`, styles in `css/play.css`)
+* "🧩 Qo'shimcha ↔ 조사" is the dictionary's fourth game (`data-game="suffix"`). `renderDictionary()` never disables it, since it needs none of the child's words.
+* It opens on the table: each ending, its twins, the examples and, on a phone with a voice, a 🔊 for each row. The `.is-playing` class switches it to the sentences.
+* Each sentence shows:
+  * the picture;
+  * the Korean with its particle marked;
+  * the Uzbek with a gap;
+  * six ending buttons, each with its Korean twins.
+* A wrong pick shakes, is crossed out for that sentence, and shows the hint. A right pick fills the gap and says the sentence (`sayWord`).
+* `app.dictGame('suffix')` pays 10 points for the first win each day, like the other games.
+* Colours: Uzbek endings are orange, Korean particles blue, in the table, the sentences and the buttons alike.
+* The endings and the Uzbek sentences are `[data-content]`: they turn Cyrillic with the app but stay Uzbek in Korean menus.
+* `tests/suffix.test.js` checks:
+  * every sentence: its ending fits, its particle is a twin of its ending, its picture can be drawn, and it reads the same in Cyrillic when shown in pieces;
+  * every game asks every ending;
+  * the hints and the menus have their Korean.
+* `tools/korean-review.js qoshimcha` lists every sentence pair for the bilingual reviewer.

@@ -922,6 +922,7 @@
             hint.classList.toggle('hidden', !short);
             hint.textContent = short ? `🎮 O'yinlar uchun kamida ${DICT_MIN} ta so'z kerak. Yana ${DICT_MIN - list.length} ta so'z yig'ing!` : '';
             document.querySelectorAll('#dictGames [data-game]').forEach((b) => {
+                if (b.dataset.game === 'suffix') return; // its own sentences: it needs no words
                 const need = b.dataset.game === 'match' ? list.filter((e) => e.ko).length : b.dataset.game === 'spell' ? list.filter(root.Dictionary.spellable).length : list.length;
                 b.disabled = need < (b.dataset.game === 'listen' ? DICT_MIN : 3);
             });

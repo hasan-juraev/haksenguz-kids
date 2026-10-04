@@ -8,7 +8,7 @@ A Korean helper supports children who read Korean best. Tapping an underlined wo
 
 For children who read Korean letters first, the 가 button on any page shows the Uzbek in Hangul, the way it sounds (*Assalomu alaykum* → 앗살로무 알라이쿰). The *Alifbo* book has one page per letter of the Uzbek alphabet, with a picture, and the child can trace each letter with a finger.
 
-Every new word a child meets in a book goes into their own dictionary, *Mening lug'atim*, as a picture card with its Korean meaning. It has three games: hear a word and find its picture, match Uzbek words to Korean, and build a word from its letters.
+Every new word a child meets in a book goes into their own dictionary, *Mening lug'atim*, as a picture card with its Korean meaning. It has three games with those words: hear a word and find its picture, match Uzbek words to Korean, and build a word from its letters. A fourth game, *Qo'shimcha ↔ 조사*, teaches the Uzbek endings through the Korean particles the child already knows. The child reads 여우**를** 봤어요 and picks the ending that completes *Tulki\_\_ ko'rdim* (-ni).
 
 Every picture is a picture dictionary too: touching a fox shows "tulki · 🇰🇷 여우" (and, with 가 on, how it sounds), and the word joins the child's dictionary.
 

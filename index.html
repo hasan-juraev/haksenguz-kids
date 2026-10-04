@@ -225,7 +225,8 @@
         </div>
 
         <!-- Recording studio (js/studio.js): a grown-up reads the book aloud, page by page -->
-        <!-- Mening lug'atim: picture cards of the words this child has met, and three games -->
+        <!-- Mening lug'atim: picture cards of the words this child has met, three games with them, and
+             Qo'shimcha ↔ 조사, the Uzbek endings through the Korean particles (js/suffix.js) -->
         <div id="dictView" class="hidden space-y-4 max-w-6xl mx-auto w-full">
             <div class="bg-white p-3 md:p-4 rounded-3xl shadow-sm border border-orange-100 flex flex-wrap items-center gap-3">
                 <button onclick="app.goHome()" class="min-h-[40px] px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-sm transition flex items-center gap-2"><i class="fa-solid fa-arrow-left"></i> Kutubxona</button>
@@ -236,6 +237,7 @@
                 <button type="button" class="dict-game-btn" data-game="listen"><span class="text-2xl" aria-hidden="true">🔊</span><b>Eshit va top</b><small>So'zni eshitib, rasmini toping</small></button>
                 <button type="button" class="dict-game-btn" data-game="match"><span class="text-2xl" aria-hidden="true">🇰🇷</span><b>Juftini top</b><small>O'zbekcha va koreyscha juftlar</small></button>
                 <button type="button" class="dict-game-btn" data-game="spell"><span class="text-2xl" aria-hidden="true">🔤</span><b>So'zni yig'ing</b><small>Harflardan so'z tuzing</small></button>
+                <button type="button" class="dict-game-btn" data-game="suffix"><span class="text-2xl" aria-hidden="true">🧩</span><b>Qo'shimcha ↔ 조사</b><small>을/를, 에, 에서… o'zbekchada qanday?</small></button>
             </div>
             <p id="dictHint" class="hidden text-sm font-bold text-amber-800 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3"></p>
             <p id="dictEmpty" class="hidden text-center text-gray-500 font-bold py-10">📚 Hali so'z yo'q. Kitob o'qing — yangi so'zlar shu yerga yig'iladi!</p>
@@ -532,6 +534,7 @@
     <script src="js/art/fx.js"></script>
     <script src="js/art/landmarks.js"></script>
     <script src="js/picwords.js"></script>
+    <script src="js/suffix.js"></script>
     <script src="js/stories-folk.js"></script>
     <script src="js/stories-classic.js"></script>
     <script src="js/stories-twins.js"></script>

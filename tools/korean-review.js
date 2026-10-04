@@ -7,7 +7,8 @@
  *   node tools/korean-review.js zumrad > zumrad.csv     (one book; "menu" for the menus,
  *                                                        "pasport" for the culture passport,
  *                                                        "ertak" for the story maker,
- *                                                        "rasm" for the words in the pictures)
+ *                                                        "rasm" for the words in the pictures,
+ *                                                        "qoshimcha" for the endings game's sentences)
  *
  * One row per title, sentence, question, answer, word and menu text. The
  * reviewer writes a better Korean in the "To'g'risi / 수정" column, or a note
@@ -32,16 +33,17 @@ require('../js/maker.js');
 require('../js/art/core.js');
 ['people', 'animals', 'world', 'fx', 'landmarks'].forEach((f) => require(`../js/art/${f}.js`));
 require('../js/picwords.js');
+require('../js/suffix.js');
 
 const { segments } = window.BookEngine;
 const db = window.storiesDatabase;
 const { EXACT, PATTERNS, translate } = window.I18n;
 const only = process.argv.slice(2);
 const want = (key) => !only.length || only.includes(key);
-const SECTIONS = ['menu', 'pasport', 'ertak', 'rasm'];
+const SECTIONS = ['menu', 'pasport', 'ertak', 'rasm', 'qoshimcha'];
 const unknown = only.filter((key) => !SECTIONS.includes(key) && !window.storiesKorean[key]);
 if (unknown.length) {
-    console.error(`No Korean for: ${unknown.join(', ')}. Books with Korean: ${Object.keys(window.storiesKorean).join(', ')}, or "menu", "pasport", "ertak" or "rasm".`);
+    console.error(`No Korean for: ${unknown.join(', ')}. Books with Korean: ${Object.keys(window.storiesKorean).join(', ')}, or "menu", "pasport", "ertak", "rasm" or "qoshimcha".`);
     process.exit(1);
 }
 
@@ -111,6 +113,13 @@ if (want('rasm')) {
         done.add(uz);
         add(`rasm ${uz}`, "Rasmdagi so'z / 그림 속 낱말", uz, ko);
     });
+}
+
+// Qo'shimcha ↔ 조사 (js/suffix.js): each Uzbek sentence and the Korean the game shows with it.
+if (want('qoshimcha')) {
+    const S = window.Suffix;
+    S.ENDINGS.forEach((e) => add(`qoshimcha -${e.end}`, "Qo'shimcha va 조사 / 어미와 조사", `-${e.end}`, e.ko));
+    S.all().forEach((r) => add(`qoshimcha ${r.id}`, `Qo'shimcha o'yini: -${r.end} / 조사 짝꿍: -${r.end}`, S.sentence(r), S.korean(r)));
 }
 
 // CSV that Excel opens as UTF-8 (the byte-order mark) with Korean intact.

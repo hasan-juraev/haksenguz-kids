@@ -808,5 +808,88 @@
         return card;
     }
 
-    root.Games = { color, order, compare, trace, listen, match, spell, open: openModal, close: closeModal, toLineArt };
+    // 🧩 Qo'shimcha ↔ 조사 (js/suffix.js): first a table of the six Uzbek
+    // endings and their Korean twins, then sentences: the Korean with its
+    // particle, the Uzbek with the ending left out. Tap the ending that does
+    // the particle's job; a wrong one says why (에서 is both -da and -dan).
+    function suffix({ say, rounds = 6, onRight, onWrong, onWin }) {
+        const S = root.Suffix;
+        const pool = S.pick(rounds);
+        const table = S.ENDINGS.map((e) => {
+            const words = e.ex.map(([uz]) => S.join(uz, e.end));
+            return `<li class="sfx-row"><span class="sfx-pair"><b class="sfx-end" data-content>-${e.end}</b> <span class="sfx-twin" lang="ko">${e.ko}</span></span> ` +
+                `<span class="sfx-ex">${e.ex.map(([uz, ko, p]) => `<span class="sfx-ex-pair"><span data-content>${esc(uz)}<b>${e.end}</b></span> = <span lang="ko">${esc(ko)}<b>${esc(p)}</b></span></span>`).join(' ')}</span>` +
+                (say ? ` <button type="button" class="sfx-say" data-say="${esc(words.join(', '))}" aria-label="Eshitish">🔊</button>` : '') + '</li>';
+        }).join('');
+        const card = dictFrame("🧩 Qo'shimcha ↔ 조사", "O'zbek va koreys tillari qarindosh: ikkalasida ham so'z oxiriga qo'shimcha qo'shiladi, fe'l esa gap oxirida keladi.", pool.length,
+            `<div class="sfx-intro"><ul class="sfx-table">${table}</ul><button type="button" class="sfx-go">▶ Boshladik!</button></div>` +
+            `<div class="sfx-play"><div class="sfx-art"></div><p class="sfx-ko" lang="ko"></p><p class="sfx-uz" data-content></p>` +
+            `<div class="sfx-ends">${S.ENDINGS.map((e) => `<button type="button" class="sfx-end-btn" data-end="${e.end}"><b data-content>-${e.end}</b> <small lang="ko">${e.ko}</small></button>`).join('')}</div></div>`, 'suffix-game');
+        const game = card.querySelector('.dict-game');
+        const art = card.querySelector('.sfx-art');
+        const ko = card.querySelector('.sfx-ko');
+        const uz = card.querySelector('.sfx-uz');
+        const ends = card.querySelector('.sfx-ends');
+        const result = card.querySelector('.order-result');
+        let round = 0;
+        function show() {
+            const r = pool[round];
+            art.innerHTML = S.picture(r);
+            if (root.PicWords) root.PicWords.fit(art);
+            ko.innerHTML = `${esc(r.ko[0] + r.ko[1])}<b>${esc(r.ko[2])}</b>${esc(r.ko[3])}`;
+            uz.innerHTML = `${esc(r.uz[0] + S.word(r))}<span class="sfx-gap">?</span>${esc(r.uz[2])}`;
+            ends.querySelectorAll('.sfx-end-btn').forEach((b) => {
+                b.disabled = false;
+                b.classList.remove('is-right', 'is-off');
+            });
+        }
+        card.querySelector('.sfx-table').addEventListener('click', (e) => {
+            const b = e.target.closest('[data-say]');
+            if (b && say) say(b.dataset.say);
+        });
+        card.querySelector('.sfx-go').addEventListener('click', () => {
+            game.classList.add('is-playing');
+            card.querySelector('.play-sub').textContent = "Koreyscha gapni o'qing. O'zbekchada qaysi qo'shimcha keladi?";
+            show();
+            ends.querySelector('.sfx-end-btn').focus();
+        });
+        ends.addEventListener('click', (e) => {
+            const b = e.target.closest('.sfx-end-btn');
+            if (!b || b.disabled || round >= pool.length) return;
+            const r = pool[round];
+            if (b.dataset.end !== r.end) {
+                shake(b);
+                b.disabled = true;
+                b.classList.add('is-off');
+                result.textContent = S.HINTS[S.hint(r, b.dataset.end)];
+                if (onWrong) onWrong();
+                return;
+            }
+            b.classList.add('is-right');
+            ends.querySelectorAll('.sfx-end-btn').forEach((x) => { x.disabled = true; });
+            const gap = uz.querySelector('.sfx-gap');
+            gap.textContent = r.end;
+            gap.classList.add('is-filled');
+            if (say) say(S.sentence(r));
+            card.querySelector(`[data-step="${round}"]`).classList.add('is-done');
+            round++;
+            if (round === pool.length) {
+                result.textContent = "🎉 Barakalla! Hamma qo'shimchalarni topdingiz!";
+                game.classList.add('is-won');
+                if (onWin) onWin();
+            } else {
+                result.textContent = '⭐ Barakalla!';
+                if (onRight) onRight();
+                setTimeout(() => {
+                    if (!game.isConnected) return; // closed in the meantime
+                    result.textContent = '';
+                    show();
+                    if (card.contains(document.activeElement) || document.activeElement === document.body) ends.querySelector('.sfx-end-btn').focus();
+                }, 1800);
+            }
+        });
+        return card;
+    }
+
+    root.Games = { color, order, compare, trace, listen, match, spell, suffix, open: openModal, close: closeModal, toLineArt };
 })(window);
