@@ -226,6 +226,39 @@ check(ep.cast[0] && ep.cast[0].k === `h:${evil.heroes[0].id}` && ep.cast[0].mood
 check(!!draws(M.toStory(evil.book, evil.heroes).pages[0].scene), 'and the cleaned book draws');
 check(M.fromHash('#ertak=abc') === 'abc' && M.fromHash('ertak=abc') === 'abc' && M.fromHash('#zumrad') === null && M.fromHash('') === null, 'the link\'s data from the address');
 
+// ---------- the story relay (Ertak estafetasi) ----------
+
+// The child writes page one and sends it.
+const asal = M.newHero('Asal', { who: 'girl', head: 'ponytail', wear: 'modern', color: 'pink' });
+const relayBook = M.newBook('Asal', [asal]);
+check(relayBook.relay === relayBook.id, 'a new book is its own relay');
+relayBook.title = 'Asal va laylak';
+relayBook.pages[0].text = 'Asal bir laylakni ko\'rdi.';
+const sent = M.decode(M.encode(relayBook, [asal]));
+check(sent.book.relay === relayBook.id && sent.book.id !== relayBook.id, 'the relay id travels in the link; the book gets a new id on the other phone');
+// Grandma keeps it and writes page two.
+const atGranny = M.adopt(sent, []);
+check(atGranny.heroes.length === 1 && atGranny.heroes[0].name === 'Asal' && atGranny.book.relay === relayBook.id, 'kept on grandma\'s phone: with Asal, and the same relay');
+const page2 = Object.assign(M.newPage(atGranny.book.pages[0]), { text: 'Laylak uni Toshkentga olib bordi!', by: 'Buvijon' });
+atGranny.book.pages.push(page2);
+check(page2.by === 'Buvijon' && M.newPage().by === '', 'a page knows who wrote it');
+// Back to the child: Asal is matched to her own hero, not added twice.
+const returned = M.decode(M.encode(atGranny.book, atGranny.heroes));
+check(returned.book.relay === relayBook.id && returned.book.pages.length === 2 && returned.book.pages[1].by === 'Buvijon', 'back home: the same relay, two pages, page two by Buvijon');
+const home = M.adopt(returned, [asal]);
+check(home.heroes.length === 0 && home.book.pages[0].cast[0].k === `h:${asal.id}`, 'the child\'s own hero is matched (same name and look), not added again');
+const other = M.newHero('Asal', { who: 'girl', head: 'braids' });
+check(M.adopt(returned, [other]).heroes.length === 1, 'a hero with the same name but another look is a new hero');
+// Who wrote what is shown only when more than one person wrote.
+const two = M.toStory(home.book, [asal]);
+check(two.pages[0].by === 'Asal' && two.pages[1].by === 'Buvijon', 'pages say who wrote them: Asal, then Buvijon');
+check(M.toStory(relayBook, [asal]).pages.every((p) => !p.by), 'a book by one writer doesn\'t say it on every page');
+check(M.writers(home.book).join() === 'Asal,Buvijon' && M.many(home.book) && !M.many(relayBook), 'writers');
+// Old links and odd values
+const oldLink = M.decode(Buffer.from(JSON.stringify({ v: 1, t: 'Eski', p: [['a', 'b', 'meadow', 'day', []]] })).toString('base64').replace(/=+$/, ''));
+check(oldLink && oldLink.book.relay === oldLink.book.id, 'a link from before the relay starts its own');
+check(M.cleanBook({ relay: '../x', pages: [] }, []).relay !== '../x' && M.cleanPage({ by: '<b>' + 'x'.repeat(40) }, []).by.length === M.LIMITS.by, 'an odd relay or writer is cleaned');
+
 // ---------- kept on the profile ----------
 
 const s = new Store();

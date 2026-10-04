@@ -408,6 +408,20 @@ them stay on the device, like everything else (see Privacy).
 16. **Ertak estafetasi (a story relay).** A child writes a page of a story in
     the story maker and sends it; a grandparent adds the next page and sends
     it back. The link carries the whole book, as it already does.
+
+    ✅ **Built.**
+    - **Sending and continuing.** The link now says "O'qing va davomini
+      yozib, qaytarib yuboring!" (read it, write what happens next, send it
+      back). At the end of a book received as a gift, "✍️ Davomini yozish"
+      keeps it and opens a new last page. Its "✍️ Kim yozdi?" field (who
+      wrote it) is ready for the grandparent's name.
+    - **Coming back.** Each book keeps a relay id wherever it travels. When
+      it comes back, the child's own copy is updated ("🔄 Ertagimni
+      yangilash") instead of a second copy appearing. Heroes with the same
+      name and look are matched, so Asal doesn't appear twice.
+    - **Who wrote what.** A book written by more than one person shows, at
+      the top of each page, who wrote it ("✍️ Buvijon"). The relay goes on
+      until the book has 8 pages.
 17. **Qo'shimcha ↔ 조사.** Uzbek and Korean are grammar cousins: the verb
     comes last and endings stack on words. A game teaches the Uzbek endings
     through the Korean particles children already know: -ni ↔ 을/를,

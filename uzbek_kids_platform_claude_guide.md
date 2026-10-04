@@ -818,3 +818,26 @@ fonts/gowun-dodum-ko.*   # built Korean font + the letters in it
   * `Dictionary.picture(e)` draws an entry: its page's scene, or for a picture word the thing itself.
   * The dictionary view and the listening and spelling games use it.
 * `tools/korean-review.js rasm` lists the words for the bilingual reviewer.
+
+## 26. Update: Ertak Estafetasi, the Story Relay (Roadmap item 16)
+
+### Data (`js/maker.js`)
+* A book has `relay`, an id it keeps wherever it travels. A new book's relay is its own id.
+  * `encode()` sends it as `r`; `decode()` keeps it while giving the book a new local id.
+  * A link from before the relay starts its own.
+* A page has `by`, who wrote it, when not the book's author (`LIMITS.by`, 24 letters).
+  * `writers(book)` lists each page's writer; `many(book)` says whether there is more than one.
+  * `toStory()` gives each page `by` only when there is more than one writer. `js/book.js` then shows "✍️ {by}" as that page's running head.
+* `adopt(got, heroes)` prepares a book from a link for keeping:
+  * a hero with the same name and look as one of the child's is matched, and the pages point at the child's own;
+  * only the others come in as new heroes.
+
+### Screens (`js/maker-ui.js`, `js/book.js`)
+* `openShared()` marks the gift with:
+  * `update`, when this child already has a book with the same relay (`relayBook()`);
+  * `more`, when it has fewer than 8 pages.
+* At the end of a gift:
+  * "📥 Javonimga qo'shish", or "🔄 Ertagimni yangilash" when it is the child's own book coming back;
+  * "✍️ Davomini yozish" (`keepGuest(true)`), which keeps or updates the book, then opens the editor on a new last page with the "✍️ Kim yozdi?" field in focus.
+* Updating a book replaces its title, moral and pages with the ones that came back, after a confirm.
+* The share text asks the family to write the next page and send it back.

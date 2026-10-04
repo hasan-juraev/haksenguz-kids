@@ -10,10 +10,14 @@
  *
  * What is kept, on the child's profile (js/store.js):
  *   heroes   [{ id, name, look }]; look picks who, clothes, colours, hair...
- *   myBooks  { id: { id, title, author, moral, pages, created, updated } };
- *            a page is { title, text, place, time, cast: [4 slots] }, a
+ *   myBooks  { id: { id, relay, title, author, moral, pages, created, updated } };
+ *            a page is { title, text, by, place, time, cast: [4 slots] }, a
  *            slot null or { k, mood, f }: k a catalogue id or "h:<hero id>",
- *            f turns it to face the other way.
+ *            f turns it to face the other way. by: who wrote the page, when
+ *            not the book's author.
+ * Ertak estafetasi, the story relay (ROADMAP item 16): a book keeps its
+ * relay id wherever it travels, so when a grandparent adds a page and sends
+ * it back, it updates the child's own copy instead of making a second one.
  * toStory() makes a book the BookEngine can show (js/book.js). A book can
  * travel in a link (encode/decode): the whole book is in the address after
  * "#ertak=", so it needs no server; whatever comes in is checked against
@@ -26,7 +30,7 @@
     const MAX_PAGES = 8;
     const MAX_BOOKS = 30;
     const MAX_HEROES = 12;
-    const LIMITS = { title: 40, author: 24, moral: 140, pageTitle: 40, text: 320, name: 16 };
+    const LIMITS = { title: 40, author: 24, moral: 140, pageTitle: 40, text: 320, name: 16, by: 24 };
     const LINK = 'ertak='; // a shared book's address: …/#ertak=<data>
 
     // Where characters go: three places on the ground, and one in the sky.
@@ -315,6 +319,7 @@
         return {
             title: '',
             text: '',
+            by: '',
             place: prev ? prev.place : 'meadow',
             time: prev ? prev.time : 'day',
             cast: prev ? prev.cast.map((s) => (s ? Object.assign({}, s) : null)) : [null, null, null, null],
@@ -326,7 +331,8 @@
         const page = newPage();
         if (heroes && heroes[0]) page.cast[0] = { k: `h:${heroes[0].id}`, mood: 'wave', f: false };
         const now = Date.now();
-        return { id: uid('b'), title: '', author: clean(author, LIMITS.author), moral: '', pages: [page], created: now, updated: now };
+        const id = uid('b');
+        return { id, relay: id, title: '', author: clean(author, LIMITS.author), moral: '', pages: [page], created: now, updated: now };
     }
 
     // Whether a slot can hold this character: things that fly go in the sky,
@@ -350,6 +356,7 @@
         return {
             title: clean(q.title, LIMITS.pageTitle),
             text: cleanText(q.text, LIMITS.text),
+            by: clean(q.by, LIMITS.by),
             place: pick(PLACES, q.place, 'meadow'),
             time: pick(TIMES, q.time, 'day'),
             cast: SLOTS.map((_, i) => cleanSlot(cast[i], i, heroes)),
@@ -361,8 +368,11 @@
         const q = b && typeof b === 'object' ? b : {};
         const pages = (Array.isArray(q.pages) ? q.pages : []).slice(0, MAX_PAGES).map((p) => cleanPage(p, heroes));
         const now = Date.now();
+        const ok = (x) => typeof x === 'string' && /^[a-z0-9]{1,24}$/.test(x);
+        const id = ok(q.id) ? q.id : uid('b');
         return {
-            id: typeof q.id === 'string' && /^[a-z0-9]{1,24}$/.test(q.id) ? q.id : uid('b'),
+            id,
+            relay: ok(q.relay) ? q.relay : id,
             title: clean(q.title, LIMITS.title),
             author: clean(q.author, LIMITS.author),
             moral: clean(q.moral, LIMITS.moral),
@@ -472,8 +482,31 @@
             hue: '#8b5cf6',
             order: false,
             moral: book.moral || undefined,
-            pages: book.pages.map((p) => ({ title: pageTitle(p), text: p.text, scene: sceneOf(p, heroes) })),
+            pages: book.pages.map((p, i) => Object.assign({ title: pageTitle(p), text: p.text, scene: sceneOf(p, heroes) }, many(book) ? { by: writers(book)[i] } : {})),
         };
+    }
+
+    // Who wrote each page: its own writer, else the book's author.
+    const writers = (book) => book.pages.map((p) => p.by || book.author || '');
+    // A book written by more than one person shows who wrote each page.
+    const many = (book) => new Set(writers(book).filter(Boolean)).size > 1;
+
+    // A book from a link, made ready to keep: its heroes are matched to the
+    // child's own (the same name and look), and only the others are new.
+    function adopt(got, heroes) {
+        const mine = heroes || [];
+        const fresh = [];
+        const ids = {};
+        const look = (h) => JSON.stringify(cleanLook(h.look));
+        got.heroes.forEach((h) => {
+            const same = mine.find((x) => x.name.toLowerCase() === h.name.toLowerCase() && look(x) === look(h));
+            if (same) ids[h.id] = same.id;
+            else fresh.push(h);
+        });
+        const pages = got.book.pages.map((p) => Object.assign({}, p, {
+            cast: p.cast.map((sl) => (sl && ids[sl.k.slice(2)] && sl.k.startsWith('h:') ? Object.assign({}, sl, { k: `h:${ids[sl.k.slice(2)]}` }) : sl)),
+        }));
+        return { book: cleanBook(Object.assign({}, got.book, { pages }), mine.concat(fresh)), heroes: fresh };
     }
 
     // Names of the characters on a page, for the "who" buttons under the text.
@@ -518,11 +551,12 @@
         const ref = (k) => (k.startsWith('h:') ? `h${used.indexOf(hero(k, heroes))}` : k);
         const data = {
             v: 1,
+            r: book.relay || book.id,
             t: book.title,
             a: book.author,
             m: book.moral,
             h: used.map((h) => [h.name, LOOK_KEYS.map((k) => (k === 'beard' ? (h.look.beard ? 1 : 0) : h.look[k]))]),
-            p: book.pages.map((p) => [p.title, p.text, p.place, p.time, p.cast.map((s) => (s ? [ref(s.k), s.mood, s.f ? 1 : 0] : 0))]),
+            p: book.pages.map((p) => [p.title, p.text, p.place, p.time, p.cast.map((s) => (s ? [ref(s.k), s.mood, s.f ? 1 : 0] : 0)), p.by || '']),
         };
         return b64url(JSON.stringify(data));
     }
@@ -551,16 +585,17 @@
             return h ? `h:${h.id}` : null;
         };
         const pages = data.p.slice(0, MAX_PAGES).map((p) => {
-            const [title, text, pl, tm, cast] = Array.isArray(p) ? p : [];
+            const [title, text, pl, tm, cast, by] = Array.isArray(p) ? p : [];
             return {
                 title,
                 text,
+                by,
                 place: pl,
                 time: tm,
                 cast: (Array.isArray(cast) ? cast : []).map((s) => (Array.isArray(s) && typeof s[0] === 'string' ? { k: deref(s[0]), mood: s[1], f: s[2] === 1 } : null)),
             };
         });
-        const book = cleanBook({ title: data.t, author: data.a, moral: data.m, pages }, heroes);
+        const book = cleanBook({ relay: data.r, title: data.t, author: data.a, moral: data.m, pages }, heroes);
         return { book, heroes };
     }
 
@@ -583,7 +618,7 @@
         SLOTS, PLACES, TIMES, MOODS, GROUPS, ITEMS, ITEM,
         WHO, HEADS, WEARS, PATTERNS, COLORS, SKINS, HAIRS, HOLDS, STARTERS,
         cleanLook, heroOpts, newHero, newPage, newBook, fits, cleanBook, cleanPage, clean, cleanText,
-        place, time, timesFor, hero, nameOf, pieceOf, boxOf, sceneOf, pageTitle, key, idOf, toStory, names,
+        place, time, timesFor, hero, nameOf, pieceOf, boxOf, sceneOf, pageTitle, key, idOf, toStory, names, writers, many, adopt,
         encode, decode, fromHash, koreanNames,
     };
 })(window);

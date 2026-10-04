@@ -27,7 +27,7 @@ With "✍️ Ertak yozish" a child writes their own picture book. First they mak
 - in which of 20 places (a meadow, a palace, Seoul, space...) and at what time of day;
 - what happens, with buttons for "Bir bor ekan..." and for the characters' names.
 
-Their books stand on their own shelf and read like the others. A grown-up can send one to the family as a link.
+Their books stand on their own shelf and read like the others. A grown-up can send one to the family as a link, and the family can write the next page and send it back: a grandmother in Tashkent and a grandchild in Seoul can write one story together, a page each (*Ertak estafetasi*).
 
 The library has shelves by age (4–6, 7–8, 9+); a child's profile can have an age, which opens their shelf.
 

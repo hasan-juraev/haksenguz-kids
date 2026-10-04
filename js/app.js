@@ -602,7 +602,8 @@
             else if (act === 'share' && this.currentStoryObj.mine && !this.currentStoryObj.guest) this.maker.share(this.currentStoryObj.made);
             else if (act === 'share') this.share(this.currentStoryKey);
             else if (act === 'edit') this.maker.edit(this.currentStoryObj.made);
-            else if (act === 'keep') this.maker.keepGuest();
+            else if (act === 'keep') this.maker.keepGuest(false);
+            else if (act === 'relay') this.maker.keepGuest(true); // Ertak estafetasi: write the next page
             else if (act === 'quiz') this.startMiniGame();
             else if (act === 'restart') this.book.goTo(this.book.spread ? 0 : 1);
             else if (act === 'resume') {

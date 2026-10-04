@@ -232,6 +232,8 @@
             this.renderStage();
             $('makerPageTitle').value = p.title;
             $('makerPageTitle').placeholder = M.place(p.place).at;
+            $('makerPageBy').value = p.by || '';
+            $('makerPageBy').placeholder = this.book.author || this.app.store.profile().name;
             $('makerText').value = p.text;
             this.renderCount();
             this.renderNames();
@@ -365,6 +367,8 @@
             else if (el.id === 'makerPageTitle') {
                 this.page().title = M.clean(el.value, L.pageTitle);
                 $('makerArt').querySelector('svg').setAttribute('aria-label', M.pageTitle(this.page()));
+            } else if (el.id === 'makerPageBy') {
+                this.page().by = M.clean(el.value, L.by);
             } else if (el.id === 'makerText') {
                 this.onText();
                 return;
@@ -684,7 +688,7 @@
         async sendLink(book) {
             const url = `${root.location.href.split('#')[0]}#${M.LINK}${M.encode(book, this.heroes())}`;
             const title = book.title || 'Mening ertagim';
-            const text = this.app.tx(`«${title}» — o'zimiz yozgan ertak. Ochib o'qing!`);
+            const text = this.app.tx(`«${title}» — o'zimiz yozgan ertak. O'qing va davomini yozib, qaytarib yuboring!`);
             if (root.navigator.share) {
                 try {
                     await root.navigator.share({ title, text, url });
@@ -701,7 +705,9 @@
             }
         }
 
-        // A book from a link ("#ertak=…"): read it as a gift; it can be kept.
+        // A book from a link ("#ertak=…"): read it as a gift; it can be kept,
+        // or continued (Ertak estafetasi). When it is one of this child's own
+        // books coming back with new pages, keeping it updates their copy.
         openShared(data) {
             const got = M.decode(data);
             if (!got) {
@@ -711,29 +717,52 @@
             this.guest = got;
             const st = M.toStory(got.book, got.heroes, { guest: true });
             st.link = `${M.LINK}${data}`; // the address keeps the book while it is read
+            st.update = !!this.relayBook(got.book.relay); // it is theirs: keeping it updates it
+            st.more = got.book.pages.length < M.MAX_PAGES; // room for a next page
             this.app.db[GUEST] = st;
             delete this.app.store.profile().books[GUEST]; // each gift is read from its start
             this.app.startStory(GUEST);
             return true;
         }
 
-        // The gift book joins the child's own shelf, with its heroes.
-        keepGuest() {
+        // This child's copy of a book that travels (the same relay id), if they have one.
+        relayBook(relay) {
+            return Object.values(this.books()).find((b) => (b.relay || b.id) === relay) || null;
+        }
+
+        // The gift book joins the child's shelf, or updates their own copy of it;
+        // its heroes are matched to theirs. write: then add the next page.
+        keepGuest(write) {
             const g = this.guest;
             if (!g) return;
-            if (Object.keys(this.books()).length >= M.MAX_BOOKS) {
+            const mine = this.relayBook(g.book.relay);
+            if (!mine && Object.keys(this.books()).length >= M.MAX_BOOKS) {
                 this.app.showModal('📚 Javon to\'ldi', `Ko'pi bilan ${M.MAX_BOOKS} ta ertak saqlanadi. Yangisini yozish uchun eskisidan birini o'chiring.`);
                 return;
             }
-            const heroes = this.heroes();
-            g.heroes.forEach((h) => heroes.push(h));
-            const book = M.cleanBook(Object.assign({}, g.book, { created: Date.now(), updated: Date.now() }), heroes);
-            this.books()[book.id] = book;
+            if (mine && !write && !root.confirm(this.app.tx(`«${mine.title || 'Mening ertagim'}» ertagi yangi sahifalar bilan yangilansinmi?`))) return;
+            const { book, heroes } = M.adopt(g, this.heroes());
+            heroes.forEach((h) => this.heroes().push(h));
+            let kept = mine;
+            if (mine) {
+                Object.assign(mine, { title: book.title, author: book.author, moral: book.moral, pages: book.pages, updated: Date.now() });
+            } else {
+                kept = Object.assign(book, { created: Date.now(), updated: Date.now() });
+                this.books()[kept.id] = kept;
+            }
             this.app.store.save();
             this.guest = null;
             delete this.app.db[GUEST];
             this.sync();
-            this.app.toast("📥 Ertak javoningizga qo'shildi!");
+            if (write) {
+                // the next page, at the end, for whoever is writing it now
+                this.edit(kept.id);
+                this.goPage(kept.pages.length - 1);
+                this.addPage();
+                $('makerPageBy').focus();
+                return;
+            }
+            this.app.toast(mine ? '🔄 Ertak yangilandi!' : "📥 Ertak javoningizga qo'shildi!");
             this.app.goHome();
             this.app.filterCategory('mine');
         }

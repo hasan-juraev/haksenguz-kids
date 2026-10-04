@@ -349,6 +349,11 @@
         '✏️ Tahrirlash': '✏️ 수정하기',
         "📥 Javonimga qo'shish": '📥 내 책장에 넣기',
         "📥 Ertak javoningizga qo'shildi!": '📥 이야기를 내 책장에 넣었어요!',
+        // Ertak estafetasi: a story relay with the family
+        '🔄 Ertagimni yangilash': '🔄 내 이야기 업데이트하기',
+        '✍️ Davomini yozish': '✍️ 다음 이야기 이어 쓰기',
+        '🔄 Ertak yangilandi!': '🔄 이야기를 업데이트했어요!',
+        '✍️ Kim yozdi?': '✍️ 누가 썼나요?',
         '🔗 Ertak topilmadi': '🔗 이야기를 찾을 수 없어요',
         "Bu havolada ertak yo'q yoki u to'liq ko'chirilmagan. Havolani yuborgan kishidan qaytadan so'rang.": '이 링크에는 이야기가 없거나 일부만 복사되었어요. 링크를 보낸 사람에게 다시 보내 달라고 해 주세요.',
     });
@@ -417,7 +422,8 @@
         [/^«(.+)» ertagi o'chirilsinmi\?$/, '«$1» 이야기를 지울까요?', "«Aziz va sehrli varrak» ertagi o'chirilsinmi?"],
         [/^(.+) o'chirilsinmi\? U ertaklaringizdan ham olib tashlanadi\.$/, '‘$1’ 주인공을 지울까요? 내가 쓴 이야기에서도 빠져요.', "Aziz o'chirilsinmi? U ertaklaringizdan ham olib tashlanadi."],
         [/^Ko'pi bilan (\d+) ta ertak saqlanadi\. Yangisini yozish uchun eskisidan birini o'chiring\.$/, '이야기는 $1권까지 저장할 수 있어요. 새 이야기를 쓰려면 예전 이야기 하나를 지워 주세요.', "Ko'pi bilan 30 ta ertak saqlanadi. Yangisini yozish uchun eskisidan birini o'chiring."],
-        [/^«(.+)» — o'zimiz yozgan ertak\. Ochib o'qing!$/, '«$1» — 우리가 직접 쓴 이야기예요. 열어서 읽어 보세요!', "«Aziz va sehrli varrak» — o'zimiz yozgan ertak. Ochib o'qing!"],
+        [/^«(.+)» — o'zimiz yozgan ertak\. O'qing va davomini yozib, qaytarib yuboring!$/, '«$1» — 우리가 직접 쓴 이야기예요. 읽고 다음 이야기를 이어 써서 다시 보내 주세요!', "«Aziz va sehrli varrak» — o'zimiz yozgan ertak. O'qing va davomini yozib, qaytarib yuboring!"],
+        [/^«(.+)» ertagi yangi sahifalar bilan yangilansinmi\?$/, '«$1» 이야기를 새 쪽과 함께 업데이트할까요?', "«Asal va laylak» ertagi yangi sahifalar bilan yangilansinmi?"],
         [/^Teri rangi (\d+)$/, '피부색 $1', 'Teri rangi 2'],
         [/^Soch rangi (\d+)$/, '머리 색 $1', 'Soch rangi 3'],
         [/^(\d+) \/ (\d+) muhr$/, '도장 $1 / $2개', '3 / 15 muhr'],

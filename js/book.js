@@ -237,7 +237,7 @@
             const koLine = (i) => (ko ? `<span class="ko-line" lang="ko">${esc(ko.s[i] || '')}</span>` : rd ? this.readLine(i ? sents[i - 1] : title) : '');
             const sentHTML = sents.map((t, i) => `<span class="sent" data-action="say" data-seg="${i + 1}">${this.glossHTML(t)}</span>${koLine(i + 1)}`).join(ko || rd ? '' : ' ');
             return `<div class="sheet sheet--right"><div class="page-pad">
-                <div class="page-head"><span class="running-head" data-content>${esc(st.tag.split('•')[0].trim())}</span><span class="head-tools">${this.readButton()}${this.koButton(view)}<span class="chapter-chip">${view} / ${st.pages.length}</span></span></div>
+                <div class="page-head"><span class="running-head" data-content>${esc(p.by ? `✍️ ${p.by}` : st.tag.split('•')[0].trim())}</span><span class="head-tools">${this.readButton()}${this.koButton(view)}<span class="chapter-chip">${view} / ${st.pages.length}</span></span></div>
                 <div class="page-body" data-fit="21">
                     <h2 class="page-title" data-content data-action="say" data-seg="0">${esc(title)}</h2>${ko ? `<p class="ko-line ko-line--title" lang="ko">${esc(ko.s[0])}</p>` : rd ? `<p class="read-line read-line--title" lang="ko">${esc(root.Hangul.read(title))}</p>` : ''}
                     ${this.letterHTML(p)}
@@ -399,8 +399,12 @@
                 ? (st.author ? `<p class="finale-score"><span>✍️ Muallif:</span> <b data-content>${esc(st.author)}</b></p>` : '')
                 : `<div class="finale-stars" aria-label="${stars} yulduz">${'★'.repeat(stars)}<span>${'★'.repeat(3 - stars)}</span></div>
                 <p class="finale-score">${asked ? `Savollarga javoblar: ${right} / ${asked}` : 'Ajoyib o\'qidingiz!'}</p>`;
+            // a gift can be kept, or continued and sent back (Ertak estafetasi)
+            const keep = st.update ? '🔄 Ertagimni yangilash' : "📥 Javonimga qo'shish";
             const first = made
-                ? (st.guest ? `<button type="button" class="btn-quiz" data-action="keep">📥 Javonimga qo'shish</button>` : `<button type="button" class="btn-quiz" data-action="edit">✏️ Tahrirlash</button>`)
+                ? (st.guest
+                    ? `<button type="button" class="btn-quiz" data-action="keep">${keep}</button>${st.more ? `<button type="button" class="btn-game" data-action="relay">✍️ Davomini yozish</button>` : ''}`
+                    : `<button type="button" class="btn-quiz" data-action="edit">✏️ Tahrirlash</button>`)
                 : `<button type="button" class="btn-quiz" data-action="quiz">🏆 Bilimdon testi</button>`;
             return `<div class="sheet sheet--right sheet--finale"><div class="page-pad finale">
                 ${this.passportHTML()}

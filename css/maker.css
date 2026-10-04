@@ -465,6 +465,20 @@
     flex: 0 0 auto;
 }
 
+.mk-pair {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+}
+
+.mk-pair .mk-field {
+    flex: 1 1 140px;
+}
+
+.mk-pair .mk-field--title {
+    flex: 2 1 200px;
+}
+
 .mk-count {
     margin: -4px 0 0;
     text-align: right;
