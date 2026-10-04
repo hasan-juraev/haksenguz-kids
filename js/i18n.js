@@ -246,6 +246,23 @@
         '🤔 Bu harf emas. Qaysi harf keladi?': '🤔 그 글자가 아니에요. 어떤 글자가 올까요?',
         "🎉 Barakalla! So'zlarni yig'dingiz!": '🎉 잘했어요! 낱말을 다 만들었어요!',
     });
+    // Men o'qidim: the child reads a page aloud and keeps it (js/myreading.js, js/app.js)
+    Object.assign(EXACT, {
+        "Men o'qiyman": '내가 읽을래요',
+        "🎙️ Men o'qidim": '🎙️ 내가 읽었어요',
+        "Sahifani ovoz chiqarib o'qing — buvijon va bobojon eshitadi!": '이 쪽을 소리 내어 읽어 보세요. 할머니, 할아버지가 들으실 거예요!',
+        '⏺ Yozishni boshlash': '⏺ 녹음 시작',
+        "⏹ To'xtatish": '⏹ 멈추기',
+        '🔁 Qaytadan': '🔁 다시',
+        '✅ Saqlandi! Endi buvijonga yuborishingiz mumkin.': '✅ 저장했어요! 이제 할머니께 보낼 수 있어요.',
+        '🎙️ Mikrofon topilmadi yoki ruxsat berilmadi.': '🎙️ 마이크를 찾지 못했거나, 마이크 사용이 허락되지 않았어요.',
+        "🎧 Shu sahifani o'qishlaringiz": '🎧 이 쪽을 읽은 녹음',
+        "🌱 Birinchi o'qishingizni va eng yangisini tinglang — qanchalik o'sdingiz!": '🌱 처음 녹음과 가장 최근 녹음을 들어 보세요. 얼마나 자랐는지 들려요!',
+        "Bu yozuv o'chirilsinmi?": '이 녹음을 지울까요?',
+        "💾 Fayl saqlandi — uni Telegram yoki KakaoTalk'da yuboring": '💾 파일을 저장했어요. 텔레그램이나 카카오톡으로 보내 주세요',
+        'bugun': '오늘',
+        'kecha': '어제',
+    });
     // Birga o'qiymiz: reading together on a video call (js/together.js, js/app.js)
     Object.assign(EXACT, {
         "Birga o'qiymiz": '같이 읽어요',
@@ -491,6 +508,11 @@
         [/^(\d+) \/ (\d+) sahifa yozildi$/, '$2쪽 중 $1쪽 녹음했어요', '4 / 12 sahifa yozildi'],
         [/^(\d+)-sahifa \(yozilgan\)$/, '$1쪽 (녹음함)', '3-sahifa (yozilgan)'],
         [/^(\d+)-sahifa$/, '$1쪽', '3-sahifa'],
+        [/^(\d+) kun oldin$/, '$1일 전', '3 kun oldin'],
+        [/^(\d+) hafta oldin$/, '$1주 전', '2 hafta oldin'],
+        [/^(\d+) oy oldin$/, '$1달 전', '3 oy oldin'],
+        [/^(\d+) yil oldin$/, '$1년 전', '1 yil oldin'],
+        [/^(.+) «(.+)» ertagining (\d+)-sahifasini o'qidi! 🎙️$/, '$1: «$2» $3쪽을 읽었어요! 🎙️', "Asal «Zumrad va Qimmat» ertagining 3-sahifasini o'qidi! 🎙️"],
         [/^«(.+)», (\d+)-sahifa — birga o'qiymiz!$/, '«$1» $2쪽 — 같이 읽어요!', "«Zumrad va Qimmat», 3-sahifa — birga o'qiymiz!"],
         [/^«(.+)» — birga o'qiymiz!$/, '«$1» — 같이 읽어요!', "«Zumrad va Qimmat» — birga o'qiymiz!"],
         [/^▶ Davom ettirish · (\d+)-sahifa$/, '▶ 이어 읽기 · $1쪽', '▶ Davom ettirish · 3-sahifa'],

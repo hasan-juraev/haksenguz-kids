@@ -58,6 +58,8 @@
                 onPoke: () => this.playChime(),
                 onWord: (w) => this.showPicWord(w), // a thing touched in a picture says its name
                 onStar: (c) => this.foundStar(c), // a page's hidden star (js/hiddenstar.js)
+                // Men o'qidim: a 🎙️ on each page where the phone can record (js/myreading.js)
+                canRecord: !!(root.MyReading && root.Narrator && root.Narrator.Recorder && root.Narrator.Recorder.supported()),
                 decorate: (box) => root.Translit && root.Translit.apply(box),
                 // 가 (Korean-letter readings) stays as the child left it
                 reading: !!this.store.settings.reading,
@@ -652,6 +654,7 @@
             else if (act === 'compare') this.openCompare();
             else if (act === 'trace') this.openTracing(el.dataset.letter);
             else if (act === 'passport') this.openPassport(el.dataset.region);
+            else if (act === 'myread') this.openMyReading(+el.dataset.view);
         }
 
         // Alifbo: trace the page's letter, capital then small (+5 points the first time).
@@ -1139,6 +1142,161 @@
                     this.toast(`📅 Barakalla! +${REVIEW_POINTS} ball`);
                 },
             });
+        }
+
+        // ---------- Men o'qidim (js/myreading.js) ----------
+
+        // The child reads a page aloud: record, listen, keep it, send it to the
+        // grandparents, and hear the first reading of the page next to the newest.
+        openMyReading(view) {
+            const M = root.MyReading;
+            const st = this.currentStoryObj;
+            const key = this.currentStoryKey;
+            const page = st && st.pages[view - 1];
+            if (!M || !page || !root.Games || !root.Narrator) return;
+            const child = this.store.profile();
+            const card = root.Games.open(`
+                <div class="myread">
+                    <div class="play-head"><h3>🎙️ Men o'qidim</h3><button type="button" class="play-x" data-close aria-label="Yopish">✕</button></div>
+                    <p class="play-sub">Sahifani ovoz chiqarib o'qing — buvijon va bobojon eshitadi!</p>
+                    <div class="myread-text" data-content><b>${esc(page.title)}</b> ${esc(page.text)}</div>
+                    <div class="myread-rec">
+                        <button type="button" class="myread-go">⏺ Yozishni boshlash</button>
+                        <span class="myread-level" aria-hidden="true"><i></i></span>
+                        <span class="myread-time"></span>
+                    </div>
+                    <div class="myread-new hidden">
+                        <audio controls></audio>
+                        <button type="button" class="myread-save">💾 Saqlash</button>
+                        <button type="button" class="myread-again">🔁 Qaytadan</button>
+                    </div>
+                    <p class="myread-msg" aria-live="polite"></p>
+                    <div class="myread-list"></div>
+                </div>`, 'play-card--myread');
+            const wrap = card.querySelector('.myread');
+            const go = wrap.querySelector('.myread-go');
+            const level = wrap.querySelector('.myread-level i');
+            const time = wrap.querySelector('.myread-time');
+            const fresh = wrap.querySelector('.myread-new');
+            const msg = wrap.querySelector('.myread-msg');
+            const list = wrap.querySelector('.myread-list');
+            const urls = [];
+            const url = (blob) => {
+                const u = URL.createObjectURL(blob);
+                urls.push(u);
+                return u;
+            };
+            let take = null; // the reading just recorded, not yet kept
+            // Closing the card stops the microphone and lets the recordings go.
+            const watch = setInterval(() => {
+                if (wrap.isConnected) return;
+                clearInterval(watch);
+                if (this.myRec) this.myRec.cancel();
+                this.myRec = null;
+                urls.forEach((u) => URL.revokeObjectURL(u));
+            }, 400);
+            const show = async () => {
+                const items = await M.list(child.id, key, view);
+                if (!wrap.isConnected) return;
+                const many = items.length > 1;
+                list.innerHTML = !items.length ? '' : (many ? "<p class=\"myread-grow\">🌱 Birinchi o'qishingizni va eng yangisini tinglang — qanchalik o'sdingiz!</p>" : '') +
+                    `<h4>🎧 Shu sahifani o'qishlaringiz</h4><ul>${items.map((r, i) => `<li data-id="${esc(r.id)}">` +
+                        `<span class="myread-when">${many && i === 0 ? '<span aria-hidden="true">🌱</span> ' : many && i === items.length - 1 ? '<span aria-hidden="true">🌳</span> ' : ''}<span>${esc(M.ago(r.created))}</span></span>` +
+                        `<audio controls preload="metadata" src="${url(r.blob)}"></audio>` +
+                        '<button type="button" class="myread-send" aria-label="Yuborish">📤</button><button type="button" class="myread-del" aria-label="O\'chirish">🗑️</button></li>').join('')}</ul>`;
+                list.querySelectorAll('li').forEach((li) => { li.reading = items.find((r) => r.id === li.dataset.id); });
+            };
+            const send = async (r) => {
+                const file = new File([r.blob], M.fileName(child.name, st.title, view, r.mime), { type: r.mime });
+                const text = this.tx(`${child.name} «${st.title}» ertagining ${view}-sahifasini o'qidi! 🎙️`);
+                if (root.navigator.canShare && root.navigator.canShare({ files: [file] })) {
+                    try {
+                        await root.navigator.share({ files: [file], title: st.title, text });
+                        return;
+                    } catch (e) {
+                        if (e.name === 'AbortError') return;
+                    }
+                }
+                // no share sheet for files: the file is saved, to send from Telegram or KakaoTalk
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(file);
+                a.download = file.name;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+                this.toast("💾 Fayl saqlandi — uni Telegram yoki KakaoTalk'da yuboring");
+            };
+            go.addEventListener('click', async () => {
+                if (this.myRec) {
+                    // stop
+                    const rec = this.myRec;
+                    this.myRec = null;
+                    go.disabled = true;
+                    try {
+                        take = await rec.stop();
+                    } catch (e) {
+                        take = null;
+                    }
+                    go.disabled = false;
+                    go.textContent = '⏺ Yozishni boshlash';
+                    wrap.classList.remove('is-recording');
+                    level.style.width = '0';
+                    if (!take || !take.blob.size) {
+                        msg.textContent = '🎙️ Mikrofon topilmadi yoki ruxsat berilmadi.';
+                        return;
+                    }
+                    fresh.querySelector('audio').src = url(take.blob);
+                    fresh.classList.remove('hidden');
+                    go.classList.add('hidden');
+                    return;
+                }
+                msg.textContent = '';
+                const rec = new root.Narrator.Recorder();
+                try {
+                    await rec.start((v, sec) => {
+                        level.style.width = `${Math.round(v * 100)}%`;
+                        time.textContent = `🔴 ${Math.floor(sec / 60)}:${String(Math.floor(sec % 60)).padStart(2, '0')}`;
+                    });
+                } catch (e) {
+                    msg.textContent = '🎙️ Mikrofon topilmadi yoki ruxsat berilmadi.';
+                    return;
+                }
+                if (!wrap.isConnected) {
+                    rec.cancel(); // closed while the microphone was opening
+                    return;
+                }
+                this.myRec = rec;
+                go.textContent = "⏹ To'xtatish";
+                wrap.classList.add('is-recording');
+            });
+            fresh.querySelector('.myread-save').addEventListener('click', async () => {
+                if (!take) return;
+                await M.save({ profile: child.id, book: key, page: view, blob: take.blob, mime: take.mime, duration: take.duration });
+                take = null;
+                fresh.classList.add('hidden');
+                go.classList.remove('hidden');
+                time.textContent = '';
+                msg.textContent = '✅ Saqlandi! Endi buvijonga yuborishingiz mumkin.';
+                await show();
+            });
+            fresh.querySelector('.myread-again').addEventListener('click', () => {
+                take = null;
+                fresh.classList.add('hidden');
+                go.classList.remove('hidden');
+                time.textContent = '';
+                msg.textContent = '';
+            });
+            list.addEventListener('click', async (e) => {
+                const li = e.target.closest('li');
+                if (!li || !li.reading) return;
+                if (e.target.closest('.myread-send')) await send(li.reading);
+                else if (e.target.closest('.myread-del') && root.confirm(this.tx("Bu yozuv o'chirilsinmi?"))) {
+                    await M.remove(li.reading.id);
+                    await show();
+                }
+            });
+            show();
         }
 
         // ---------- Birga o'qiymiz (js/together.js) ----------

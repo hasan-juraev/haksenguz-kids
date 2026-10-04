@@ -247,7 +247,7 @@
             const koLine = (i) => (ko ? `<span class="ko-line" lang="ko">${esc(ko.s[i] || '')}</span>` : rd ? this.readLine(i ? sents[i - 1] : title) : '');
             const sentHTML = sents.map((t, i) => `<span class="sent" data-action="say" data-seg="${i + 1}">${this.glossHTML(t)}</span>${koLine(i + 1)}`).join(ko || rd ? '' : ' ');
             return `<div class="sheet sheet--right"><div class="page-pad">
-                <div class="page-head"><span class="running-head" data-content>${esc(p.by ? `✍️ ${p.by}` : st.tag.split('•')[0].trim())}</span><span class="head-tools">${this.readButton()}${this.koButton(view)}<span class="chapter-chip">${view} / ${st.pages.length}</span></span></div>
+                <div class="page-head"><span class="running-head" data-content>${esc(p.by ? `✍️ ${p.by}` : st.tag.split('•')[0].trim())}</span><span class="head-tools">${this.micButton(view)}${this.readButton()}${this.koButton(view)}<span class="chapter-chip">${view} / ${st.pages.length}</span></span></div>
                 <div class="page-body" data-fit="21">
                     <h2 class="page-title" data-content data-action="say" data-seg="0">${esc(title)}</h2>${ko ? `<p class="ko-line ko-line--title" lang="ko">${esc(ko.s[0])}</p>` : rd ? `<p class="read-line read-line--title" lang="ko">${esc(root.Hangul.read(title))}</p>` : ''}
                     ${this.letterHTML(p)}
@@ -311,6 +311,13 @@
 
         readLine(text) {
             return `<span class="read-line" lang="ko">${esc(root.Hangul.read(text))}</span>`;
+        }
+
+        // Men o'qidim (js/myreading.js): the child reads this page aloud and records it.
+        // Not at bedtime, which stays calm, nor where there is no microphone.
+        micButton(view) {
+            if (!this.opts.canRecord || this.calm) return '';
+            return `<button type="button" class="mic-toggle" data-action="myread" data-view="${view}" aria-label="Men o'qiyman" title="Men o'qiyman">🎙️</button>`;
         }
 
         readButton() {

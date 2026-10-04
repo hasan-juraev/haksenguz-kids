@@ -506,6 +506,22 @@ them stay on the device, like everything else (see Privacy).
       squeezing its buttons together.
 22. **Men o'qidim (I read it).** The child records themselves reading a page,
     sends it to the grandparents, and hears how much they have grown.
+
+    ✅ **Built.** Each page has a 🎙️ ("Men o'qiyman", I'll read).
+    - **Record.** The card shows the page to read, then a big
+      "⏺ Yozishni boshlash" with a level meter and a timer. After "⏹", the
+      child listens, then keeps it ("💾 Saqlash") or tries again
+      ("🔁 Qaytadan").
+    - **Send it to grandma.** "📤" sends the recording as an audio file
+      ("Asal - Zumrad va Qimmat, 3-sahifa.webm") through the phone's share
+      sheet, to Telegram or KakaoTalk. Where a phone can't share files, the
+      file is saved to send by hand.
+    - **Hear how much you've grown.** Every reading of a page is kept with
+      how long ago it was ("bugun", "3 oy oldin"). Once a page has more than
+      one, the first (🌱) and the newest (🌳) can be heard side by side.
+    - The recordings stay on the device, for each child separately, until
+      sent. Closing the card turns the microphone off. Bedtime stays calm,
+      with no 🎙️, and so does a browser that can't record.
 23. **Mening oilam (my family).** A family tree made with the hero maker,
     and the kinship words: both languages tell the father's side from the
     mother's (amma ↔ 고모, xola ↔ 이모, amaki ↔ 삼촌, tog'a ↔ 외삼촌).

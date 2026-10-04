@@ -977,3 +977,24 @@ fonts/gowun-dodum-ko.*   # built Korean font + the letters in it
 * `sendLink(title, text, url)` is the one way the app sends a link: the phone's share sheet, else the clipboard and a toast, else a modal with the link. `share()` and `shareTogether()` both use it.
 * The toolbar wraps on narrow phones (`flex-wrap`, buttons `ml-auto`). Its progress bar shows from `lg` up, since below that it had no room.
 * `tests/together.test.js` checks that every book's page links read back, the odd links, and the menus in Korean.
+
+## 32. Update: Men O'qidim, the Child Reads a Page Aloud (Roadmap item 22)
+
+### Keeping the readings (`js/myreading.js`, `window.MyReading`)
+* The readings live in their own IndexedDB database, `ertaklar-olami-oqidim`, apart from the family voices (`js/voices.js`), whose clips are one per voice and page.
+  * A reading is `{ id, profile, book, page, blob, mime, duration, created }`.
+  * A page can have many readings, which is what lets the first be heard next to the newest.
+* The database calls are `save(r)`, `list(profile, book, page)` (the first first), `all(profile)` and `remove(id)`.
+* `ago(then, now)` gives how long ago in calendar days, in words a child knows: "bugun", "kecha", "3 kun oldin", "2 hafta oldin", "3 oy oldin", "1 yil oldin". The Korean menus have patterns for each.
+* `fileName(child, title, page, mime)` names the file sent ("Asal - Zumrad va Qimmat, 3-sahifa.webm"). Apostrophes become ʼ, and anything a phone can't save in a name is left out. `ext(mime)` picks webm, m4a, ogg or wav.
+
+### On the page (`js/book.js`, `js/app.js`)
+* `BookEngine.micButton(view)` puts a 🎙️ (`data-action="myread"`) in the right page's tools. It shows only when `opts.canRecord` is set (`Narrator.Recorder.supported()`) and never at bedtime (`this.calm`).
+* `app.openMyReading(view)` opens the card.
+  * It shows the page's text to read.
+  * Recording uses `Narrator.Recorder`, the studio's recorder, with its level meter, and is kept on `app.myRec` while it runs.
+  * After stopping, the child can listen, keep it ("💾 Saqlash") or try again ("🔁 Qaytadan").
+* A watch on the card stops the microphone and frees the audio when the card closes, even mid-recording.
+* The list of the page's readings marks the first 🌱 and the newest 🌳 once there are two or more. Each has a player, 📤 and 🗑️ (after a confirm).
+* 📤 sends a `File` through `navigator.share` when `canShare({ files })` allows. Otherwise it saves the file through a download link and tells the child to send it from Telegram or KakaoTalk.
+* `tests/myreading.test.js` checks the words for how long ago, the file names and the Korean menus.

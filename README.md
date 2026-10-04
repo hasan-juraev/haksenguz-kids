@@ -29,7 +29,7 @@ With "✍️ Ertak yozish" a child writes their own picture book. First they mak
 
 Their books stand on their own shelf and read like the others. A grown-up can send one to the family as a link, and the family can write the next page and send it back: a grandmother in Tashkent and a grandchild in Seoul can write one story together, a page each (*Ertak estafetasi*).
 
-On a video call with a grandparent, "📞 Birga o'qiymiz" shows big page numbers and sends a link to the page the child is on. Opened on the grandparent's phone, the link shows the same page.
+On a video call with a grandparent, "📞 Birga o'qiymiz" shows big page numbers and sends a link to the page the child is on. Opened on the grandparent's phone, the link shows the same page. With 🎙️ the child can record themselves reading a page and send the recording to their grandparents. A page read again months later can be heard next to the first reading, to hear how much they have grown.
 
 The library has shelves by age (4–6, 7–8, 9+); a child's profile can have an age, which opens their shelf.
 

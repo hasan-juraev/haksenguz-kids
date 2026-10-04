@@ -656,6 +656,26 @@ h1, h2, h3, h4, .font-heading {
     background: #ccfbf1;
 }
 
+/* 🎙️ Men o'qidim: the child reads the page aloud (js/myreading.js) */
+.mic-toggle {
+    min-width: 36px;
+    height: 28px;
+    padding: 0 7px;
+    border-radius: 999px;
+    border: 2px solid #f1d8a8;
+    background: #fff;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+}
+
+.mic-toggle:hover {
+    border-color: #f472b6;
+    background: #fdf2f8;
+}
+
+.mic-toggle:focus-visible,
 .read-toggle:focus-visible,
 .ko-toggle:focus-visible {
     outline: 3px solid #f59e0b;
