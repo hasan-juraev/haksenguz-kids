@@ -1461,3 +1461,87 @@ html[data-bedtime='on'] #soundToggleBtn {
         transition: none;
     }
 }
+
+/* 🌟 Yashirin yulduz (js/hiddenstar.js): the star in the picture, the count
+   in the toolbar, and the line on the title page and the last page */
+
+.page-art [data-w="hiddenstar"] {
+    cursor: pointer;
+}
+
+.hs {
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+.hs.is-found {
+    opacity: .38;
+}
+
+.hs-glint {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: hsGlint 2.8s ease-in-out infinite;
+}
+
+@keyframes hsGlint {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .65; transform: scale(.82); }
+}
+
+.hs.is-found .hs-glint {
+    animation: none;
+}
+
+.hs.is-collected {
+    animation: hsCollect .9s ease-out;
+}
+
+@keyframes hsCollect {
+    0% { opacity: 1; transform: scale(1); }
+    40% { opacity: 1; transform: scale(2.6) rotate(36deg); }
+    100% { opacity: .38; transform: scale(1) rotate(72deg); }
+}
+
+.star-chip {
+    padding: 4px 10px;
+    border-radius: 10px;
+    background: #fef3c7;
+    color: #92400e;
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.star-chip.is-all {
+    background: #fde68a;
+    color: #78350f;
+}
+
+.star-chip.is-pop {
+    animation: starPop .6s ease-out;
+}
+
+@keyframes starPop {
+    40% { transform: scale(1.35); }
+}
+
+.stars-line {
+    margin: 6px 0 0;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: #92400e;
+}
+
+.stars-line.is-all {
+    color: #b45309;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hs-glint,
+    .hs.is-collected,
+    .star-chip.is-pop {
+        animation: none;
+    }
+}

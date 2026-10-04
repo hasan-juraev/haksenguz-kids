@@ -240,6 +240,9 @@
                 `<radialGradient id="${id}" cx=".5" cy=".45" r=".75"><stop offset=".62" stop-color="#3b1d0a" stop-opacity="0"/>` +
                 `<stop offset="1" stop-color="#3b1d0a" stop-opacity=".28"/></radialGradient>`)}" pointer-events="none"/>`;
         }
+        // opts.top: items drawn above everything, light and weather included
+        // (a page's hidden star, js/hiddenstar.js), after the picture has used its randomness.
+        if (opts.top) body += opts.top.map((it) => Art.item(c, it)).join('');
         const label = opts.label ? ` role="img" aria-label="${esc(opts.label)}"` : ' aria-hidden="true"';
         return `<svg class="story-art-svg" viewBox="0 ${c.top} ${W} ${H - c.top}" preserveAspectRatio="xMidYMax slice"${label} xmlns="http://www.w3.org/2000/svg">` +
             `<defs>${[...c.defs.values()].join('')}</defs>${body}</svg>`;

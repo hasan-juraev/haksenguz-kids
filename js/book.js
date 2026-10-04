@@ -168,9 +168,19 @@
             return side === 'left' ? view * 2 - 1 : view * 2;
         }
 
-        art(scene, tall, seedSuffix) {
+        // top: items drawn above the whole picture (the hidden star), which leave the picture as it is.
+        art(scene, tall, seedSuffix, top) {
             if (!root.Art) return '';
-            return root.Art.render(scene, { tall, seed: `${this.key}:${seedSuffix}:${JSON.stringify(scene)}` });
+            return root.Art.render(scene, { tall, seed: `${this.key}:${seedSuffix}:${JSON.stringify(scene)}`, top });
+        }
+
+        // The page's hidden star (js/hiddenstar.js), found or not; none in a book a child made.
+        starItem(view) {
+            const H = root.HiddenStar;
+            if (!H || !H.hides(this.story) || !root.Art || !root.Art.parts.hiddenstar) return null;
+            const p = this.story.pages[view - 1];
+            const [x, y] = H.place(this.key, view, p && p.scene);
+            return [['hiddenstar', x, y, { found: !!(this.record.stars && this.record.stars[view]) }]];
         }
 
         leftHTML(view) {
@@ -189,7 +199,7 @@
             const p = st.pages[view - 1];
             return `<div class="sheet sheet--left"><div class="page-pad">
                 <div class="page-head"><span class="chapter-chip">${view}-sahifa</span><span class="running-head" data-content>${esc(st.title)}</span></div>
-                <figure class="page-art" data-action="poke" title="Rasmga bosing">${this.art(this.sceneOf(view), true, view)}${this.colorButton(view)}</figure>
+                <figure class="page-art" data-action="poke" data-view="${view}" title="Rasmga bosing">${this.art(this.sceneOf(view), true, view, this.starItem(view))}${this.colorButton(view)}</figure>
                 ${this.noteHTML(view, p)}
                 <div class="page-foot"><span class="page-num">${this.pageNo(view, 'left')}</span><span>Ertaklar Olami</span></div>
             </div></div>`;
@@ -375,6 +385,7 @@
                 <div class="title-medallion" data-action="poke">${this.art(scene, false, 'title')}</div>
                 <p class="title-meta"><span>📄 ${st.pages.length} sahifa · ⏱ ~${mins} daqiqa</span>${st.age ? ` · <span>${st.age[0]}–${st.age[1]} yosh</span>` : ''}</p>
                 <p class="title-opening" data-content>«Bir bor ekan, bir yo'q ekan...»</p>
+                ${this.starsLine(true)}
                 ${resume
                     ? `<button type="button" class="btn-resume" data-action="resume">▶ Davom ettirish · ${resume}-sahifa</button>`
                     : `<p class="title-hint">Sahifa chetidan torting yoki ➜ tugmasini bosing</p>`}
@@ -411,6 +422,7 @@
                 <div class="title-ornament">❦</div>
                 <h2 class="finale-title">Ertak tugadi!</h2>
                 ${score}
+                ${this.starsLine(false)}
                 <div class="finale-moral"><b>Ertakdan saboq:</b> ${this.ko && this.ko.moral ? this.koButton(view) : ''}<span data-content>${esc(st.moral || "Yaxshilik va ezgulik har doim g'alaba qiladi.")}</span>${ko && ko.moral ? `<span class="ko-line" lang="ko">${esc(ko.moral)}</span>` : ''}</div>
                 ${special}
                 <div class="finale-actions">
@@ -420,6 +432,18 @@
                     ${st.guest ? '' : '<button type="button" class="btn-reread" data-action="share">📤 Ulashish</button>'}
                 </div>
             </div></div>`;
+        }
+
+        // The hidden stars (js/hiddenstar.js) on the title page and the last:
+        // an invitation before any is found, then how many.
+        starsLine(title) {
+            const H = root.HiddenStar;
+            if (!H || !H.hides(this.story)) return '';
+            const { found, total } = H.count(this.story, this.record);
+            const text = found === 0
+                ? (title ? '🌟 Har sahifada bitta yulduz yashiringan. Topa olasizmi?' : '🌟 Rasmlarda yulduzlar yashiringan. Qaytadan qarab chiqing!')
+                : found === total ? `🌟 Hamma yulduzlar topildi: ${found}/${total}` : `🌟 Yashirin yulduzlar: ${found}/${total}`;
+            return `<p class="stars-line${found === total ? ' is-all' : ''}">${text}</p>`;
         }
 
         // Culture passport (js/passport.js): the place this book took the child to, with its stamp.
@@ -667,6 +691,11 @@
         // its name (js/picwords.js). A riddle's cloth has no name, so it gives
         // nothing away.
         poke(fig, target) {
+            const star = target && target.closest ? target.closest('[data-w="hiddenstar"]') : null;
+            if (star && fig.dataset.view) {
+                this.findStar(+fig.dataset.view, star);
+                return;
+            }
             fig.classList.remove('art-poke');
             void fig.offsetWidth;
             fig.classList.add('art-poke');
@@ -683,6 +712,16 @@
                 if (this.opts.onWord) this.opts.onWord(word);
             }
             if (this.opts.onPoke) this.opts.onPoke();
+        }
+
+        // A page's hidden star touched: found once, kept in the record (record.stars).
+        findStar(view, el) {
+            const stars = this.record.stars || (this.record.stars = {});
+            if (stars[view]) return;
+            stars[view] = 1;
+            const g = el.querySelector('.hs');
+            if (g) g.classList.add('is-found', 'is-collected');
+            if (this.opts.onStar && root.HiddenStar) this.opts.onStar(root.HiddenStar.count(this.story, this.record));
         }
 
         answer(view, idx) {

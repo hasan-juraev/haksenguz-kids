@@ -246,6 +246,12 @@
         '🤔 Bu harf emas. Qaysi harf keladi?': '🤔 그 글자가 아니에요. 어떤 글자가 올까요?',
         "🎉 Barakalla! So'zlarni yig'dingiz!": '🎉 잘했어요! 낱말을 다 만들었어요!',
     });
+    // Yashirin yulduz: a hidden star on every page (js/hiddenstar.js, js/book.js)
+    Object.assign(EXACT, {
+        'Yashirin yulduzlar': '숨은 별',
+        '🌟 Har sahifada bitta yulduz yashiringan. Topa olasizmi?': '🌟 페이지마다 별이 하나씩 숨어 있어요. 찾을 수 있나요?',
+        '🌟 Rasmlarda yulduzlar yashiringan. Qaytadan qarab chiqing!': '🌟 그림 속에 별이 숨어 있어요. 다시 찾아보세요!',
+    });
     // Kunlik 5 so'z: today's words from the child's dictionary (js/review.js, js/app.js, js/games.js)
     Object.assign(EXACT, {
         "📅 Kunlik 5 so'z": '📅 오늘의 낱말 5개',
@@ -472,6 +478,10 @@
         [/^📄 (\d+) sahifa · ⏱ ~(\d+) daqiqa$/, '📄 $1쪽 · ⏱ 약 $2분', '📄 12 sahifa · ⏱ ~6 daqiqa'],
         [/^Savollarga javoblar: (\d+) \/ (\d+)$/, '맞힌 질문: $1 / $2', 'Savollarga javoblar: 4 / 5'],
         [/^✨ Lug'atimga qo'shildi! \+(\d+) ball$/, '✨ 내 사전에 넣었어요! +$1점', "✨ Lug'atimga qo'shildi! +2 ball"],
+        [/^🌟 Yashirin yulduz topildi! \+(\d+) ball$/, '🌟 숨은 별을 찾았어요! +$1점', '🌟 Yashirin yulduz topildi! +2 ball'],
+        [/^🌟 Hamma yulduzlar topildi! \+(\d+) ball$/, '🌟 숨은 별을 모두 찾았어요! +$1점', '🌟 Hamma yulduzlar topildi! +2 ball'],
+        [/^🌟 Yashirin yulduzlar: (\d+)\/(\d+)$/, '🌟 숨은 별: $1/$2', '🌟 Yashirin yulduzlar: 3/8'],
+        [/^🌟 Hamma yulduzlar topildi: (\d+)\/(\d+)$/, '🌟 숨은 별을 모두 찾았어요: $1/$2', '🌟 Hamma yulduzlar topildi: 8/8'],
         [/^(.+) \+(\d+) ball$/, '$1 +$2점', '⭐ Barakalla! +10 ball'],
         [/^Siz to'g'ri xulosa topdingiz va (\d+) ball qo'shildi!$/, '교훈을 바르게 찾았어요! $1점을 받았어요!', "Siz to'g'ri xulosa topdingiz va 50 ball qo'shildi!"],
         [/^(.+) bu ertakni o'qib bergan — 🎧 bosing!$/, '$1 님이 이 동화를 읽어 줬어요 — 🎧 눌러 보세요!', "👵 Buvijon bu ertakni o'qib bergan — 🎧 bosing!"],

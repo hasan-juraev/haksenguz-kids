@@ -21,6 +21,7 @@
     const REVIEW_POINTS = 5; // today's words done (Kunlik 5 so'z), once a day
     const TRACE_POINTS = 5; // each Alifbo letter traced, the first time
     const PICWORD_POINTS = 2; // each new word found in a picture (js/picwords.js)
+    const STAR_POINTS = 2; // each hidden star found on a page (js/hiddenstar.js)
 
     const esc = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
 
@@ -56,6 +57,7 @@
                 onAction: (act, el) => this.onBookAction(act, el),
                 onPoke: () => this.playChime(),
                 onWord: (w) => this.showPicWord(w), // a thing touched in a picture says its name
+                onStar: (c) => this.foundStar(c), // a page's hidden star (js/hiddenstar.js)
                 decorate: (box) => root.Translit && root.Translit.apply(box),
                 // 가 (Korean-letter readings) stays as the child left it
                 reading: !!this.store.settings.reading,
@@ -552,6 +554,7 @@
             const pct = s.end ? 100 : Math.max(0, Math.min(100, (Math.max(0, s.view) / total) * 100));
             document.getElementById('storyProgressBar').style.width = `${pct}%`;
             document.getElementById('storyProgressText').textContent = s.view >= 1 && !s.end ? `${s.view} / ${total} sahifa` : label;
+            this.updateStarChip();
             document.getElementById('bookPageIndicator').textContent = label;
             document.getElementById('prevPageBtn').disabled = !s.canPrev;
             const next = document.getElementById('nextPageBtn');
@@ -559,6 +562,33 @@
             else if (s.end && this.currentStoryObj && this.currentStoryObj.mine) next.innerHTML = `<span>✍️ Mening ertaklarim</span>`;
             else if (s.end) next.innerHTML = `<span>Bilimdon Testi</span> <i class="fa-solid fa-award"></i>`;
             else next.innerHTML = `<span>Keyingi</span> <i class="fa-solid fa-chevron-right"></i>`;
+        }
+
+        // The open book's hidden stars, found so far (js/hiddenstar.js); none in a book a child made.
+        updateStarChip() {
+            const chip = document.getElementById('starChip');
+            const H = root.HiddenStar;
+            if (!chip) return;
+            const on = !!H && H.hides(this.currentStoryObj);
+            chip.classList.toggle('hidden', !on);
+            if (!on) return;
+            const { found, total } = H.count(this.currentStoryObj, this.book.record);
+            chip.textContent = `🌟 ${found}/${total}`;
+            chip.classList.toggle('is-all', found === total);
+        }
+
+        foundStar({ found, total }) {
+            this.store.save();
+            this.addPoints(STAR_POINTS);
+            this.playChime(true);
+            this.toast(found === total ? `🌟 Hamma yulduzlar topildi! +${STAR_POINTS} ball` : `🌟 Yashirin yulduz topildi! +${STAR_POINTS} ball`);
+            this.updateStarChip();
+            const chip = document.getElementById('starChip');
+            if (chip) {
+                chip.classList.remove('is-pop');
+                void chip.offsetWidth;
+                chip.classList.add('is-pop');
+            }
         }
 
         // Remembers the page this child is on; reaching the end marks the book read.

@@ -463,6 +463,19 @@ them stay on the device, like everything else (see Privacy).
       points.
 19. **A hidden star on every page.** Find it, collect it, and look closer at
     the pictures.
+
+    ✅ **Built.** Every page of every library book (317 pages) hides one
+    small gold star in its picture. It is always in the same place on that
+    page, in the part every screen shows, and clear of the people and
+    things drawn there.
+    - **Touching it** collects it: it spins and stays, faint, so the child
+      sees it was found (+2 points, once). The book's toolbar counts the
+      stars found ("🌟 3/12").
+    - **The title page** invites the child: "Har sahifada bitta yulduz
+      yashiringan. Topa olasizmi?" Then it counts the stars found.
+    - **The last page** says how many were found, or invites the child to
+      look again.
+    - Books a child made have no stars: the pictures are theirs.
 20. **Reading tree.** A tree that grows a leaf for every book read, with no
     rankings and no pressure.
 21. **Birga o'qiymiz (reading together on a video call).** A link to the

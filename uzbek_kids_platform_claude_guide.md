@@ -912,3 +912,26 @@ fonts/gowun-dodum-ko.*   # built Korean font + the letters in it
   * A miss marks the right word, says it, and puts the card at the end of the round, to finish on a right answer.
 * The day's round is worth 5 points once a day (`profile.reviewWin`).
 * `tests/review.test.js` checks day counting and each word's intervals. A 120-day simulation checks that a day never asks more than five words and every word gets its turn.
+
+## 29. Update: Yashirin Yulduz, a Hidden Star on Every Page (Roadmap item 19)
+
+### Where it hides (`js/hiddenstar.js`, `window.HiddenStar`)
+* `place(key, view, scene)` gives a page's star `[x, y]` in the picture's own units.
+  * It tries up to 16 places from a hash of the book and page, so the star is in the same place every time.
+  * It takes the first place clear of every item's rough body: the item's anchor is its feet, ±40 units wide and 112 tall, by its scale. If none is clear (9 pages of 317), it takes the place farthest from them.
+  * Places stay inside `BOX` (x 44–356, y 170–296). That is the lower part, which every screen shows, away from the 🎨 button.
+* A riddle's star uses the page's own scene, so it stays put when the answer's picture opens.
+* `hides(story)` is false for a book a child made. `count(story, record)` gives `{ found, total }` from `record.stars` (`{ view: 1 }`), counting only real pages.
+* The star is the art part `hiddenstar`, defined here:
+  * a gold five-point star with a glint (`.hs-glint` in `css/book.css`);
+  * a see-through circle of radius 26, so a finger a little off still finds it;
+  * faint when found (`.hs.is-found`).
+
+### In the book (`js/book.js`, `js/app.js`)
+* `Art.render(scene, { top })` draws `top` items after everything else: light, weather, tint and vignette.
+  * The star is never covered, and stays bright at night.
+  * The rest of the picture is unchanged: same seed, and drawn after the picture has used its randomness.
+* The left page's figure carries `data-view`. `poke()` checks for the star first: `findStar(view, el)` sets `record.stars[view]`, plays the find, and calls `opts.onStar(count)`.
+* `app.foundStar()` saves, adds 2 points and says "🌟 Yashirin yulduz topildi!", or "🌟 Hamma yulduzlar topildi!" for the last one. It also updates `#starChip` in the toolbar ("🌟 3/12").
+* `starsLine()` puts the invitation or the count on the title page and the last page.
+* `tests/hiddenstar.test.js` checks every page's place, and that the star leaves the picture as it was and is drawn last.

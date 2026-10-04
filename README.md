@@ -10,7 +10,7 @@ For children who read Korean letters first, the 가 button on any page shows the
 
 Every new word a child meets in a book goes into their own dictionary, *Mening lug'atim*, as a picture card with its Korean meaning. It has three games with those words: hear a word and find its picture, match Uzbek words to Korean, and build a word from its letters. A fourth game, *Qo'shimcha ↔ 조사*, teaches the Uzbek endings through the Korean particles the child already knows. The child reads 여우**를** 봤어요 and picks the ending that completes *Tulki\_\_ ko'rdim* (-ni). Every day, *Kunlik 5 so'z* brings back five of the child's own words. Each word returns just before it would be forgotten, after 1, 2, 4, 8, 16 and then 32 days, and a word missed comes back the next day.
 
-Every picture is a picture dictionary too: touching a fox shows "tulki · 🇰🇷 여우" (and, with 가 on, how it sounds), and the word joins the child's dictionary.
+Every picture is a picture dictionary too: touching a fox shows "tulki · 🇰🇷 여우" (and, with 가 on, how it sounds), and the word joins the child's dictionary. Each page also hides a small gold star in its picture. Finding all of a book's stars is a reason to look at every picture closely.
 
 Every book takes the child somewhere: to one of Uzbekistan's 14 regions, or to Korea. Finishing a book stamps that place in the child's passport (*Pasportim*). Its map of Uzbekistan colours each place visited, and each place has a card with a true fact about it. Points buy each place's stickers (Registon, the Kalta minor, a Chust do'ppi, the Tashkent metro...) for the passport's album.
 
