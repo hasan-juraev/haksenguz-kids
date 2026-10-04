@@ -89,7 +89,7 @@
                             </button>
                             <!-- Mening lug'atim: the words this child has met (js/dictionary.js) -->
                             <button onclick="app.openDictionary()" id="dictBtn" class="min-h-[40px] px-3.5 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl backdrop-blur-md transition flex items-center gap-2">
-                                <span aria-hidden="true">📖</span> <span>Mening lug'atim</span> <span id="dictCount"></span>
+                                <span aria-hidden="true">📖</span> <span>Mening lug'atim</span> <span id="dictCount"></span> <span id="reviewBadge" class="review-badge hidden"></span>
                             </button>
                             <!-- Madaniyat pasporti: a stamp for each place a finished book took this child to (js/passport.js) -->
                             <button onclick="app.openPassport()" id="passBtn" class="min-h-[40px] px-3.5 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl backdrop-blur-md transition flex items-center gap-2">
@@ -232,6 +232,15 @@
                 <button onclick="app.goHome()" class="min-h-[40px] px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-sm transition flex items-center gap-2"><i class="fa-solid fa-arrow-left"></i> Kutubxona</button>
                 <h2 class="font-heading text-xl md:text-2xl font-bold text-gray-800">📖 Mening lug'atim</h2>
                 <span id="dictTotal" class="text-xs font-bold text-amber-800 bg-amber-100 px-3 py-1 rounded-full"></span>
+            </div>
+            <!-- Kunlik 5 so'z: today's words, each back just before it would be forgotten (js/review.js) -->
+            <div id="reviewCard" class="review-card hidden">
+                <div class="review-main">
+                    <h3 class="review-title">📅 Kunlik 5 so'z</h3>
+                    <p id="reviewStatus" class="review-status"></p>
+                </div>
+                <div id="reviewGarden" class="review-garden"></div>
+                <button type="button" id="reviewGo" class="review-go" onclick="app.startReview()">▶ Boshlash</button>
             </div>
             <div class="dict-games" id="dictGames">
                 <button type="button" class="dict-game-btn" data-game="listen"><span class="text-2xl" aria-hidden="true">🔊</span><b>Eshit va top</b><small>So'zni eshitib, rasmini toping</small></button>
@@ -535,6 +544,7 @@
     <script src="js/art/landmarks.js"></script>
     <script src="js/picwords.js"></script>
     <script src="js/suffix.js"></script>
+    <script src="js/review.js"></script>
     <script src="js/stories-folk.js"></script>
     <script src="js/stories-classic.js"></script>
     <script src="js/stories-twins.js"></script>

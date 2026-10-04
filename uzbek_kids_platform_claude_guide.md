@@ -882,3 +882,33 @@ fonts/gowun-dodum-ko.*   # built Korean font + the letters in it
   * every game asks every ending;
   * the hints and the menus have their Korean.
 * `tools/korean-review.js qoshimcha` lists every sentence pair for the bilingual reviewer.
+
+## 28. Update: Kunlik 5 So'z, Five Words a Day (Roadmap item 18)
+
+### The schedule (`js/review.js`, `window.Review`)
+* `profile.review` holds each word's schedule, keyed by the word in lower case (`Review.key`): `{ box, due }`.
+  * `box` goes from 1 to 6.
+  * `due` is a day as `'YYYY-MM-DD'` in the phone's own time zone (`Review.day()`).
+* `answer(rec, right, on)`: a word known goes up a box and comes back after `DAYS[box]` days (1, 2, 4, 8, 16, 32). A word missed goes back to box 1, tomorrow.
+* `due(entries, state, on, n)` gives the words for a day, up to `n`: those due, the longest waiting first, then words never asked, in a random order.
+* `next()` gives the next day with words; `garden()` counts the words:
+  * 🌱 new or box 1;
+  * 🌿 box 2–3;
+  * 🌳 box 4–6.
+* `clue(e)` is a word's meaning with the word itself left out ("Buxoroda … minoralarga in quradi").
+* `choices()` gives the right word and two others from the dictionary.
+* Days are counted with `addDays()` and `between()`, on whole days, so months, years and leap days come out right.
+
+### In the app (`js/app.js`, `Games.review` in `js/games.js`)
+* `reviewWords()` gives today's words: none until the dictionary has `DICT_MIN` (4) words, and at most `PER_DAY` (5) a day.
+  * `profile.reviewDay = { on, n }` counts the words answered today, so closing a round halfway doesn't bring five new ones.
+* `#reviewCard` in the dictionary (`renderReview()`) shows:
+  * today's count, or what comes next ("Ertaga yana keling.", "Keyingi so'zlar 6 kundan keyin.");
+  * the garden;
+  * "▶ Boshlash".
+* `#reviewBadge` on the home screen's dictionary button shows "📅 5" while words wait (`updateReviewBadge()`, from `updateDictCount()`).
+* In the game, each card shows the word's picture (`Dictionary.picture`), its clue and its Korean, and three words to pick from.
+  * The first answer to each word moves its schedule (`onAnswer`).
+  * A miss marks the right word, says it, and puts the card at the end of the round, to finish on a right answer.
+* The day's round is worth 5 points once a day (`profile.reviewWin`).
+* `tests/review.test.js` checks day counting and each word's intervals. A 120-day simulation checks that a day never asks more than five words and every word gets its turn.

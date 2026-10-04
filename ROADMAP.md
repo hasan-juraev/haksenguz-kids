@@ -447,6 +447,20 @@ them stay on the device, like everything else (see Privacy).
     - The first win each day is worth 10 points, as with the other games.
 18. **Five words a day.** A short daily review of the child's own
     dictionary, each word coming back just before it would be forgotten.
+
+    ✅ **Built.** "📅 Kunlik 5 so'z" sits at the top of the dictionary
+    once it has 4 words. On the home screen, the dictionary button shows how
+    many words wait today ("📅 5").
+    - **Each day**, up to five of the child's own words come back. The ones
+      due come first, the longest waiting first, and then new ones. A card
+      shows the word's picture and what it means (with the word itself left
+      out) and its Korean, and the child picks the word from three.
+    - **The schedule.** A word known comes back after 1, 2, 4, 8 and 16
+      days, then every 32. A word missed shows the right one, comes again at
+      the end of the round, and comes back the next day.
+    - **A garden of words** shows how they grow: 🌱 new, 🌿 growing, 🌳 known.
+      There are no rankings and no streaks. The day's five are worth 5
+      points.
 19. **A hidden star on every page.** Find it, collect it, and look closer at
     the pictures.
 20. **Reading tree.** A tree that grows a leaf for every book read, with no

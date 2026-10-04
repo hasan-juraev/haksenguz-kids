@@ -246,6 +246,20 @@
         '🤔 Bu harf emas. Qaysi harf keladi?': '🤔 그 글자가 아니에요. 어떤 글자가 올까요?',
         "🎉 Barakalla! So'zlarni yig'dingiz!": '🎉 잘했어요! 낱말을 다 만들었어요!',
     });
+    // Kunlik 5 so'z: today's words from the child's dictionary (js/review.js, js/app.js, js/games.js)
+    Object.assign(EXACT, {
+        "📅 Kunlik 5 so'z": '📅 오늘의 낱말 5개',
+        "✅ Bugungi so'zlar tugadi!": '✅ 오늘의 낱말을 다 했어요!',
+        "🌳 Bugun takrorlanadigan so'z yo'q.": '🌳 오늘은 복습할 낱말이 없어요.',
+        'Ertaga yana keling.': '내일 또 만나요.',
+        "Yangi so'z": '새 낱말',
+        "O'syapti": '자라는 중',
+        'Bilaman': '알아요',
+        '▶ Boshlash': '▶ 시작',
+        "Rasmga qarang: bu qaysi so'z?": '그림을 보세요. 어떤 낱말일까요?',
+        "🤔 To'g'risi yashil rangda. Bu so'z yana keladi.": '🤔 초록색이 정답이에요. 이 낱말은 다시 나와요.',
+        "🎉 Barakalla! Bugungi so'zlar tugadi!": '🎉 잘했어요! 오늘의 낱말을 다 했어요!',
+    });
     // Qo'shimcha ↔ 조사: the Uzbek endings through the Korean particles (js/suffix.js, js/games.js)
     Object.assign(EXACT, {
         "Qo'shimcha ↔ 조사": '조사 짝꿍',
@@ -476,6 +490,8 @@
         [/^(\d+)–(\d+) yosh$/, '$1~$2세', '5–8 yosh'],
         [/^(\d+)\+ yosh$/, '$1세 이상', '9+ yosh'],
         [/^(\d+) yosh$/, '$1세', '6 yosh'],
+        [/^Bugun (\d+) ta so'z sizni kutyapti!$/, '오늘 낱말 $1개가 기다리고 있어요!', "Bugun 5 ta so'z sizni kutyapti!"],
+        [/^Keyingi so'zlar (\d+) kundan keyin\.$/, '다음 낱말은 $1일 뒤에 와요.', "Keyingi so'zlar 3 kundan keyin."],
         [/^✓ (.+): (\d+) ta sahifa qo'shildi\.( Diqqat: bu telefon bu yozuvlarni o'qiy olmasligi mumkin\.)?$/,
             (all, who, n, warn) => `✓ ${who}: ${n}쪽을 추가했어요.${warn ? ' 주의: 이 휴대폰에서는 이 녹음이 재생되지 않을 수도 있어요.' : ''}`,
             "✓ 👵 Buvijon: 12 ta sahifa qo'shildi. Diqqat: bu telefon bu yozuvlarni o'qiy olmasligi mumkin."],

@@ -18,6 +18,7 @@
     const COMPARE_POINTS = 30;
     const DICT_POINTS = 10; // a dictionary game won, once a day per game
     const DICT_MIN = 4; // words needed before the games open
+    const REVIEW_POINTS = 5; // today's words done (Kunlik 5 so'z), once a day
     const TRACE_POINTS = 5; // each Alifbo letter traced, the first time
     const PICWORD_POINTS = 2; // each new word found in a picture (js/picwords.js)
 
@@ -900,8 +901,10 @@
         }
 
         updateDictCount() {
+            const list = this.dictEntries();
             const el = document.getElementById('dictCount');
-            if (el) el.textContent = `(${this.dictEntries().length})`;
+            if (el) el.textContent = `(${list.length})`;
+            this.updateReviewBadge(list);
         }
 
         openDictionary() {
@@ -915,6 +918,7 @@
         renderDictionary() {
             const list = this.dictEntries();
             this.dictList = list;
+            this.renderReview(list);
             document.getElementById('dictTotal').textContent = `${list.length} ta so'z`;
             document.getElementById('dictEmpty').classList.toggle('hidden', list.length > 0);
             const short = list.length < DICT_MIN;
@@ -1016,6 +1020,90 @@
                     p.dictWins[kind] = today;
                     this.addPoints(DICT_POINTS);
                     this.toast(`📖 Barakalla! +${DICT_POINTS} ball`);
+                },
+            });
+        }
+
+        // ---------- Kunlik 5 so'z (js/review.js) ----------
+
+        // Today's words: up to five from the dictionary, those due first, then
+        // new ones (none until the dictionary has DICT_MIN words).
+        reviewWords(list = this.dictEntries()) {
+            const R = root.Review;
+            if (!R || list.length < DICT_MIN) return [];
+            const p = this.store.profile();
+            const on = R.day();
+            const asked = p.reviewDay && p.reviewDay.on === on ? p.reviewDay.n : 0;
+            return R.due(list, p.review || {}, on, R.PER_DAY - asked);
+        }
+
+        // On the dictionary button: how many words wait today.
+        updateReviewBadge(list) {
+            const badge = document.getElementById('reviewBadge');
+            if (!badge) return;
+            const n = this.reviewWords(list).length;
+            badge.classList.toggle('hidden', !n);
+            badge.textContent = n ? `📅 ${n}` : '';
+            if (n) badge.setAttribute('title', `Bugun ${n} ta so'z sizni kutyapti!`);
+            else badge.removeAttribute('title');
+        }
+
+        // The dictionary's "📅 Kunlik 5 so'z" card: what today holds, and how the words are growing.
+        renderReview(list) {
+            const R = root.Review;
+            const box = document.getElementById('reviewCard');
+            if (!box || !R) return;
+            box.classList.toggle('hidden', list.length < DICT_MIN);
+            if (list.length < DICT_MIN) return;
+            const p = this.store.profile();
+            const state = p.review || {};
+            const on = R.day();
+            const words = this.reviewWords(list);
+            let status = [`Bugun ${words.length} ta so'z sizni kutyapti!`];
+            if (!words.length) {
+                const asked = p.reviewDay && p.reviewDay.on === on && p.reviewDay.n > 0;
+                const next = R.next(list, state, on);
+                const tomorrow = list.some((e) => !state[R.key(e)]) || (next && next.on === R.addDays(on, 1));
+                status = [asked ? "✅ Bugungi so'zlar tugadi!" : "🌳 Bugun takrorlanadigan so'z yo'q."];
+                if (tomorrow) status.push('Ertaga yana keling.');
+                else if (next) status.push(`Keyingi so'zlar ${R.between(on, next.on)} kundan keyin.`);
+            }
+            document.getElementById('reviewStatus').innerHTML = status.map((t) => `<span>${esc(t)}</span>`).join(' ');
+            const g = R.garden(list, state);
+            document.getElementById('reviewGarden').innerHTML = [['🌱', "Yangi so'z", g.seed], ['🌿', "O'syapti", g.sprout], ['🌳', 'Bilaman', g.tree]]
+                .map(([icon, label, n]) => `<span class="rg-item"><span aria-hidden="true">${icon}</span> <span>${esc(label)}</span> <b>${n}</b></span>`).join(' ');
+            document.getElementById('reviewGo').classList.toggle('hidden', !words.length);
+        }
+
+        startReview() {
+            const R = root.Review;
+            const list = this.dictEntries();
+            const cards = this.reviewWords(list);
+            if (!cards.length || !root.Games) return;
+            root.Games.review({
+                cards,
+                entries: list,
+                say: this.wordVoice() ? (t) => this.sayWord(t) : null,
+                // each word's first answer today moves it on the schedule
+                onAnswer: (e, right) => {
+                    const p = this.store.profile();
+                    const on = R.day();
+                    p.review = p.review || {};
+                    p.review[R.key(e)] = R.answer(p.review[R.key(e)], right, on);
+                    p.reviewDay = { on, n: (p.reviewDay && p.reviewDay.on === on ? p.reviewDay.n : 0) + 1 };
+                    this.store.save();
+                    if (right) this.playChime();
+                },
+                onWin: () => {
+                    this.playChime(true);
+                    this.renderReview(list);
+                    this.updateReviewBadge(list);
+                    const p = this.store.profile();
+                    const on = R.day();
+                    if (p.reviewWin === on) return;
+                    p.reviewWin = on;
+                    this.addPoints(REVIEW_POINTS);
+                    this.toast(`📅 Barakalla! +${REVIEW_POINTS} ball`);
                 },
             });
         }

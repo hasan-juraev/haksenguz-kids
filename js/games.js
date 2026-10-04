@@ -891,5 +891,76 @@
         return card;
     }
 
-    root.Games = { color, order, compare, trace, listen, match, spell, suffix, open: openModal, close: closeModal, toLineArt };
+    // 📅 Kunlik 5 so'z (js/review.js): today's words from the child's own
+    // dictionary. A card shows a word's picture and what it means; tap the
+    // word. A word missed shows the right one, and comes again at the end.
+    function review({ cards, entries, say, onAnswer, onWin }) {
+        const R = root.Review;
+        const D = root.Dictionary;
+        const queue = cards.slice();
+        const card = dictFrame("📅 Kunlik 5 so'z", "Rasmga qarang: bu qaysi so'z?", cards.length,
+            '<div class="rv-art"></div><p class="rv-clue"><span class="rv-mean" data-content></span><span class="rv-ko" lang="ko"></span></p><div class="rv-choices"></div>', 'review-game');
+        const art = card.querySelector('.rv-art');
+        const choices = card.querySelector('.rv-choices');
+        const result = card.querySelector('.order-result');
+        const game = card.querySelector('.dict-game');
+        const asked = new Set();
+        let done = 0;
+        let busy = false;
+        function show() {
+            const e = queue[0];
+            art.innerHTML = D.picture(e);
+            if (root.PicWords) root.PicWords.fit(art);
+            card.querySelector('.rv-mean').textContent = R.clue(e);
+            card.querySelector('.rv-ko').textContent = e.ko ? `🇰🇷 ${e.ko}` : '';
+            choices.innerHTML = R.choices(e, entries, 3).map((c) => `<button type="button" class="rv-choice" data-key="${esc(R.key(c))}" data-content>${esc(c.term)}</button>`).join('');
+            busy = false;
+        }
+        function later(fn) {
+            setTimeout(() => {
+                if (!game.isConnected) return; // closed in the meantime
+                result.textContent = '';
+                fn();
+                if (card.contains(document.activeElement) || document.activeElement === document.body) choices.querySelector('.rv-choice').focus();
+            }, 1600);
+        }
+        choices.addEventListener('click', (ev) => {
+            const b = ev.target.closest('.rv-choice');
+            if (!b || busy || !queue.length) return;
+            busy = true;
+            const e = queue[0];
+            const right = b.dataset.key === R.key(e);
+            // the first answer is the one that counts for the word's schedule
+            if (!asked.has(R.key(e))) {
+                asked.add(R.key(e));
+                if (onAnswer) onAnswer(e, right);
+            }
+            choices.querySelectorAll('.rv-choice').forEach((x) => { x.disabled = true; });
+            const good = choices.querySelector(`[data-key="${CSS.escape(R.key(e))}"]`);
+            good.classList.add('is-right');
+            if (say) say(e.term);
+            if (!right) {
+                shake(b);
+                result.textContent = "🤔 To'g'risi yashil rangda. Bu so'z yana keladi.";
+                queue.push(queue.shift());
+                later(show);
+                return;
+            }
+            queue.shift();
+            card.querySelector(`[data-step="${done}"]`).classList.add('is-done');
+            done++;
+            if (!queue.length) {
+                result.textContent = "🎉 Barakalla! Bugungi so'zlar tugadi!";
+                game.classList.add('is-won');
+                if (onWin) onWin();
+                return;
+            }
+            result.textContent = '⭐ Barakalla!';
+            later(show);
+        });
+        show();
+        return card;
+    }
+
+    root.Games = { color, order, compare, trace, listen, match, spell, suffix, review, open: openModal, close: closeModal, toLineArt };
 })(window);
