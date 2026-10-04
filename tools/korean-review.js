@@ -6,7 +6,8 @@
  *   node tools/korean-review.js > korean-review.csv
  *   node tools/korean-review.js zumrad > zumrad.csv     (one book; "menu" for the menus,
  *                                                        "pasport" for the culture passport,
- *                                                        "ertak" for the story maker)
+ *                                                        "ertak" for the story maker,
+ *                                                        "rasm" for the words in the pictures)
  *
  * One row per title, sentence, question, answer, word and menu text. The
  * reviewer writes a better Korean in the "To'g'risi / 수정" column, or a note
@@ -28,16 +29,19 @@ require('../js/stories-ko.js');
 require('../js/i18n.js');
 require('../js/passport.js');
 require('../js/maker.js');
+require('../js/art/core.js');
+['people', 'animals', 'world', 'fx', 'landmarks'].forEach((f) => require(`../js/art/${f}.js`));
+require('../js/picwords.js');
 
 const { segments } = window.BookEngine;
 const db = window.storiesDatabase;
 const { EXACT, PATTERNS, translate } = window.I18n;
 const only = process.argv.slice(2);
 const want = (key) => !only.length || only.includes(key);
-const SECTIONS = ['menu', 'pasport', 'ertak'];
+const SECTIONS = ['menu', 'pasport', 'ertak', 'rasm'];
 const unknown = only.filter((key) => !SECTIONS.includes(key) && !window.storiesKorean[key]);
 if (unknown.length) {
-    console.error(`No Korean for: ${unknown.join(', ')}. Books with Korean: ${Object.keys(window.storiesKorean).join(', ')}, or "menu", "pasport" or "ertak".`);
+    console.error(`No Korean for: ${unknown.join(', ')}. Books with Korean: ${Object.keys(window.storiesKorean).join(', ')}, or "menu", "pasport", "ertak" or "rasm".`);
     process.exit(1);
 }
 
@@ -96,6 +100,17 @@ if (want('ertak')) {
         ['Qahramon: kiyim / 주인공: 옷', M.WEARS], ['Qahramon: naqsh / 주인공: 무늬', M.PATTERNS], ['Qahramon: rang / 주인공: 색', M.COLORS], ["Qahramon: qo'lida / 주인공: 손에 든 것", M.HOLDS],
     ];
     lists.forEach(([where, list]) => list.forEach((x) => add(`ertak ${x.id}`, where, x.label, x.ko)));
+}
+
+// The words in the pictures (js/picwords.js): what a child sees when they touch a thing in a picture.
+if (want('rasm')) {
+    const P = window.PicWords;
+    const done = new Set();
+    Object.values(P.WORDS).concat(Object.values(P.PEOPLE)).forEach(([uz, ko]) => {
+        if (done.has(uz)) return;
+        done.add(uz);
+        add(`rasm ${uz}`, "Rasmdagi so'z / 그림 속 낱말", uz, ko);
+    });
 }
 
 // CSV that Excel opens as UTF-8 (the byte-order mark) with Korean intact.

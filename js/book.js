@@ -219,7 +219,7 @@
                     `<span class="twister-sounds" data-content>${p.sounds.map(esc).join(' · ')}</span></div>`;
             }
             if (p.reveal && !this.solved(view)) return `<p class="art-hint">🤔 Javobini toping — rasm ochiladi!</p>`;
-            if (!p.word) return `<p class="art-hint">👆 Rasmga bosing — qahramonlar jonlanadi!</p>`;
+            if (!p.word) return `<p class="art-hint">👆 Rasmga bosing: qahramonlar jonlanadi, narsalar nomini aytadi!</p>`;
             const ko = this.koShown(view) ? this.koWord(p.word[0]) : null;
             return `<div class="word-card"><span class="word-label">📖 Yangi so'z</span><span class="word-term" data-content>${esc(p.word[0])}${this.readsOut(view) ? ` <span class="word-read" lang="ko">${esc(root.Hangul.read(p.word[0]))}</span>` : ''}</span><span class="word-mean" data-content>${esc(p.word[1])}</span>${ko ? `<span class="word-ko" lang="ko">🇰🇷 ${esc(ko[1])}</span>` : ''}</div>`;
         }
@@ -655,15 +655,29 @@
             else if (act === 'answer') this.answer(+a.dataset.view, +a.dataset.idx);
             else if (act === 'korean') this.toggleKorean();
             else if (act === 'reading') this.toggleReading();
-            else if (act === 'poke') this.poke(a);
+            else if (act === 'poke') this.poke(a, e.target);
             else if (this.opts.onAction) this.opts.onAction(act, a);
         }
 
-        poke(fig) {
+        // A tap on a picture: its characters hop, and the thing touched says
+        // its name (js/picwords.js). A riddle's cloth has no name, so it gives
+        // nothing away.
+        poke(fig, target) {
             fig.classList.remove('art-poke');
             void fig.offsetWidth;
             fig.classList.add('art-poke');
             setTimeout(() => fig.classList.remove('art-poke'), 700);
+            const word = target && root.PicWords ? root.PicWords.at(target) : null;
+            if (word) {
+                const g = word.el.firstElementChild;
+                if (g) {
+                    g.classList.remove('art-tap');
+                    void g.getBoundingClientRect();
+                    g.classList.add('art-tap');
+                    setTimeout(() => g.classList.remove('art-tap'), 700);
+                }
+                if (this.opts.onWord) this.opts.onWord(word);
+            }
             if (this.opts.onPoke) this.opts.onPoke();
         }
 

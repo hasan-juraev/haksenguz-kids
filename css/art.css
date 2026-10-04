@@ -76,9 +76,23 @@
     50% { transform: translateY(-14px) scale(.96, 1.05); }
 }
 
+/* A thing touched in a picture says its name (js/picwords.js): it bounces a little. */
+.art-tap {
+    animation: svTap .6s ease-out;
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+}
+
+@keyframes svTap {
+    0%, 100% { transform: scale(1); }
+    35% { transform: scale(1.12); }
+    70% { transform: scale(.97); }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .story-art-svg *,
-    .art-poke .art-actor {
+    .art-poke .art-actor,
+    .art-tap {
         animation: none !important;
     }
 }

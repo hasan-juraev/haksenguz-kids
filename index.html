@@ -387,6 +387,21 @@
         </div>
     </div>
 
+    <!-- Rasmdagi so'zlar: the word for a thing touched in a picture (js/picwords.js) -->
+    <div id="wordCard" class="hidden fixed inset-x-0 bottom-24 z-40 px-4 pointer-events-none">
+        <div class="max-w-md mx-auto pointer-events-auto bg-white rounded-2xl shadow-2xl border-2 border-amber-300 p-3 flex items-center gap-3" role="dialog" aria-labelledby="wordTerm">
+            <div id="wordArt" class="word-art w-16 h-16 flex-shrink-0 rounded-xl bg-amber-50" aria-hidden="true"></div>
+            <div class="min-w-0 flex-1">
+                <p id="wordTerm" class="text-2xl font-bold text-amber-800 leading-tight" data-content></p>
+                <p id="wordRead" lang="ko" class="hidden text-sm font-semibold text-gray-500 leading-snug"></p>
+                <p id="wordKo" lang="ko" class="text-lg font-semibold text-gray-800 leading-snug"></p>
+                <p id="wordNew" class="hidden text-xs font-bold text-emerald-700"></p>
+            </div>
+            <button type="button" id="wordSay" onclick="app.sayPicWord()" class="w-12 h-12 flex-shrink-0 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-800 transition" aria-label="Eshitish"><i class="fa-solid fa-volume-high"></i></button>
+            <button type="button" onclick="app.closeWord()" class="w-10 h-10 flex-shrink-0 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 transition" aria-label="Yopish"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+    </div>
+
     <!-- Play corner (js/games.js): colouring page and story-order game -->
     <!-- Xayrli tun: the end of a bedtime read (js/bedtime.js); it fades to dark, a tap wakes it -->
     <div id="goodnight" class="goodnight hidden" role="dialog" aria-modal="true" aria-labelledby="goodnightTitle">
@@ -512,6 +527,7 @@
     <script src="js/art/world.js"></script>
     <script src="js/art/fx.js"></script>
     <script src="js/art/landmarks.js"></script>
+    <script src="js/picwords.js"></script>
     <script src="js/stories-folk.js"></script>
     <script src="js/stories-classic.js"></script>
     <script src="js/stories-twins.js"></script>

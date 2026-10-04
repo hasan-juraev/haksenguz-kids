@@ -19,6 +19,7 @@
     const DICT_POINTS = 10; // a dictionary game won, once a day per game
     const DICT_MIN = 4; // words needed before the games open
     const TRACE_POINTS = 5; // each Alifbo letter traced, the first time
+    const PICWORD_POINTS = 2; // each new word found in a picture (js/picwords.js)
 
     const esc = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
 
@@ -41,6 +42,7 @@
             this.book = new root.BookEngine(document.getElementById('book'), {
                 onChange: (s) => {
                     this.closeGloss();
+                    this.closeWord();
                     this.updateControls(s);
                     this.saveProgress(s);
                     this.reader.onChange(s);
@@ -52,6 +54,7 @@
                 onAnswer: (ok, praise) => this.onAnswer(ok, praise),
                 onAction: (act, el) => this.onBookAction(act, el),
                 onPoke: () => this.playChime(),
+                onWord: (w) => this.showPicWord(w), // a thing touched in a picture says its name
                 decorate: (box) => root.Translit && root.Translit.apply(box),
                 // 가 (Korean-letter readings) stays as the child left it
                 reading: !!this.store.settings.reading,
@@ -77,6 +80,7 @@
             document.querySelector('#playModal .play-card').addEventListener('click', (e) => this.onRegionClick(e));
             document.addEventListener('click', (e) => {
                 if (!e.target.closest('#glossCard, .gloss')) this.closeGloss();
+                if (!e.target.closest('#wordCard, [data-action="poke"]')) this.closeWord();
             });
             const profileModal = document.getElementById('profileModal');
             profileModal.addEventListener('click', (e) => {
@@ -926,17 +930,19 @@
                     <div class="dict-art" data-i="${i}"></div>
                     <div class="dict-body">
                         <h4 class="dict-term" data-content>${esc(e.term)}</h4>
-                        <p class="dict-mean" data-content>${esc(e.meaning)}</p>
+                        ${e.w ? '<p class="dict-mean">🖼️ Rasmdan topilgan so\'z</p>' : `<p class="dict-mean" data-content>${esc(e.meaning)}</p>`}
                         ${e.ko ? `<p class="dict-ko" lang="ko">🇰🇷 ${esc(e.ko)}</p>` : ''}
                         <div class="dict-tools">
                             <button type="button" class="dict-say" data-say="${i}" aria-label="Eshitish">🔊</button>
-                            <button type="button" class="dict-open" data-open="${i}">📖 Kitobda</button>
+                            ${e.book ? `<button type="button" class="dict-open" data-open="${i}">📖 Kitobda</button>` : ''}
                         </div>
                     </div>
                 </article>`).join('');
             const draw = (box) => {
                 const e = list[+box.dataset.i];
-                if (e && root.Art && !box.firstChild) box.innerHTML = root.Art.render(e.scene, { still: true, seed: 'dict:' + e.key });
+                if (!e || !root.Art || box.firstChild) return;
+                box.innerHTML = root.Dictionary.picture(e);
+                if (e.w && root.PicWords) root.PicWords.fit(box);
             };
             if (this.dictObserver) this.dictObserver.disconnect();
             if (root.IntersectionObserver) {
@@ -1177,6 +1183,44 @@
             this.toast(`🎁 Yangi stiker: ${x.name}!`);
             this.showRegion(x.region, id);
             if (!document.getElementById('passView').classList.contains('hidden')) this.updatePassStickers();
+        }
+
+        // ---------- Rasmdagi so'zlar: tap a thing in a picture (js/picwords.js) ----------
+
+        // Its word, its Korean and, with 가 on, how it sounds. The first time, the
+        // word joins this child's dictionary (+2 points).
+        showPicWord(word) {
+            this.picWord = word;
+            const profile = this.store.profile();
+            profile.picWords = profile.picWords || {};
+            const fresh = !profile.picWords[word.term];
+            if (fresh) {
+                profile.picWords[word.term] = { w: word.w, book: this.currentStoryKey, view: Math.max(1, this.book.view) };
+                this.addPoints(PICWORD_POINTS);
+            }
+            const art = document.getElementById('wordArt');
+            art.innerHTML = root.PicWords.sticker(word.w);
+            document.getElementById('wordTerm').textContent = word.term;
+            const read = document.getElementById('wordRead');
+            read.textContent = this.book.reading && root.Hangul ? root.Hangul.read(word.term) : '';
+            read.classList.toggle('hidden', !read.textContent);
+            document.getElementById('wordKo').textContent = `🇰🇷 ${word.ko}`;
+            const note = document.getElementById('wordNew');
+            note.textContent = fresh ? `✨ Lug'atimga qo'shildi! +${PICWORD_POINTS} ball` : '';
+            note.classList.toggle('hidden', !fresh);
+            document.getElementById('wordSay').classList.toggle('hidden', !root.speechSynthesis);
+            document.getElementById('wordCard').classList.remove('hidden');
+            root.PicWords.fit(art);
+        }
+
+        closeWord() {
+            const card = document.getElementById('wordCard');
+            if (!card || card.classList.contains('hidden')) return;
+            card.classList.add('hidden');
+        }
+
+        sayPicWord() {
+            if (this.picWord && !this.sayWord(this.picWord.term)) this.toast('Bu qurilmada ovoz topilmadi');
         }
 
         // ---------- Korean helper: tap a word ----------

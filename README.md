@@ -10,6 +10,8 @@ For children who read Korean letters first, the 가 button on any page shows the
 
 Every new word a child meets in a book goes into their own dictionary, *Mening lug'atim*, as a picture card with its Korean meaning. It has three games: hear a word and find its picture, match Uzbek words to Korean, and build a word from its letters.
 
+Every picture is a picture dictionary too: touching a fox shows "tulki · 🇰🇷 여우" (and, with 가 on, how it sounds), and the word joins the child's dictionary.
+
 Every book takes the child somewhere: to one of Uzbekistan's 14 regions, or to Korea. Finishing a book stamps that place in the child's passport (*Pasportim*). Its map of Uzbekistan colours each place visited, and each place has a card with a true fact about it. Points buy each place's stickers (Registon, the Kalta minor, a Chust do'ppi, the Tashkent metro...) for the passport's album.
 
 The "Qisqa va qiziq" shelf (short and fun) has four small books:

@@ -664,7 +664,8 @@
         function show() {
             const target = pool[round];
             const options = D.pick([target, ...D.pick(entries.filter((e) => e !== target), 3)], 4);
-            grid.innerHTML = options.map((e) => `<button type="button" class="listen-card" data-key="${esc(e.key)}" aria-label="Rasm">${root.Art.render(e.scene, { still: true, seed: 'dict:' + e.key })}</button>`).join('');
+            grid.innerHTML = options.map((e) => `<button type="button" class="listen-card" data-key="${esc(e.key)}" aria-label="Rasm">${D.picture(e)}</button>`).join('');
+            if (root.PicWords) root.PicWords.fit(grid);
             text.textContent = say ? '' : target.term;
             if (say) say(target.term);
         }
@@ -766,7 +767,8 @@
             const e = pool[round];
             tiles = D.letters(e.term);
             next = 0;
-            card.querySelector('.spell-art').innerHTML = root.Art.render(e.scene, { still: true, seed: 'dict:' + e.key });
+            card.querySelector('.spell-art').innerHTML = D.picture(e);
+            if (root.PicWords) root.PicWords.fit(card.querySelector('.spell-art'));
             card.querySelector('.spell-mean span[data-content]').textContent = e.meaning;
             card.querySelector('.spell-ko').textContent = e.ko ? `🇰🇷 ${e.ko.split(/ — /)[0]}` : '';
             card.querySelector('.spell-slots').innerHTML = tiles.map(() => '<span class="spell-slot"></span>').join('');

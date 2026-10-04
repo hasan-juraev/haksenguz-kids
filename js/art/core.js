@@ -213,7 +213,10 @@
         }
         const actor = meta.actor ? ' class="art-actor"' : '';
         const op = opts.op !== undefined ? ` opacity="${opts.op}"` : '';
-        return `<g transform="${xf}"${op}><g${actor}>${inner}</g></g>`;
+        // What it is, for "tap anything" (js/picwords.js): its name, with its
+        // kind if it has one; a person drawn from scratch by age and sex.
+        const what = name === 'person' ? `person:${opts.age || 'adult'}:${opts.sex || 'm'}` : typeof opts.kind === 'string' ? `${name}:${opts.kind}` : name;
+        return `<g transform="${xf}"${op} data-w="${esc(what)}"><g${actor}>${inner}</g></g>`;
     };
 
     Art.render = function (scene, opts = {}) {

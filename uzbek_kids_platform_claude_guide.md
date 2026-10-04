@@ -794,3 +794,27 @@ fonts/gowun-dodum-ko.*   # built Korean font + the letters in it
 
 ### Pictures
 * `Art.render` takes `sc.lightsBehind`. With it, a background's own lights are drawn right after the background, so a figure standing in front covers them: far windows at night, Seoul's lit windows, the stars of space. The story books don't set it, so their pictures are as before.
+
+## 25. Update: Rasmdagi So'zlar, the Words in the Pictures (Roadmap item 15)
+
+### What things are called (`js/picwords.js`, `window.PicWords`)
+* `Art.item` marks every item it draws with `data-w`:
+  * its name (`fox`, `tandir`), or a cast name (`zumrad`);
+  * with its kind when it has one (`bird:swallow`, `tree:apricot`);
+  * a `person` drawn from scratch by age and sex (`person:child:f`, from the hero maker).
+* `WORDS` gives each name its `[Uzbek, Korean]`; a kind falls back to its base (`bird:robin` → `qush`).
+* People without a calling of their own are named by age and sex from their cast preset (`PEOPLE`: *qiz bola, o'g'il bola, ayol, erkak, buvi, bobo*).
+* Effects (sparkles, hearts, bubbles...) and the riddle's cloth (`sirli`) have no word.
+* `at(target)` finds the word for a touch: the innermost named thing (a rider rather than the carpet), unless it is inside something in `WHOLE` (a `soya` shadow is named as the shadow).
+* `sticker(w)` draws a word on its own. Its frame is fitted around the drawing once it is on screen (`fit()`, with `getBBox`), so no part needs a hand-made frame.
+* `tests/picwords.test.js` checks that everything the books and the story maker draw has a word or is a known effect, that every cast preset resolves, and that the same Uzbek word always has the same Korean.
+
+### In the book and the dictionary
+* `BookEngine.poke(fig, target)` still makes the characters hop. It also adds `art-tap` (a small bounce) to the thing touched and calls `opts.onWord(word)`.
+* `app.showPicWord()` fills `#wordCard`: the thing itself, the word, its Korean, the 가 reading when 가 is on, and 🔊 (`sayWord`, the phone's voice).
+  * The first time, it stores `profile.picWords[term] = { w, book, view }` and adds 2 points.
+  * A page turn or a tap elsewhere closes it.
+* `Dictionary.entries()` adds the picture words after the books' word cards, skipping a word a book already has.
+  * `Dictionary.picture(e)` draws an entry: its page's scene, or for a picture word the thing itself.
+  * The dictionary view and the listening and spelling games use it.
+* `tools/korean-review.js rasm` lists the words for the bilingual reviewer.

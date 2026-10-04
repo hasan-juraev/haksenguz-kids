@@ -83,7 +83,7 @@
         'Keyingi sahifa': '다음 페이지',
         'Oldingi sahifa': '이전 페이지',
         'Rasmga bosing': '그림을 눌러 보세요',
-        '👆 Rasmga bosing — qahramonlar jonlanadi!': '👆 그림을 누르면 주인공들이 움직여요!',
+        '👆 Rasmga bosing: qahramonlar jonlanadi, narsalar nomini aytadi!': '👆 그림을 눌러 보세요. 주인공은 움직이고, 물건은 이름을 알려 줘요!',
         "📖 Yangi so'z": '📖 새 낱말',
         'Varaqlang': '넘기세요',
         'Yakun': '마지막',
@@ -277,6 +277,10 @@
         "Ertak tugadi! Ertaga yangisini o'qiymiz.": '이야기가 끝났어요! 내일은 새 이야기를 읽어요.',
         '📚 Kutubxonaga qaytish': '📚 도서관으로 돌아가기',
     });
+    // Rasmdagi so'zlar: a thing touched in a picture (js/picwords.js)
+    Object.assign(EXACT, {
+        "🖼️ Rasmdan topilgan so'z": '🖼️ 그림에서 찾은 낱말',
+    });
     // Ertak yozamiz: the story maker (js/maker-ui.js). The names of its
     // characters, places, times and moods come in Korean from js/maker.js.
     Object.assign(EXACT, {
@@ -434,6 +438,7 @@
         [/^▶ Davom ettirish · (\d+)-sahifa$/, '▶ 이어 읽기 · $1쪽', '▶ Davom ettirish · 3-sahifa'],
         [/^📄 (\d+) sahifa · ⏱ ~(\d+) daqiqa$/, '📄 $1쪽 · ⏱ 약 $2분', '📄 12 sahifa · ⏱ ~6 daqiqa'],
         [/^Savollarga javoblar: (\d+) \/ (\d+)$/, '맞힌 질문: $1 / $2', 'Savollarga javoblar: 4 / 5'],
+        [/^✨ Lug'atimga qo'shildi! \+(\d+) ball$/, '✨ 내 사전에 넣었어요! +$1점', "✨ Lug'atimga qo'shildi! +2 ball"],
         [/^(.+) \+(\d+) ball$/, '$1 +$2점', '⭐ Barakalla! +10 ball'],
         [/^Siz to'g'ri xulosa topdingiz va (\d+) ball qo'shildi!$/, '교훈을 바르게 찾았어요! $1점을 받았어요!', "Siz to'g'ri xulosa topdingiz va 50 ball qo'shildi!"],
         [/^(.+) bu ertakni o'qib bergan — 🎧 bosing!$/, '$1 님이 이 동화를 읽어 줬어요 — 🎧 눌러 보세요!', "👵 Buvijon bu ertakni o'qib bergan — 🎧 bosing!"],

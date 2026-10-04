@@ -391,6 +391,20 @@ them stay on the device, like everything else (see Privacy).
 15. **Tap anything in a picture.** Touching a fox in any illustration shows
     "Tulki · 여우" and, with 가 on, how it sounds. Every page becomes a picture
     dictionary, and the words found join *Mening lug'atim*.
+
+    ✅ **Built.** Every thing the books draw has a word: 168 words for
+    animals, birds by kind, trees by kind, food, the home, buildings and the
+    sky, and people by age (*qiz bola, bobo*) or calling (*podshoh, dehqon,
+    cho'pon*).
+    - **Touching it** makes it bounce, and a card shows the thing itself, its
+      word, its Korean and a 🔊. With 가 on, the card also shows how the word
+      sounds.
+    - **The first time** a child finds a word, it joins their dictionary
+      (+2 points). Its card there says where it was found, and "📖 Kitobda"
+      opens that page. The words play in the dictionary's games too.
+    - Sparkles, hearts and the riddle's cloth have no word, so a riddle
+      gives nothing away. It works in made books, in Cyrillic and with
+      Korean menus.
 16. **Ertak estafetasi (a story relay).** A child writes a page of a story in
     the story maker and sends it; a grandparent adds the next page and sends
     it back. The link carries the whole book, as it already does.

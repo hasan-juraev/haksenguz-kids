@@ -3,8 +3,10 @@
  * so'z" card a child has come across becomes a card in their own
  * dictionary, with the picture of the page it was on. A word is collected
  * when its page is opened (profile.words, by js/app.js); every word of a
- * book the child has finished counts too. The dictionary is in Uzbek
- * alphabet order, and its games are in js/games.js.
+ * book the child has finished counts too. So does every thing the child has
+ * touched in a picture (profile.picWords: its Uzbek word -> { w, book, view },
+ * see js/picwords.js). The dictionary is in Uzbek alphabet order, and its
+ * games are in js/games.js.
  */
 (function (root) {
     'use strict';
@@ -65,7 +67,22 @@
             terms.add(t);
             out.push({ key, book, view: i + 1, term: p.word[0], meaning: p.word[1], ko: koMeaning(book, p.word[0]), scene: p.scene });
         }));
+        // words found in the pictures, unless a book already has them
+        Object.entries((profile && profile.picWords) || {}).forEach(([term, found]) => {
+            const word = root.PicWords && found && root.PicWords.of(found.w);
+            if (!word || word.term !== term || terms.has(term.toLowerCase())) return;
+            terms.add(term.toLowerCase());
+            out.push({ key: `pic:${term}`, book: db[found.book] ? found.book : null, view: found.view || 1, term, meaning: '', ko: word.ko, w: found.w, scene: null });
+        });
         return out.sort((a, b) => compare(a.term, b.term));
+    }
+
+    // An entry's picture: its page's, or, for a word found in a picture, the
+    // thing itself (framed by PicWords.fit once it is on screen).
+    function picture(e, seed) {
+        if (!root.Art) return '';
+        if (e.w && root.PicWords) return `<span class="pic-sticker">${root.PicWords.sticker(e.w)}</span>`;
+        return root.Art.render(e.scene, { still: true, seed: seed || 'dict:' + e.key });
     }
 
     // Words fit for "build the word": one word, 3–7 letters.
@@ -81,5 +98,5 @@
         return a.slice(0, n);
     }
 
-    root.Dictionary = { ALPHABET, letters, compare, koMeaning, entries, spellable, pick };
+    root.Dictionary = { ALPHABET, letters, compare, koMeaning, entries, picture, spellable, pick };
 })(window);
