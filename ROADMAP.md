@@ -383,6 +383,52 @@ reading it.
       another phone it opens as a gift, and "📥 Javonimga qo'shish" keeps
       it on that child's shelf.
 
+## Phase 4 — Family, language bridges and play
+
+Ideas built on what already exists, in the order they are being built. All of
+them stay on the device, like everything else (see Privacy).
+
+15. **Tap anything in a picture.** Touching a fox in any illustration shows
+    "Tulki · 여우" and, with 가 on, how it sounds. Every page becomes a picture
+    dictionary, and the words found join *Mening lug'atim*.
+16. **Ertak estafetasi (a story relay).** A child writes a page of a story in
+    the story maker and sends it; a grandparent adds the next page and sends
+    it back. The link carries the whole book, as it already does.
+17. **Qo'shimcha ↔ 조사.** Uzbek and Korean are grammar cousins: the verb
+    comes last and endings stack on words. A game teaches the Uzbek endings
+    through the Korean particles children already know: -ni ↔ 을/를,
+    -ga ↔ 에게/에, -da ↔ 에서/에, -dan ↔ 에서/부터, -ning ↔ 의, -lar ↔ 들.
+18. **Five words a day.** A short daily review of the child's own
+    dictionary, each word coming back just before it would be forgotten.
+19. **A hidden star on every page.** Find it, collect it, and look closer at
+    the pictures.
+20. **Reading tree.** A tree that grows a leaf for every book read, with no
+    rankings and no pressure.
+21. **Birga o'qiymiz (reading together on a video call).** A link to the
+    page a child is on, and big page numbers, so a grandparent on a call can
+    turn to the same page.
+22. **Men o'qidim (I read it).** The child records themselves reading a page,
+    sends it to the grandparents, and hears how much they have grown.
+23. **Mening oilam (my family).** A family tree made with the hero maker,
+    and the kinship words: both languages tell the father's side from the
+    mother's (amma ↔ 고모, xola ↔ 이모, amaki ↔ 삼촌, tog'a ↔ 외삼촌).
+24. **Printable booklets.** Any book, a child's own too, printed as a small
+    folded booklet to post to the grandparents or take to class.
+25. **Parents' corner.** Behind the grown-ups' sum: what the child read,
+    the words learned, how often they read, and a sheet to print for their
+    Uzbek teacher.
+26. **Class mode.** For Uzbek weekend schools and multicultural family
+    centres (다문화가족지원센터): a projector view, questions for the whole
+    group, and printable worksheets.
+27. **Naqsh ustasi (pattern master).** Design an atlas or suzani pattern and
+    dress a hero in it.
+28. **Doira.** Tap the Uzbek frame drum to folk rhythms.
+29. **Oshxona (kitchen).** Cooking with a grown-up, step by step: plov,
+    somsa, sumalak at Navro'z, and tteok for Seollal.
+30. **Ikki xalq — bir o'yin (two peoples, one game).** Traditional games side
+    by side, each with a little game to play: chillak ↔ 자치기, besh tosh ↔
+    공기, varrak ↔ 연날리기.
+
 ## Privacy
 
 Korean law (PIPA) requires a guardian's consent to collect personal data from
