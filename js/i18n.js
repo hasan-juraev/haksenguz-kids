@@ -246,6 +246,14 @@
         '🤔 Bu harf emas. Qaysi harf keladi?': '🤔 그 글자가 아니에요. 어떤 글자가 올까요?',
         "🎉 Barakalla! So'zlarni yig'dingiz!": '🎉 잘했어요! 낱말을 다 만들었어요!',
     });
+    // O'qish daraxti: the reading tree (js/tree.js, js/app.js)
+    Object.assign(EXACT, {
+        'Daraxtim': '나의 나무',
+        '🌳 Mening daraxtim': '🌳 나의 독서 나무',
+        "🌱 Birinchi kitobni o'qing — daraxtingiz unib chiqadi!": '🌱 첫 책을 읽으면 나무가 싹을 틔워요!',
+        "Bargga bosing — qaysi kitob ekanini ko'rasiz.": '잎을 누르면 어떤 책인지 보여요.',
+        '📖 Ochish': '📖 열기',
+    });
     // Yashirin yulduz: a hidden star on every page (js/hiddenstar.js, js/book.js)
     Object.assign(EXACT, {
         'Yashirin yulduzlar': '숨은 별',
@@ -478,6 +486,8 @@
         [/^📄 (\d+) sahifa · ⏱ ~(\d+) daqiqa$/, '📄 $1쪽 · ⏱ 약 $2분', '📄 12 sahifa · ⏱ ~6 daqiqa'],
         [/^Savollarga javoblar: (\d+) \/ (\d+)$/, '맞힌 질문: $1 / $2', 'Savollarga javoblar: 4 / 5'],
         [/^✨ Lug'atimga qo'shildi! \+(\d+) ball$/, '✨ 내 사전에 넣었어요! +$1점', "✨ Lug'atimga qo'shildi! +2 ball"],
+        [/^🍃 (\d+) ta kitob o'qildi — har biri bir barg\.$/, '🍃 책 $1권을 읽었어요. 한 권마다 잎이 하나씩 났어요.', "🍃 12 ta kitob o'qildi — har biri bir barg."],
+        [/^🌼 (\d+) ta ertak yozdingiz — har biri bir gul\.$/, '🌼 이야기 $1개를 썼어요. 하나마다 꽃이 한 송이씩 피었어요.', "🌼 2 ta ertak yozdingiz — har biri bir gul."],
         [/^🌟 Yashirin yulduz topildi! \+(\d+) ball$/, '🌟 숨은 별을 찾았어요! +$1점', '🌟 Yashirin yulduz topildi! +2 ball'],
         [/^🌟 Hamma yulduzlar topildi! \+(\d+) ball$/, '🌟 숨은 별을 모두 찾았어요! +$1점', '🌟 Hamma yulduzlar topildi! +2 ball'],
         [/^🌟 Yashirin yulduzlar: (\d+)\/(\d+)$/, '🌟 숨은 별: $1/$2', '🌟 Yashirin yulduzlar: 3/8'],

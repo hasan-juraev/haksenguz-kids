@@ -478,6 +478,15 @@ them stay on the device, like everything else (see Privacy).
     - Books a child made have no stars: the pictures are theirs.
 20. **Reading tree.** A tree that grows a leaf for every book read, with no
     rankings and no pressure.
+
+    ✅ **Built.** "🌳 Daraxtim" on the home screen opens the child's tree.
+    - **A leaf for each book finished**, in the order read: the first books
+      at the heart of the tree, the newest at its edge. Leaves take their
+      shelf's colour, and Korean books bloom pink, like a cherry tree.
+    - **A white flower** for each story the child wrote.
+    - **It grows** from a sprout to a big tree as the books add up.
+    - **Touching a leaf** names its book, and "📖 Ochish" opens it.
+    - There are no points, goals, rankings or streaks: the tree just grows.
 21. **Birga o'qiymiz (reading together on a video call).** A link to the
     page a child is on, and big page numbers, so a grandparent on a call can
     turn to the same page.

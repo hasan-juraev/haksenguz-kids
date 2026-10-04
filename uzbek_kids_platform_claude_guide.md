@@ -935,3 +935,25 @@ fonts/gowun-dodum-ko.*   # built Korean font + the letters in it
 * `app.foundStar()` saves, adds 2 points and says "🌟 Yashirin yulduz topildi!", or "🌟 Hamma yulduzlar topildi!" for the last one. It also updates `#starChip` in the toolbar ("🌟 3/12").
 * `starsLine()` puts the invitation or the count on the title page and the last page.
 * `tests/hiddenstar.test.js` checks every page's place, and that the star leaves the picture as it was and is drawn last.
+
+## 30. Update: O'qish Daraxti, the Reading Tree (Roadmap item 20)
+
+### The tree (`js/tree.js`, `window.ReadingTree`)
+* `leaves(db, profile)` lists the library books finished, the first read first (`finishedAt`; books finished before it was kept come first, in library order). Books a child made are left out.
+* `flowers(profile)` lists the stories the child wrote with at least one page. An untitled story is named "Mening ertagim", as the maker names it.
+* `shape(n)`: the trunk and crown grow with n leaves and flowers, and the crown stays inside the 320 × 300 picture.
+* `spots(n)` places the leaves on a sunflower spiral (the golden angle): the first books at the heart, the newest at the edge, never on top of each other.
+* `svg(read, wrote)` draws:
+  * a sprout when there is nothing yet;
+  * otherwise ground, crown, trunk and branches;
+  * a leaf in its shelf's colour (`COLORS`) for each book, a cherry blossom for a Korean book, and a white daisy for each story the child wrote.
+  * Each leaf and flower is a button (`data-key` or `data-mine`) named for its book.
+
+### In the app (`js/app.js`)
+* `#treeBtn` ("🌳 Daraxtim (n)") sits on the home screen; `updateTreeCount()` runs with the dictionary's and passport's counts.
+* `openTree()` shows the tree in the play modal:
+  * a line for the books read and one for the stories written;
+  * the picture, inside `[data-content]`, since the leaves are named for books;
+  * touching a leaf, or Enter or Space on one, names its book and offers "📖 Ochish", which opens it (`startStory`, or `maker.read` for a flower).
+* No points, goals or rankings.
+* `tests/tree.test.js` checks the order, the shapes up to 60 books, the colours, and the menus in Korean.

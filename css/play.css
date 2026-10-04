@@ -932,6 +932,66 @@
     visibility: hidden;
 }
 
+/* 🌳 O'qish daraxti (js/tree.js): the reading tree, in a card */
+
+.play-card--tree {
+    max-width: 460px;
+}
+
+.tree-line {
+    margin: 2px 0;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: #2d6a4f;
+}
+
+.tree-art svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 62vh;
+    margin: 6px auto 0;
+}
+
+.tree-leaf {
+    cursor: pointer;
+    outline: none;
+}
+
+.tree-leaf.is-picked,
+.tree-leaf:focus-visible {
+    filter: drop-shadow(0 0 2px #f59e0b) drop-shadow(0 0 3px #f59e0b);
+}
+
+.tree-pick {
+    min-height: 44px;
+    margin: 8px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-align: center;
+    font-size: 14px;
+    color: #4b5563;
+}
+
+.tree-title {
+    font-weight: 800;
+    color: #7c2d12;
+}
+
+.tree-open {
+    min-height: 40px;
+    padding: 0 14px;
+    border-radius: 12px;
+    background: #f59e0b;
+    color: #fff;
+    font-weight: 800;
+    cursor: pointer;
+}
+
 /* 📅 Kunlik 5 so'z (js/review.js): the dictionary's card, the badge on its button, the game */
 
 .review-card {

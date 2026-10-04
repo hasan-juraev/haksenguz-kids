@@ -31,6 +31,8 @@ Their books stand on their own shelf and read like the others. A grown-up can se
 
 The library has shelves by age (4–6, 7–8, 9+); a child's profile can have an age, which opens their shelf.
 
+"🌳 Daraxtim" is the child's reading tree. Every book finished grows a leaf, Korean books bloom pink, and every story the child wrote opens as a white flower. There are no rankings and no pressure: the tree just grows.
+
 "Ikki xalq — bir ertak": finishing *Oltin tarvuz* opens its Korean twin, 흥부와 놀부 retold in Uzbek as *Hungbu va Nolbu*, which ends with a game of finding what the two tales share and where they differ.
 
 On the "Koreyadagi hayotim" shelf (my life in Korea), Uzbek children live in today's Korea:

@@ -116,6 +116,7 @@
             this.initLibrary();
             this.updateDictCount();
             this.updatePassCount();
+            this.updateTreeCount();
         }
 
         // ---------- library ----------
@@ -322,6 +323,7 @@
             this.initLibrary();
             this.updateDictCount();
             this.updatePassCount();
+            this.updateTreeCount();
         }
 
         // Leaving the book: the address no longer names it (so a reload doesn't reopen it).
@@ -1135,6 +1137,60 @@
                     this.addPoints(REVIEW_POINTS);
                     this.toast(`📅 Barakalla! +${REVIEW_POINTS} ball`);
                 },
+            });
+        }
+
+        // ---------- O'qish daraxti (js/tree.js) ----------
+
+        updateTreeCount() {
+            const el = document.getElementById('treeCount');
+            const T = root.ReadingTree;
+            if (el && T) el.textContent = `(${T.leaves(this.db, this.store.profile()).length})`;
+        }
+
+        // The tree in a card: a leaf for each book read, a flower for each story
+        // written. Touching one names its book, which can be opened from there.
+        openTree() {
+            const T = root.ReadingTree;
+            if (!T || !root.Games) return;
+            const p = this.store.profile();
+            const read = T.leaves(this.db, p);
+            const wrote = T.flowers(p);
+            const lines = [];
+            if (!read.length && !wrote.length) lines.push("🌱 Birinchi kitobni o'qing — daraxtingiz unib chiqadi!");
+            if (read.length) lines.push(`🍃 ${read.length} ta kitob o'qildi — har biri bir barg.`);
+            if (wrote.length) lines.push(`🌼 ${wrote.length} ta ertak yozdingiz — har biri bir gul.`);
+            const card = root.Games.open(`
+                <div class="tree-card">
+                    <div class="play-head"><h3>🌳 Mening daraxtim</h3><button type="button" class="play-x" data-close aria-label="Yopish">✕</button></div>
+                    ${lines.map((t) => `<p class="tree-line">${esc(t)}</p>`).join('')}
+                    <div class="tree-art" data-content>${T.svg(read, wrote)}</div>
+                    <p class="tree-pick" aria-live="polite">${read.length || wrote.length ? "Bargga bosing — qaysi kitob ekanini ko'rasiz." : ''}</p>
+                </div>`, 'play-card--tree');
+            const pick = card.querySelector('.tree-pick');
+            const choose = (leaf) => {
+                card.querySelectorAll('.tree-leaf.is-picked').forEach((x) => x.classList.remove('is-picked'));
+                leaf.classList.add('is-picked');
+                const key = leaf.dataset.key;
+                const mine = leaf.dataset.mine;
+                const book = mine ? this.store.myBooks()[mine] : this.db[key];
+                if (!book) return;
+                pick.innerHTML = `<span class="tree-title" data-content>«${esc(book.title || 'Mening ertagim')}»</span> <button type="button" class="tree-open">📖 Ochish</button>`;
+                pick.querySelector('.tree-open').addEventListener('click', () => {
+                    root.Games.close();
+                    if (mine && this.maker) this.maker.read(mine);
+                    else this.startStory(key);
+                });
+            };
+            card.querySelector('.tree-art').addEventListener('click', (e) => {
+                const leaf = e.target.closest('.tree-leaf');
+                if (leaf) choose(leaf);
+            });
+            card.querySelector('.tree-art').addEventListener('keydown', (e) => {
+                const leaf = e.target.closest('.tree-leaf');
+                if (!leaf || (e.key !== 'Enter' && e.key !== ' ')) return;
+                e.preventDefault();
+                choose(leaf);
             });
         }
 
