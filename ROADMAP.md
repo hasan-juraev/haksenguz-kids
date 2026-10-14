@@ -355,6 +355,26 @@ reading it.
       - A book read to the end counts as read, and its passport stamp
         shows on the good-night screen.
 
+15. **Yozuv poygasi (typing race).** ✅ Built. Like TypeRacer: the child
+    types a short text, and their avatar races 🐢 Toshbaqa, 🐫 Tuya and
+    🐎 Tulpor to the flag.
+    - **Three levels**, the child's age picking the first: 🔤 *So'zlar*
+      (3–4 words from the Alifbo and their dictionary), 💬 *Maqollar* (a
+      proverb or a tongue twister) and 📖 *Kitobdan* (a sentence from a book
+      they have opened).
+    - **Forgiving where it should be.** Capitals don't matter, and every
+      apostrophe a phone makes (' ʻ ’) counts for o', g' and the tutuq.
+      Quotes are left out of the texts, so every text can be typed on a
+      phone. A wrong letter turns red and the race waits until it's fixed.
+    - **The animals keep to the child's pace.** It is the average of their
+      last five races at that level, or a start by age. The turtle is
+      usually beaten, and the tulpor takes a good day.
+    - **At the flag:** the child's place, speed (so'z/daqiqa), accuracy and
+      time. The first race each day is worth +10 points, and each new
+      record +10 more.
+    - Texts are typed in Latin, as in Uzbek schools, even with the Cyrillic
+      switch on.
+
 ## Privacy
 
 Korean law (PIPA) requires a guardian's consent to collect personal data from

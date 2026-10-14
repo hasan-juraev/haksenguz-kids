@@ -86,6 +86,10 @@
                             <button onclick="app.openDictionary()" id="dictBtn" class="min-h-[40px] px-3.5 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl backdrop-blur-md transition flex items-center gap-2">
                                 <span aria-hidden="true">📖</span> <span>Mening lug'atim</span> <span id="dictCount"></span>
                             </button>
+                            <!-- Yozuv poygasi: a typing race against three animals (js/race.js) -->
+                            <button onclick="app.race.open()" id="raceBtn" class="min-h-[40px] px-3.5 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl backdrop-blur-md transition flex items-center gap-2">
+                                <span aria-hidden="true">🏁</span> <span>Yozuv poygasi</span>
+                            </button>
                             <!-- Madaniyat pasporti: a stamp for each place a finished book took this child to (js/passport.js) -->
                             <button onclick="app.openPassport()" id="passBtn" class="min-h-[40px] px-3.5 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl backdrop-blur-md transition flex items-center gap-2">
                                 <span aria-hidden="true">🗺️</span> <span>Pasportim</span> <span id="passCount"></span>
@@ -478,6 +482,7 @@
     <script src="js/studio.js"></script>
     <script src="js/games.js"></script>
     <script src="js/bedtime.js"></script>
+    <script src="js/race.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

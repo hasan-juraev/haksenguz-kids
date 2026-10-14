@@ -732,3 +732,35 @@ fonts/gowun-dodum-ko.*   # built Korean font + the letters in it
 * `stop()` (also from `goHome`, or when another book opens) puts everything back.
 * At bedtime the page-turn sound plays at a third of its volume and the chimes are silent. In the evening (19:00–05:00) the banner button glows.
 
+## 24. Update: Yozuv Poygasi, the Typing Race (Roadmap item 15)
+
+### Texts (`js/race.js` → `Race`)
+* `Race.texts(db, profile, level, locked)` returns `[{ text, book }]` for a level:
+  * `words`: 3–4 words (3 for ages up to 6) from the Alifbo's word cards and the child's dictionary, all small letters.
+  * `short`: the proverbs' titles in `maqollar` and each tongue twister's first sentence in `tez_aytish`.
+  * `book`: sentences of 30–110 letters (`BookEngine.sentences`) from the books the child has opened or finished. A new reader gets their age shelf instead. The Alifbo and the short pieces are left out, and so are twins that are still locked.
+* `clean` makes a text easy to type: one apostrophe, no quotes, `-` for dashes, `...` for `…`. `typable` keeps only texts of letters, the apostrophe and `, . ! ? : ; -`.
+* `pickText` never gives the same text twice in a row.
+
+### Typing
+* `words(text)` splits the text into words that keep their space, as in TypeRacer. The box holds the word being typed, and a word is done with its space (or Enter, the phone's "next").
+* `matched(want, typed)` counts the letters that are right from the start. `same` ignores case and the apostrophe and dash styles.
+* A wrong letter shows red in the text (`.rt-bad`) and shakes the box, and the race waits until it is deleted. Pasting and dropping text into the box are blocked.
+* Speed is `wpm` (5 letters a word) from "🚦 Boshla!" to the last letter. Accuracy is the text's length out of every letter typed.
+
+### The animals
+* `pace(profile, level)` is the average of the last five speeds at that level (`profile.race.recent`). Before a first race it is `START_PACE` for the level times an age factor (0.6 up to age 6, 1.4 from age 9).
+* `rivals(pace)` gives the turtle 0.55×, the camel 0.9× and the tulpor 1.25× of the pace, and never less than 2 so'z/daqiqa. Each runs with a small sway (`requestAnimationFrame`), so races differ.
+* The child's place counts the animals at the flag before them.
+
+### Records and points (`Race.finish`)
+* `profile.race` holds `best` and `recent` per level, the number of `races` and the `day` of the last one.
+* The first race finished each day gives +10 points (`DAY_POINTS`). Beating the level's best gives +10 more (`RECORD_POINTS`); a first race at a level sets the best but isn't a record.
+
+### In the app
+* The banner's "🏁 Yozuv poygasi" button calls `app.race.open()` (a `RaceGame`, made in `js/app.js`). The level picker and the race open in `#playModal` (`Games.open`).
+* The keyboard opens during the tap on a level, while the 3-2-1 countdown runs; anything typed before "Boshla!" is cleared.
+* The text is `translate="no"`, so it stays Latin with the Cyrillic switch on. The menus have Korean in `js/i18n.js`, and the child's name is `data-content`.
+* The loop stops when the window closes (Escape, ✕) or the child goes home (`RaceGame.stop`).
+* Styles are in `css/play.css` ("Yozuv poygasi"). `tests/race.test.js` checks the texts, the matching, the pace and the points.
+

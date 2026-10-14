@@ -1602,3 +1602,410 @@
     font-weight: 700;
     color: #a5b4fc;
 }
+
+/* ---------- Yozuv poygasi: the typing race (js/race.js) ---------- */
+
+.race-rivals {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    margin: 0 0 12px;
+    font-weight: 800;
+    color: #92400e;
+}
+
+.race-rivals span {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 13px;
+}
+
+.race-rivals i {
+    font-style: normal;
+    font-size: 34px;
+    line-height: 1.1;
+    transform: scaleX(-1);
+}
+
+.race-levels {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.race-level {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-height: 120px;
+    padding: 12px 8px;
+    border-radius: 20px;
+    border: 2px solid #fde68a;
+    background: linear-gradient(135deg, #fffbeb, #fff7ed);
+    color: #78350f;
+    text-align: center;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+}
+
+.race-level:hover,
+.race-level:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(180, 83, 9, .15);
+}
+
+.race-level.is-mine {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, .25);
+}
+
+.race-level-icon {
+    font-size: 30px;
+}
+
+.race-level small {
+    font-size: 12px;
+    color: #92400e;
+    opacity: .85;
+}
+
+.race-best {
+    margin-top: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #fef3c7;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.race-track {
+    display: grid;
+    gap: 6px;
+    margin: 10px 0 8px;
+    padding: 10px;
+    border-radius: 18px;
+    background: linear-gradient(#fef3c7, #fde68a);
+}
+
+.race-lane {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr 2rem;
+    align-items: center;
+    gap: 8px;
+}
+
+.race-name {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 13px;
+    font-weight: 800;
+    color: #78350f;
+}
+
+.race-lane.is-me .race-name {
+    color: #b45309;
+}
+
+.race-name i {
+    font-style: normal;
+}
+
+.race-road {
+    position: relative;
+    height: 36px;
+    border-radius: 10px;
+    background: repeating-linear-gradient(90deg, transparent 0 14px, rgba(255, 255, 255, .7) 14px 24px) center / 100% 3px no-repeat, #d6a76c;
+}
+
+.race-lane.is-me .race-road {
+    background-color: #e0a458;
+    box-shadow: inset 0 0 0 2px #f59e0b;
+}
+
+.race-car {
+    --p: 0;
+    position: absolute;
+    top: 50%;
+    left: calc(var(--p) * (100% - 34px));
+    width: 34px;
+    font-size: 26px;
+    line-height: 1;
+    text-align: center;
+    transform: translateY(-55%);
+    transition: left .12s linear;
+}
+
+/* the animals look left; on this road they run right */
+.race-lane.is-rival .race-car {
+    transform: translateY(-55%) scaleX(-1);
+}
+
+.race-flag {
+    position: absolute;
+    top: 50%;
+    right: -4px;
+    font-size: 18px;
+    transform: translateY(-50%);
+    opacity: .9;
+}
+
+.race-wpm {
+    font-size: 13px;
+    font-weight: 800;
+    text-align: center;
+    color: #047857;
+}
+
+.race-lane.is-done .race-car {
+    animation: raceHop .5s ease-out 2;
+}
+
+@keyframes raceHop {
+    50% { margin-top: -8px; }
+}
+
+.race-light {
+    margin: 4px auto 6px;
+    width: fit-content;
+    min-width: 64px;
+    padding: 2px 16px;
+    border-radius: 999px;
+    background: #7c2d12;
+    color: #fde68a;
+    font-size: 26px;
+    font-weight: 800;
+    text-align: center;
+    transition: opacity .4s;
+}
+
+.race-light.is-go {
+    background: #10b981;
+    color: #fff;
+}
+
+.race-light.is-gone {
+    opacity: 0;
+}
+
+/* at the flag, the result takes the place of the light, the box and the clock */
+.race-game.is-won .race-light,
+.race-game.is-won .race-input,
+.race-game.is-won .race-stats {
+    display: none;
+}
+
+.race-text {
+    margin: 0;
+    padding: 14px 16px;
+    border-radius: 18px;
+    border: 2px solid #fde68a;
+    background: #fff;
+    font-size: 24px;
+    line-height: 1.55;
+    font-weight: 700;
+    color: #6b5640;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.rt-done,
+.rt-ok {
+    color: #059669;
+}
+
+.rt-word {
+    color: #1f2937;
+    border-bottom: 3px solid #fbbf24;
+}
+
+.rt-bad {
+    color: #fff;
+    background: #f43f5e;
+    border-radius: 4px;
+}
+
+.rt-cur {
+    background: #fde68a;
+    border-radius: 4px;
+    animation: raceBlink 1s steps(2, start) infinite;
+}
+
+@keyframes raceBlink {
+    50% { background: transparent; }
+}
+
+.race-from {
+    margin: 6px 4px 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: #a16207;
+}
+
+.race-input {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px 16px;
+    border-radius: 16px;
+    border: 3px solid #fbbf24;
+    background: #fffbeb;
+    font-size: 22px;
+    font-weight: 700;
+    color: #1f2937;
+    outline: none;
+}
+
+.race-input:focus {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, .25);
+}
+
+.race-input.is-wrong {
+    border-color: #f43f5e;
+    background: #fff1f2;
+    animation: cardShake .45s ease-in-out;
+}
+
+.race-input:disabled {
+    opacity: .6;
+}
+
+.race-hint {
+    margin: 6px 4px 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: #92400e;
+}
+
+.race-stats {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 8px;
+    font-weight: 800;
+    color: #7c2d12;
+}
+
+.race-result {
+    margin-top: 10px;
+    padding: 14px;
+    border-radius: 20px;
+    background: #ecfdf5;
+    border: 2px solid #a7f3d0;
+    text-align: center;
+}
+
+.race-result.hidden {
+    display: none;
+}
+
+.race-place {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 800;
+    color: #047857;
+}
+
+.race-record {
+    margin: 4px 0 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: #b45309;
+}
+
+.race-nums {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.race-nums span {
+    display: flex;
+    flex-direction: column;
+    min-width: 88px;
+    padding: 8px;
+    border-radius: 14px;
+    background: #fff;
+}
+
+.race-nums b {
+    font-size: 20px;
+    color: #1f2937;
+}
+
+.race-nums small {
+    font-size: 12px;
+    font-weight: 700;
+    color: #6b7280;
+}
+
+.race-points {
+    margin: 0 0 8px;
+    font-weight: 800;
+    color: #b45309;
+}
+
+.race-again {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+.race-again button {
+    min-height: 48px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    color: #fff;
+    background: linear-gradient(135deg, #f59e0b, #ea580c);
+    box-shadow: 0 4px 0 #9a3412;
+}
+
+.race-again button + button {
+    color: #78350f;
+    background: #fef3c7;
+    box-shadow: 0 4px 0 #fcd34d;
+}
+
+@media (max-width: 560px) {
+    .race-levels {
+        grid-template-columns: 1fr;
+    }
+
+    .race-level {
+        min-height: 0;
+    }
+
+    .race-lane {
+        grid-template-columns: 4.7rem 1fr 1.6rem;
+        gap: 6px;
+    }
+
+    /* the road shows who is who; the name has the room */
+    .race-name i {
+        display: none;
+    }
+
+    .race-text {
+        font-size: 20px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .race-car {
+        transition: none;
+    }
+
+    .race-lane.is-done .race-car,
+    .race-input.is-wrong,
+    .rt-cur {
+        animation: none;
+    }
+}
