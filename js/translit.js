@@ -31,6 +31,7 @@
         kompyuter: 'компьютер', sirk: 'цирк', konsert: 'концерт',
         yanvar: 'январь', fevral: 'февраль', aprel: 'апрель', iyun: 'июнь', iyul: 'июль',
         sentabr: 'сентябрь', oktabr: 'октябрь', noyabr: 'ноябрь', dekabr: 'декабрь',
+        abc: 'ABC', // the keyboard key, printed in Latin
     };
 
     const isApos = (ch) => !!ch && APOS.includes(ch);

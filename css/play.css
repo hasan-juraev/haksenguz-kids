@@ -63,7 +63,7 @@
 
 .play-card {
     width: min(760px, 100%);
-    max-height: calc(100vh - 32px);
+    max-height: 100%; /* the window's own height: follows phone toolbars and keyboards */
     overflow-y: auto;
     padding: 16px;
     border-radius: 24px;
@@ -1681,12 +1681,22 @@
 }
 
 .race-track {
+    /* stays in sight while the text and the box scroll under it */
+    position: sticky;
+    top: 0;
+    z-index: 2;
     display: grid;
     gap: 6px;
     margin: 10px 0 8px;
     padding: 10px;
     border-radius: 18px;
     background: linear-gradient(#fef3c7, #fde68a);
+    box-shadow: 0 6px 12px -8px rgba(120, 53, 15, .35);
+}
+
+/* at the flag the result gets the whole card */
+.race-game.is-won .race-track {
+    position: relative;
 }
 
 .race-lane {
@@ -1714,6 +1724,8 @@
 }
 
 .race-road {
+    --car: 34px;
+    --flag: 20px;
     position: relative;
     height: 36px;
     border-radius: 10px;
@@ -1729,8 +1741,10 @@
     --p: 0;
     position: absolute;
     top: 50%;
-    left: calc(var(--p) * (100% - 34px));
-    width: 34px;
+    /* at the end the car stops beside the flag, not under it */
+    left: calc(var(--p) * (100% - var(--car) - var(--flag)));
+    width: var(--car);
+    z-index: 1;
     font-size: 26px;
     line-height: 1;
     text-align: center;
@@ -1755,6 +1769,7 @@
 .race-wpm {
     font-size: 13px;
     font-weight: 800;
+    white-space: nowrap;
     text-align: center;
     color: #047857;
 }
@@ -1768,8 +1783,13 @@
 }
 
 .race-light {
-    margin: 4px auto 6px;
-    width: fit-content;
+    /* over the middle of the track, so it takes no room of its own */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 3;
+    width: max-content;
+    max-width: calc(100% - 16px);
     min-width: 64px;
     padding: 2px 16px;
     border-radius: 999px;
@@ -1778,7 +1798,10 @@
     font-size: 26px;
     font-weight: 800;
     text-align: center;
-    transition: opacity .4s;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, .2);
+    pointer-events: none;
+    transition: opacity .4s, visibility 0s;
 }
 
 .race-light.is-go {
@@ -1788,12 +1811,25 @@
 
 .race-light.is-gone {
     opacity: 0;
+    visibility: hidden;
+    transition: opacity .4s, visibility 0s .4s;
 }
 
-/* at the flag, the result takes the place of the light, the box and the clock */
+/* letters came from a Korean or Cyrillic keyboard */
+.race-light.is-warn {
+    background: #e11d48;
+    color: #fff;
+    font-size: 18px;
+    line-height: 1.3;
+    padding: 6px 14px;
+}
+
+/* at the flag, the result takes the place of the light, the box, the clock and the hints */
 .race-game.is-won .race-light,
 .race-game.is-won .race-input,
-.race-game.is-won .race-stats {
+.race-game.is-won .race-stats,
+.race-game.is-won .race-hint,
+.race-game.is-won .race-from {
     display: none;
 }
 
@@ -1874,7 +1910,7 @@
 }
 
 .race-hint {
-    margin: 6px 4px 0;
+    margin: 8px 4px 0;
     font-size: 12px;
     font-weight: 700;
     color: #92400e;
@@ -1884,7 +1920,8 @@
     display: flex;
     justify-content: center;
     gap: 16px;
-    margin-top: 8px;
+    min-height: 1.5em;
+    margin: 0 0 6px;
     font-weight: 800;
     color: #7c2d12;
 }
@@ -1917,23 +1954,25 @@
 }
 
 .race-nums {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 110px));
     justify-content: center;
-    gap: 10px;
+    gap: 6px;
     margin: 10px 0;
 }
 
 .race-nums span {
     display: flex;
     flex-direction: column;
-    min-width: 88px;
-    padding: 8px;
+    min-width: 0;
+    padding: 8px 2px;
     border-radius: 14px;
     background: #fff;
 }
 
 .race-nums b {
-    font-size: 20px;
+    font-size: clamp(16px, 5vw, 20px);
+    white-space: nowrap;
     color: #1f2937;
 }
 
@@ -1979,8 +2018,34 @@
         grid-template-columns: 1fr;
     }
 
+    /* icon on the left, so all three levels fit on a small phone */
     .race-level {
+        display: grid;
+        grid-template-columns: 40px 1fr;
+        column-gap: 10px;
+        align-items: center;
+        justify-items: start;
         min-height: 0;
+        padding: 10px 14px;
+        text-align: left;
+    }
+
+    .race-level > * {
+        grid-column: 2;
+    }
+
+    .race-level-icon {
+        grid-column: 1;
+        grid-row: 1 / span 3;
+        font-size: 28px;
+    }
+
+    .race-best {
+        margin: 2px 0 0;
+    }
+
+    .race-result {
+        padding: 12px 8px;
     }
 
     .race-lane {
@@ -1998,8 +2063,47 @@
     }
 }
 
+/* a phone keyboard open, or a phone on its side: everything a little smaller */
+@media (max-height: 600px) {
+    .play-card--race .race-track {
+        gap: 3px;
+        margin: 6px 0;
+        padding: 6px 10px;
+    }
+
+    .play-card--race .race-road {
+        --car: 26px;
+        height: 26px;
+    }
+
+    .play-card--race .race-car {
+        font-size: 20px;
+    }
+
+    .play-card--race .race-text {
+        padding: 8px 12px;
+        font-size: 18px;
+    }
+
+    .play-card--race .race-input {
+        margin-top: 6px;
+        padding: 8px 12px;
+        font-size: 18px;
+    }
+
+    .play-card--race .race-hint {
+        display: none;
+    }
+
+    .play-card--race .play-x {
+        width: 36px;
+        height: 36px;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
-    .race-car {
+    .race-car,
+    .race-light {
         transition: none;
     }
 

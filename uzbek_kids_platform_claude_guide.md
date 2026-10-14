@@ -738,29 +738,33 @@ fonts/gowun-dodum-ko.*   # built Korean font + the letters in it
 * `Race.texts(db, profile, level, locked)` returns `[{ text, book }]` for a level:
   * `words`: 3–4 words (3 for ages up to 6) from the Alifbo's word cards and the child's dictionary, all small letters.
   * `short`: the proverbs' titles in `maqollar` and each tongue twister's first sentence in `tez_aytish`.
-  * `book`: sentences of 30–110 letters (`BookEngine.sentences`) from the books the child has opened or finished. A new reader gets their age shelf instead. The Alifbo and the short pieces are left out, and so are twins that are still locked.
+  * `book`: sentences of 30–110 letters (`BookEngine.sentences`) from the pages the child has read: a finished book's every page, a book under way up to `record.page`. With fewer than 4, the age shelf adds its books. The Alifbo, the short pieces and locked twins are left out, and so are dialogue run-ons once the quotes are gone (`RUN_ON`: `"Hoy! - dedi."`, `"!,"`, `"..."`).
 * `clean` makes a text easy to type: one apostrophe, no quotes, `-` for dashes, `...` for `…`. `typable` keeps only texts of letters, the apostrophe and `, . ! ? : ; -`.
-* `pickText` never gives the same text twice in a row.
+* `pickText` never gives the same text twice in a row. Book sentences are kept to `RACE_MINUTES` (1.5) at the child's pace, at least 40 letters allowed; when fewer than 4 fit, the 4 shortest are used.
 
 ### Typing
-* `words(text)` splits the text into words that keep their space, as in TypeRacer. The box holds the word being typed, and a word is done with its space (or Enter, the phone's "next").
+* `words(text)` splits the text into words that keep their space, as in TypeRacer. The box holds the word being typed, and a word is done with its space (or Enter, the phone's "next"). Several words typed at once (a keyboard suggestion) are taken one by one.
+* `read()` is what the race sees in the box: no Korean or Cyrillic letters (`Race.FOREIGN`), no leading space, and no space after the last word. Those letters are taken out of the box once the keyboard lets go of them (not mid-composition), and the light over the track asks for ABC (`.race-light.is-warn`).
 * `matched(want, typed)` counts the letters that are right from the start. `same` ignores case and the apostrophe and dash styles.
-* A wrong letter shows red in the text (`.rt-bad`) and shakes the box, and the race waits until it is deleted. Pasting and dropping text into the box are blocked.
-* Speed is `wpm` (5 letters a word) from "🚦 Boshla!" to the last letter. Accuracy is the text's length out of every letter typed.
+* A wrong letter shows red in the text (`.rt-bad`; `⌫` when more is typed than the word holds) and shakes and reddens the box (`is-wrong`, cleared once fixed); the race waits until it is deleted. A letter fixed in the middle of a word sends the caret back to the end. Pasting and dropping text are blocked.
+* Speed is `wpm` (5 letters a word) from "🚦 Boshla!" to the last letter. Accuracy is the text's length out of every letter typed (letters from another keyboard don't count).
 
 ### The animals
-* `pace(profile, level)` is the average of the last five speeds at that level (`profile.race.recent`). Before a first race it is `START_PACE` for the level times an age factor (0.6 up to age 6, 1.4 from age 9).
-* `rivals(pace)` gives the turtle 0.55×, the camel 0.9× and the tulpor 1.25× of the pace, and never less than 2 so'z/daqiqa. Each runs with a small sway (`requestAnimationFrame`), so races differ.
+* `pace(profile, level)` is the median of the last five speeds at that level (`profile.race.recent`); for a level not raced yet, the median of the other levels' speeds (scaled by `LEVEL_FACTOR`); before any race, `START_BY_AGE` (1.5 so'z/daqiqa at 4 up to 7.5 at 10; 4 without an age). Never under `MIN_PACE` (0.5).
+* `rivals(pace)` gives the turtle 0.55×, the camel 0.9× and the tulpor 1.25× of the pace, so even the slowest child can beat the turtle. Each runs with a small sway (`requestAnimationFrame`), so races differ.
 * The child's place counts the animals at the flag before them.
 
 ### Records and points (`Race.finish`)
 * `profile.race` holds `best` and `recent` per level, the number of `races` and the `day` of the last one.
-* The first race finished each day gives +10 points (`DAY_POINTS`). Beating the level's best gives +10 more (`RECORD_POINTS`); a first race at a level sets the best but isn't a record.
+* The first race finished each day gives +10 points (`DAY_POINTS`). A record gives +10 more (`RECORD_POINTS`): the rounded speed, as shown, must beat the rounded best. A first race at a level sets the best but isn't a record. A race more than `FLUKE` (2.5) times the median of at least three recent races (a grown-up typing) sets neither the best nor a record; the median keeps it from moving the pace.
 
 ### In the app
-* The banner's "🏁 Yozuv poygasi" button calls `app.race.open()` (a `RaceGame`, made in `js/app.js`). The level picker and the race open in `#playModal` (`Games.open`).
+* The banner's "🏁 Yozuv poygasi" button calls `app.race.open()` (a `RaceGame`, made in `js/app.js`). The level picker and the race open in `#playModal` (`Games.open`); the picker focuses the suggested level.
 * The keyboard opens during the tap on a level, while the 3-2-1 countdown runs; anything typed before "Boshla!" is cleared.
-* The text is `translate="no"`, so it stays Latin with the Cyrillic switch on. The menus have Korean in `js/i18n.js`, and the child's name is `data-content`.
-* The loop stops when the window closes (Escape, ✕) or the child goes home (`RaceGame.stop`).
-* Styles are in `css/play.css` ("Yozuv poygasi"). `tests/race.test.js` checks the texts, the matching, the pace and the points.
-
+* On phones the window is sized to `visualViewport` during a race, so it ends above the on-screen keyboard, and the track is `position: sticky`; `.play-card` uses `max-height: 100%`. Short screens (a keyboard open, a phone on its side) get a compact layout.
+* Taps on the text or the track keep the box focused (and the keyboard open). A tap on the backdrop doesn't close a race under way; ✕ and Escape do. Closing returns focus to the button that opened the window (`Games.open` only remembers it when the window was closed).
+* The race pauses while the page is hidden (`visibilitychange`): the hidden time is taken off the child's clock, and the animals wait.
+* At the flag the result replaces the light, the box, the clock and the hints; after 0.8 s (so an Enter typed with the last letter doesn't start a new race) focus goes to "🔄 Yana poyga".
+* The text is `translate="no"`, so it stays Latin with the Cyrillic switch on; "ABC" stays Latin too (`js/translit.js` exception). The menus have Korean in `js/i18n.js`, and the child's name is `data-content`.
+* `RaceGame.stop()` cancels the loop and the countdown and takes off every listener and the window sizing (`cleanup`). It runs when the window closes (seen by the loop), when the child goes home and when a new race starts.
+* Styles are in `css/play.css` ("Yozuv poygasi"). `tests/race.test.js` checks the texts, the matching, the pace, records, flukes and the points.

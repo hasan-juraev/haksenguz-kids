@@ -52,10 +52,16 @@ const words = R.texts(db, kid, 'words');
 check(words.every(({ text }) => text.split(' ').length === 4 && text === text.toLowerCase()), 'words: four small words');
 check(R.texts(db, { age: 5, books: {}, words: {} }, 'words').every(({ text }) => text.split(' ').length === 3), 'words: three for the youngest');
 
-// book: sentences from the books the child has opened; twins stay locked
+// book: sentences from the pages the child has read; twins stay locked
 const reader = { age: 8, books: { zumrad: { page: 3 } }, words: {} };
 const fromBook = R.texts(db, reader, 'book');
 check(fromBook.length > 3 && fromBook.every((t) => t.book === 'zumrad' && t.text.length >= 30 && t.text.length <= 110), 'book: only the book opened');
+const readSoFar = db.zumrad.pages.slice(0, 3).map((p) => R.clean(p.text)).join(' ');
+check(fromBook.every((t) => readSoFar.includes(t.text)), 'book: only the pages read so far, no ending told');
+const finishedAll = {};
+Object.keys(db).forEach((k) => { finishedAll[k] = { finished: true }; });
+const everything = R.texts(db, { age: 8, books: finishedAll, words: {} }, 'book');
+check(everything.length > 200 && everything.every((t) => !/[.!?] - [A-Za-z']|[!?],|\.\.\./.test(t.text)), `book: no dialogue run-ons (${everything.length} texts)`);
 const fresh = R.texts(db, { age: 8, books: {}, words: {} }, 'book', (k) => !!db[k].twin);
 check(fresh.length > 10 && fresh.every((t) => !db[t.book].twin && !['alifbo', 'kichik'].includes(db[t.book].category)), 'book: a new reader gets their shelf, without locked twins');
 check(R.texts(db, { age: 10, books: {}, words: {} }, 'book').every((t) => db[t.book].age[1] >= 9), 'book: a 10-year-old gets the 9+ shelf');
@@ -64,12 +70,20 @@ check(R.texts(db, { age: 10, books: {}, words: {} }, 'book').every((t) => db[t.b
 const first = R.pickText(db, kid, 'short', { rand: () => 0 });
 const second = R.pickText(db, kid, 'short', { rand: () => 0, not: first.text });
 check(first && second && first.text !== second.text, 'pickText avoids the last text');
+// book texts fit the child's pace: about a minute and a half, never under 40 letters allowed
+const young = { age: 7, books: finishedAll, words: {} };
+const picks = Array.from({ length: 30 }, (_, i) => R.pickText(db, young, 'book', { rand: () => i / 30 }));
+check(picks.every((t) => t.text.length <= 40), `book: short sentences for a 7-year-old (${Math.max(...picks.map((t) => t.text.length))})`);
+check(R.pickText(db, { age: 7, books: { zumrad: { page: 1 } }, words: {} }, 'book'), 'book: a short first page still gives a text');
 
 // pace: by age at first, then the last races; the turtle is slower than the tulpor
 check(R.pace({ age: 5 }, 'short') < R.pace({ age: 7 }, 'short') && R.pace({ age: 7 }, 'short') < R.pace({ age: 10 }, 'short'), 'pace grows with age');
+check(R.pace({ age: 4 }, 'short') <= 2 && R.pace({ age: 10 }, 'short') <= 8, 'a first race starts slow enough for a child hunting keys');
 const racers = R.rivals(10);
 check(racers.map((r) => r.id).join() === 'turtle,camel,horse' && racers[0].wpm < 10 && racers[1].wpm < 10 && racers[2].wpm > 10, 'rivals around the pace');
-check(R.rivals(1).every((r) => r.wpm >= 2), 'rivals never crawl');
+const slow = R.rivals(R.pace({ race: { recent: { words: [1.5] } } }, 'words'));
+check(slow[0].wpm < 1.5 && slow[0].wpm < slow[1].wpm && slow[1].wpm < slow[2].wpm, 'a slow child can still beat the turtle');
+check(R.median([11, 12, 9, 9, 9]) === 9 && R.median([1, 3]) === 2, 'median');
 
 // finish: points for the first race of the day and for a record
 const p = { age: 8 };
@@ -82,8 +96,21 @@ check(got.isRecord && got.points === R.RECORD_POINTS && p.race.best.short === 11
 got = R.finish(p, 'short', 12, 'Tue');
 check(got.isRecord && got.firstToday && got.points === R.DAY_POINTS + R.RECORD_POINTS, 'a new day and a record');
 [1, 2, 3].forEach(() => R.finish(p, 'short', 9, 'Tue'));
-check(p.race.recent.short.length === 5 && R.pace(p, 'short') === (11 + 12 + 9 + 9 + 9) / 5, 'pace: the last five races');
-check(p.race.races === 7 && R.pace(p, 'words') === R.pace({ age: 8 }, 'words'), 'each level keeps its own pace');
+check(p.race.recent.short.length === 5 && R.pace(p, 'short') === 9, 'pace: the median of the last five races');
+check(p.race.races === 7 && Math.abs(R.pace(p, 'words') - 9 * 0.9) < 1e-9, 'a level never raced starts from the others');
+
+// one grown-up's race neither sets the record nor drags the animals along
+const kidRace = { age: 7 };
+[5, 5.2, 4.8, 5.1].forEach((v) => R.finish(kidRace, 'words', v, 'Wed'));
+const grownUp = R.finish(kidRace, 'words', 45, 'Wed');
+check(grownUp.fluke && !grownUp.isRecord && kidRace.race.best.words === 5.2 && R.pace(kidRace, 'words') === 5.1, 'a fluke race sets no record');
+// a record is a bigger number on screen
+const q = { age: 8 };
+R.finish(q, 'words', 8.1, 'a');
+check(!R.finish(q, 'words', 8.4, 'a').isRecord && R.finish(q, 'words', 8.6, 'a').isRecord, 'a record is a bigger number on screen');
+
+// letters from a Korean or Cyrillic keyboard are spotted
+check(R.FOREIGN.test('ㅐㅅㅁ') && R.FOREIGN.test('가') && R.FOREIGN.test('ота') && !R.FOREIGN.test("o'rdak olma"), 'foreign keyboards');
 
 console.log(failed ? `\n${failed}/${total} failed` : `${total}/${total} passed`);
 process.exit(failed ? 1 : 0);

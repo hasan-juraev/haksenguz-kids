@@ -330,6 +330,7 @@
         'Kitobdan': '책에서',
         "O'qigan kitobingizdan bir gap": '읽은 책 속의 한 문장',
         'Shu yerga yozing': '여기에 써요',
+        "⌨️ ABC ga o'ting (한/영)": '⌨️ 영문(ABC)으로 바꿔 주세요 (한/영)',
         "⌨️ Klaviaturani lotin harflariga (ABC) o'tkazing. Bosh harf shart emas.": '⌨️ 자판을 영문(ABC)으로 바꿔 주세요. 대문자로 쓰지 않아도 돼요.',
         '🚦 Boshla!': '🚦 출발!',
         "🥇 Birinchi bo'ldingiz!": '🥇 1등이에요!',

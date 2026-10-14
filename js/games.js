@@ -17,7 +17,8 @@
     function openModal(html, cls) {
         const m = document.getElementById('playModal');
         const card = m.querySelector('.play-card');
-        lastFocus = document.activeElement;
+        // a new screen inside the open window keeps the button that opened it
+        if (m.classList.contains('hidden')) lastFocus = document.activeElement;
         card.className = `play-card ${cls || ''}`;
         card.innerHTML = html;
         m.classList.remove('hidden');
@@ -31,7 +32,8 @@
         if (!m || m.classList.contains('hidden')) return;
         m.classList.add('hidden');
         m.querySelector('.play-card').innerHTML = '';
-        if (lastFocus && lastFocus.focus) lastFocus.focus();
+        if (lastFocus && lastFocus.isConnected && lastFocus.focus) lastFocus.focus();
+        lastFocus = null;
     }
 
     document.addEventListener('keydown', (e) => {
