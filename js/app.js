@@ -66,6 +66,7 @@
             });
             this.studio = new root.Studio(this);
             this.bedtime = root.Bedtime ? new root.Bedtime(this) : null;
+            this.race = root.RaceGame ? new root.RaceGame(this) : null; // Yozuv poygasi (js/race.js)
 
             document.addEventListener('keydown', (e) => this.onKey(e));
             document.getElementById('profileList').addEventListener('click', (e) => this.onProfileListClick(e));
@@ -285,6 +286,7 @@
 
         goHome() {
             if (this.bedtime) this.bedtime.stop();
+            if (this.race) this.race.stop();
             this.book.stopTurn();
             this.reader.stop();
             this.studio.close();

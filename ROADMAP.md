@@ -355,6 +355,38 @@ reading it.
       - A book read to the end counts as read, and its passport stamp
         shows on the good-night screen.
 
+15. **Yozuv poygasi (typing race).** ✅ Built. Like TypeRacer: the child
+    types a short text, and their avatar races 🐢 Toshbaqa, 🐫 Tuya and
+    🐎 Tulpor to the flag.
+    - **Three levels**, the child's age picking the first: 🔤 *So'zlar*
+      (3–4 words from the Alifbo and their dictionary), 💬 *Maqollar* (a
+      proverb or a tongue twister) and 📖 *Kitobdan* (a sentence from the
+      pages they have read, so a race never gives away an ending). Book
+      sentences are kept to about a minute and a half at the child's speed,
+      and dialogue lines are left out.
+    - **Forgiving where it should be.** Capitals don't matter, and every
+      apostrophe a phone makes (' ʻ ’) counts for o', g' and the tutuq.
+      Quotes are left out of the texts, so every text can be typed on a
+      phone. A wrong letter turns red and the race waits until it's fixed.
+      Words a keyboard suggestion types in one go count, and so does the
+      space it adds after the last word.
+    - **Wrong keyboard.** Letters from a Korean (한글) or Cyrillic keyboard
+      are not taken; the light over the track says "⌨️ ABC ga o'ting (한/영)".
+    - **The animals keep to the child's pace.** It is the median of their
+      last five races at that level (or at the other levels), else a slow
+      start by age (1.5 so'z/daqiqa at 4, 7.5 at 10). A race far faster than
+      usual, such as a grown-up trying it (even as a new profile's first
+      race), sets no record and doesn't speed up the animals.
+    - **On phones:** the track and the line being typed stay in sight while
+      the keyboard is open (the layout follows the space above the keyboard), a
+      tap on the text or outside the card keeps the race going (✕ or Escape
+      closes it), and the race pauses while the phone is locked.
+    - **At the flag:** the child's place, speed (so'z/daqiqa), accuracy and
+      time. The first race each day is worth +10 points, and each new
+      record (a bigger number on screen) +10 more.
+    - Texts are typed in Latin, as in Uzbek schools, even with the Cyrillic
+      switch on.
+
 ## Privacy
 
 Korean law (PIPA) requires a guardian's consent to collect personal data from

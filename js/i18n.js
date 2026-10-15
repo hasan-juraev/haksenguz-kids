@@ -315,6 +315,35 @@
         '🎉 Bugun bayram:': '🎉 오늘은',
         '🎉 Ertaga bayram:': '🎉 내일은',
     });
+    // Yozuv poygasi: the typing race (js/race.js)
+    Object.assign(EXACT, {
+        'Yozuv poygasi': '타자 경주',
+        '🏁 Yozuv poygasi': '🏁 타자 경주',
+        'Kim tezroq yozadi? Toshbaqa, tuya va tulpor bilan poyga qiling!': '누가 더 빨리 쓸까요? 거북이, 낙타, 천리마와 경주해 봐요!',
+        'Toshbaqa': '거북이',
+        'Tuya': '낙타',
+        'Tulpor': '천리마',
+        "So'zlar": '낱말',
+        "3–4 ta qisqa so'z": '짧은 낱말 3~4개',
+        'Maqollar': '속담',
+        'Maqol yoki tez aytish': '속담이나 잰말놀이',
+        'Kitobdan': '책에서',
+        "O'qigan kitobingizdan bir gap": '읽은 책 속의 한 문장',
+        'Shu yerga yozing': '여기에 써요',
+        "⌨️ ABC ga o'ting (한/영)": '⌨️ 영문(ABC)으로 바꿔 주세요 (한/영)',
+        "⌨️ Klaviaturani lotin harflariga (ABC) o'tkazing. Bosh harf shart emas.": '⌨️ 자판을 영문(ABC)으로 바꿔 주세요. 대문자로 쓰지 않아도 돼요.',
+        '🚦 Boshla!': '🚦 출발!',
+        "🥇 Birinchi bo'ldingiz!": '🥇 1등이에요!',
+        "🥈 Ikkinchi bo'ldingiz!": '🥈 2등이에요!',
+        "🥉 Uchinchi bo'ldingiz!": '🥉 3등이에요!',
+        '🏁 Marraga yetdingiz!': '🏁 결승선에 도착했어요!',
+        '🏆 Yangi rekord!': '🏆 새 기록!',
+        "so'z/daqiqa": '낱말/분',
+        "to'g'ri": '정확도',
+        'vaqt': '시간',
+        '🔄 Yana poyga': '🔄 다시 경주',
+        '🏁 Boshqa daraja': '🏁 다른 단계',
+    });
     const MONTHS = ['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avgust', 'sentabr', 'oktabr', 'noyabr', 'dekabr'];
 
     // A place's or a sticker's Korean name (js/passport.js), or the Uzbek one if unknown.
@@ -355,6 +384,8 @@
         [/^▶ Davom ettirish · (\d+)-sahifa$/, '▶ 이어 읽기 · $1쪽', '▶ Davom ettirish · 3-sahifa'],
         [/^📄 (\d+) sahifa · ⏱ ~(\d+) daqiqa$/, '📄 $1쪽 · ⏱ 약 $2분', '📄 12 sahifa · ⏱ ~6 daqiqa'],
         [/^Savollarga javoblar: (\d+) \/ (\d+)$/, '맞힌 질문: $1 / $2', 'Savollarga javoblar: 4 / 5'],
+        [/^⚡ (\d+) so'z\/daqiqa$/, '⚡ 1분에 $1낱말', "⚡ 9 so'z/daqiqa"],
+        [/^🏆 (\d+) so'z\/daqiqa$/, '🏆 최고 기록: 1분에 $1낱말', "🏆 12 so'z/daqiqa"],
         [/^(.+) \+(\d+) ball$/, '$1 +$2점', '⭐ Barakalla! +10 ball'],
         [/^Siz to'g'ri xulosa topdingiz va (\d+) ball qo'shildi!$/, '교훈을 바르게 찾았어요! $1점을 받았어요!', "Siz to'g'ri xulosa topdingiz va 50 ball qo'shildi!"],
         [/^(.+) bu ertakni o'qib bergan — 🎧 bosing!$/, '$1 님이 이 동화를 읽어 줬어요 — 🎧 눌러 보세요!', "👵 Buvijon bu ertakni o'qib bergan — 🎧 bosing!"],

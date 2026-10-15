@@ -10,6 +10,8 @@ For children who read Korean letters first, the 가 button on any page shows the
 
 Every new word a child meets in a book goes into their own dictionary, *Mening lug'atim*, as a picture card with its Korean meaning. It has three games: hear a word and find its picture, match Uzbek words to Korean, and build a word from its letters.
 
+"🏁 Yozuv poygasi" is a typing race, like TypeRacer. The child types a few words, a proverb or tongue twister, or a sentence from a book they've read. Their avatar races a turtle, a camel and a tulpor (a swift horse), which keep to the child's own pace. A wrong letter turns red and has to be fixed. The race ends with the child's place, speed in words a minute and accuracy, and the first race each day and each new record earn points.
+
 Every book takes the child somewhere: to one of Uzbekistan's 14 regions, or to Korea. Finishing a book stamps that place in the child's passport (*Pasportim*). Its map of Uzbekistan colours each place visited, and each place has a card with a true fact about it. Points buy each place's stickers (Registon, the Kalta minor, a Chust do'ppi, the Tashkent metro...) for the passport's album.
 
 The "Qisqa va qiziq" shelf (short and fun) has four small books:
@@ -39,7 +41,7 @@ The app can be installed on a phone's home screen and works offline after the fi
 
 Open `index.html` in a browser; no build step is needed (recording and offline use need `https://` or `localhost`). See `uzbek_kids_platform_claude_guide.md` for the architecture and how stories, illustrations and narration work, and `ROADMAP.md` for what comes next.
 
-- **Tests:** `npm test` checks the Latin → Cyrillic spelling, the sentence timing for read-along, that every book is complete (pages, pictures, questions, ages), that the Korean lines up with the Uzbek, and that the built styles, fonts and icons match the code. The individual files in `tests/` also run with plain `node`.
+- **Tests:** `npm test` checks the Latin → Cyrillic spelling, the sentence timing for read-along, that every book is complete (pages, pictures, questions, ages), that the Korean lines up with the Uzbek, that every typing-race text can be typed on a phone, and that the built styles, fonts and icons match the code. The individual files in `tests/` also run with plain `node`.
 - **After adding Tailwind classes, icons or Korean text:** run `npm install` once, then `npm run build`. This rebuilds `css/tailwind.css`, the icon font and the font files; commit the results.
 - **Checking the Korean:** `node tools/korean-review.js > korean-review.csv` makes a side-by-side Uzbek–Korean table for a bilingual reviewer.
 - **Adding a narrator's recordings to the app:** `node tools/import-narration.js <voice-pack.json>`.

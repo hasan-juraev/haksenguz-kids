@@ -14,6 +14,7 @@ const cases = [
     ['Shirin', 'Ширин'],
     ['choy', 'чой'],
     ['Hoshimjon', 'Ҳошимжон'],
+    ["(ABC) o'tkazing", '(ABC) ўтказинг'], // the keyboard key stays as printed
     ['Buxoro', 'Бухоро'],
     ['Samarqand', 'Самарқанд'],
     ['yangi tong', 'янги тонг'],
