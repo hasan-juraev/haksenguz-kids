@@ -103,7 +103,23 @@ check(p.race.races === 7 && Math.abs(R.pace(p, 'words') - 9 * 0.9) < 1e-9, 'a le
 const kidRace = { age: 7 };
 [5, 5.2, 4.8, 5.1].forEach((v) => R.finish(kidRace, 'words', v, 'Wed'));
 const grownUp = R.finish(kidRace, 'words', 45, 'Wed');
-check(grownUp.fluke && !grownUp.isRecord && kidRace.race.best.words === 5.2 && R.pace(kidRace, 'words') === 5.1, 'a fluke race sets no record');
+check(grownUp.fluke && !grownUp.isRecord && kidRace.race.best.words === 5.2 && Math.abs(R.pace(kidRace, 'words') - 5.05) < 1e-9, 'a fluke race sets no record and leaves the pace');
+// ...even when it is a new profile's very first race (a parent showing how)
+const newKid = { age: 6 };
+const demo = R.finish(newKid, 'short', 45, 'Thu');
+check(demo.fluke && !newKid.race.best.short && R.pace(newKid, 'short') === 2.5 && R.pace(newKid, 'words') === 2.25, "a grown-up's first race sets no best and no pace");
+check(R.finish(newKid, 'short', 3, 'Thu').points === 0 && newKid.race.best.short === 3 && R.pace(newKid, 'short') === 3, 'the child then races from their own pace');
+// a young child getting faster is not a fluke
+const little = { age: 5, race: { recent: { words: [1.5, 1.6, 1.4] }, best: { words: 1.6 } } };
+const better = R.finish(little, 'words', 4, 'Fri');
+check(!better.fluke && better.isRecord && little.race.best.words === 4, 'a young child going from 1.5 to 4 sets a record');
+// a really fast child: set aside once, then counted
+const fast = { age: 10 };
+check(R.finish(fast, 'book', 30, 'Sat').fluke && !R.finish(fast, 'book', 29, 'Sat').fluke && fast.race.best.book === 29, 'a second fast race in a row is the child after all');
+// a whole text typed in one go (a keyboard's clipboard or voice) never counts
+const voice = { age: 9 };
+check(R.finish(voice, 'short', 955, 'Sun').fluke && R.finish(voice, 'short', 955, 'Sun').fluke && !voice.race.best.short, 'impossible speeds never count');
+check(R.finish(voice, 'short', 60, 'Sun').fluke && !voice.race.best.short, 'and they never vouch for the next fast race');
 // a record is a bigger number on screen
 const q = { age: 8 };
 R.finish(q, 'words', 8.1, 'a');

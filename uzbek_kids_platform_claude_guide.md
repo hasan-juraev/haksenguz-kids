@@ -744,7 +744,7 @@ fonts/gowun-dodum-ko.*   # built Korean font + the letters in it
 
 ### Typing
 * `words(text)` splits the text into words that keep their space, as in TypeRacer. The box holds the word being typed, and a word is done with its space (or Enter, the phone's "next"). Several words typed at once (a keyboard suggestion) are taken one by one.
-* `read()` is what the race sees in the box: no Korean or Cyrillic letters (`Race.FOREIGN`), no leading space, and no space after the last word. Those letters are taken out of the box once the keyboard lets go of them (not mid-composition), and the light over the track asks for ABC (`.race-light.is-warn`).
+* `read()` is what the race sees in the box: no Korean or Cyrillic letters (`Race.FOREIGN`) and no leading space. Those letters are taken out of the box once the keyboard lets go of them (not mid-composition), and the light over the track asks for ABC (`.race-light.is-warn`). A space after the last word isn't needed, but a keyboard's auto-space there still finishes the race (a word is matched on its own letters), and it isn't counted against accuracy. A space typed before the final full stop shows red at once.
 * `matched(want, typed)` counts the letters that are right from the start. `same` ignores case and the apostrophe and dash styles.
 * A wrong letter shows red in the text (`.rt-bad`; `⌫` when more is typed than the word holds) and shakes and reddens the box (`is-wrong`, cleared once fixed); the race waits until it is deleted. A letter fixed in the middle of a word sends the caret back to the end. Pasting and dropping text are blocked.
 * Speed is `wpm` (5 letters a word) from "🚦 Boshla!" to the last letter. Accuracy is the text's length out of every letter typed (letters from another keyboard don't count).
@@ -756,12 +756,18 @@ fonts/gowun-dodum-ko.*   # built Korean font + the letters in it
 
 ### Records and points (`Race.finish`)
 * `profile.race` holds `best` and `recent` per level, the number of `races` and the `day` of the last one.
-* The first race finished each day gives +10 points (`DAY_POINTS`). A record gives +10 more (`RECORD_POINTS`): the rounded speed, as shown, must beat the rounded best. A first race at a level sets the best but isn't a record. A race more than `FLUKE` (2.5) times the median of at least three recent races (a grown-up typing) sets neither the best nor a record; the median keeps it from moving the pace.
+* The first race finished each day gives +10 points (`DAY_POINTS`). A record gives +10 more (`RECORD_POINTS`): the rounded speed, as shown, must beat the rounded best. A first race at a level sets the best but isn't a record.
+* A fluke is a race more than `FLUKE` (2.5) times the child's usual speed (`pace()`, so even a new profile's first race is judged against the age's start) and more than `FLUKE_GAP` (10) so'z/daqiqa over it, or any race over `MAX_WPM` (150, a whole text typed at once by a keyboard's clipboard or voice). A fluke still earns the day's points but sets no best, no record and no pace. `profile.race.odd` remembers it: if the next race at that level is just as fast, it was the child after all and counts (except past `MAX_WPM`). So a parent showing how the game works doesn't make the animals run away, and a young child going from 1.5 to 4 still sets a record.
 
 ### In the app
 * The banner's "🏁 Yozuv poygasi" button calls `app.race.open()` (a `RaceGame`, made in `js/app.js`). The level picker and the race open in `#playModal` (`Games.open`); the picker focuses the suggested level.
 * The keyboard opens during the tap on a level, while the 3-2-1 countdown runs; anything typed before "Boshla!" is cleared.
-* On phones the window is sized to `visualViewport` during a race, so it ends above the on-screen keyboard, and the track is `position: sticky`; `.play-card` uses `max-height: 100%`. Short screens (a keyboard open, a phone on its side) get a compact layout.
+* On phones the window is sized to `visualViewport` during a race, so it ends above the on-screen keyboard, and the track is `position: sticky`; `.play-card` uses `max-height: 100%`.
+* iPhones and Android Chrome shrink only the visual viewport for the keyboard, which `@media` never sees, so `fit()` sets the compact layouts as classes on the card from `visualViewport.height`:
+  * `is-short` (600px or less: a keyboard open, a phone on its side): a smaller track, no 📖 line or hint, and a text box of two lines that scrolls by whole lines to keep the line being typed at the top (a white border stands in for padding, so the line above never peeks in);
+  * `is-cramped` (under 300px): the track scrolls away with the card, and a keyboard warning shows at the top of the window.
+  When the keyboard opens, the card scrolls to the bottom, so the text and the box are in sight. The classes stay as they are once the race is over.
+* The child's live speed shows in their own lane as well as on the stats line, which can be out of sight on a phone.
 * Taps on the text or the track keep the box focused (and the keyboard open). A tap on the backdrop doesn't close a race under way; ✕ and Escape do. Closing returns focus to the button that opened the window (`Games.open` only remembers it when the window was closed).
 * The race pauses while the page is hidden (`visibilitychange`): the hidden time is taken off the child's clock, and the animals wait.
 * At the flag the result replaces the light, the box, the clock and the hints; after 0.8 s (so an Enter typed with the last letter doesn't start a new race) focus goes to "🔄 Yana poyga".

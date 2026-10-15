@@ -2063,42 +2063,68 @@
     }
 }
 
-/* a phone keyboard open, or a phone on its side: everything a little smaller */
-@media (max-height: 600px) {
-    .play-card--race .race-track {
-        gap: 3px;
-        margin: 6px 0;
-        padding: 6px 10px;
-    }
+/* A phone keyboard open, or a phone on its side (is-short, set by js/race.js from the
+   visual viewport, which @media never sees): everything a little smaller, and the
+   text box shows two lines, the one being typed first. */
+.play-card--race.is-short .race-track {
+    gap: 3px;
+    margin: 4px 0;
+    padding: 6px 10px;
+}
 
-    .play-card--race .race-road {
-        --car: 26px;
-        height: 26px;
-    }
+.play-card--race.is-short .race-road {
+    --car: 26px;
+    height: 26px;
+}
 
-    .play-card--race .race-car {
-        font-size: 20px;
-    }
+.play-card--race.is-short .race-car {
+    font-size: 20px;
+}
 
-    .play-card--race .race-text {
-        padding: 8px 12px;
-        font-size: 18px;
-    }
+.play-card--race.is-short .race-stats {
+    min-height: 0;
+    margin: 0 0 4px;
+    font-size: 13px;
+}
 
-    .play-card--race .race-input {
-        margin-top: 6px;
-        padding: 8px 12px;
-        font-size: 18px;
-    }
+.play-card--race.is-short .race-text {
+    position: relative; /* the line being typed is measured from here */
+    /* two lines; the white border stands in for padding, so a line scrolled up never peeks in */
+    max-height: calc(2 * 1.55em + 16px);
+    overflow: hidden;
+    padding: 0 10px;
+    border: 8px solid #fff;
+    border-width: 8px 2px;
+    box-shadow: 0 0 0 2px #fde68a;
+    font-size: 18px;
+}
 
-    .play-card--race .race-hint {
-        display: none;
-    }
+.play-card--race.is-short .race-input {
+    margin-top: 6px;
+    padding: 8px 12px;
+    font-size: 18px;
+}
 
-    .play-card--race .play-x {
-        width: 36px;
-        height: 36px;
-    }
+.play-card--race.is-short .race-from,
+.play-card--race.is-short .race-hint {
+    display: none;
+}
+
+.play-card--race.is-short .play-x {
+    width: 36px;
+    height: 36px;
+}
+
+/* Not even the compact track fits above the keyboard: the track scrolls away with
+   the card, and a keyboard warning shows at the top of the window instead. */
+.play-card--race.is-cramped .race-track {
+    position: relative;
+}
+
+.play-card--race.is-cramped .race-light.is-warn {
+    position: fixed; /* #playModal has a backdrop-filter, so this is its top */
+    top: 6px;
+    transform: translateX(-50%);
 }
 
 @media (prefers-reduced-motion: reduce) {

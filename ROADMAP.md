@@ -375,8 +375,10 @@ reading it.
     - **The animals keep to the child's pace.** It is the median of their
       last five races at that level (or at the other levels), else a slow
       start by age (1.5 so'z/daqiqa at 4, 7.5 at 10). A race far faster than
-      usual, such as a grown-up trying it, sets no record.
-    - **On phones:** the track stays in sight while the keyboard is open, a
+      usual, such as a grown-up trying it (even as a new profile's first
+      race), sets no record and doesn't speed up the animals.
+    - **On phones:** the track and the line being typed stay in sight while
+      the keyboard is open (the layout follows the space above the keyboard), a
       tap on the text or outside the card keeps the race going (✕ or Escape
       closes it), and the race pauses while the phone is locked.
     - **At the flag:** the child's place, speed (so'z/daqiqa), accuracy and

@@ -37,7 +37,12 @@
         { id: 'horse', icon: '🐎', name: 'Tulpor', pace: 1.25 },
     ];
     const MIN_PACE = 0.5; // even the slowest child can beat the turtle
-    const FLUKE = 2.5; // a race this many times the child's usual speed (a grown-up typing?) sets no record
+    // A race far faster than the child's usual speed (a grown-up showing how, or a keyboard
+    // typing the whole text at once) neither sets the record nor moves the animals' pace:
+    // FLUKE times the usual and more than FLUKE_GAP so'z/daqiqa over it, or past MAX_WPM.
+    const FLUKE = 2.5;
+    const FLUKE_GAP = 10;
+    const MAX_WPM = 150;
     const RACE_MINUTES = 1.5; // a book sentence takes about this long at the child's pace
     const DAY_POINTS = 10; // the first race finished each day
     const RECORD_POINTS = 10; // beating this level's best speed
@@ -186,16 +191,18 @@
     const rivals = (p) => RIVALS.map((r) => Object.assign({}, r, { wpm: Math.max(0.1, Math.round(p * r.pace * 10) / 10) }));
 
     // Saves a finished race; says what it earned. A record is a bigger number on
-    // screen; a race far faster than usual (a grown-up typing) counts for the day
-    // but sets no record.
+    // screen. A fluke (see FLUKE) counts for the day but is otherwise set aside,
+    // unless the race after it at that level is just as fast: then it was the child.
     function finish(profile, level, speed, today) {
         const r = record(profile);
         const recent = r.recent[level] || [];
-        const fluke = recent.length >= 3 && speed > FLUKE * median(recent);
+        const usual = pace(profile, level); // this level's races, else the others', else the age's start
+        const fluke = speed > MAX_WPM || (speed > FLUKE * usual && speed - usual > FLUKE_GAP && r.odd !== level);
+        r.odd = fluke && speed <= MAX_WPM ? level : null; // an impossible speed is never the child
         const before = r.best[level] || 0;
         const isRecord = !fluke && before > 0 && Math.round(speed) > Math.round(before);
         if (!fluke && speed > before) r.best[level] = speed;
-        r.recent[level] = [...recent, speed].slice(-RECENT);
+        if (!fluke) r.recent[level] = [...recent, speed].slice(-RECENT);
         r.races = (r.races || 0) + 1;
         const firstToday = r.day !== today;
         r.day = today;
@@ -322,13 +329,9 @@
             };
 
             // What the race reads from the box: no letters from a Korean or Cyrillic
-            // keyboard, no space left over from the word before, and no space a
-            // keyboard adds after the last word.
-            const read = () => {
-                let t = input.value.replace(FOREIGN_ALL, '').replace(/^\s+/, '');
-                if (run.wi === list.length - 1) t = t.replace(/\s+$/, '');
-                return t;
-            };
+            // keyboard and no space left over from the word before. (A keyboard's space
+            // after the last word still finishes: a word is matched on its own letters.)
+            const read = () => input.value.replace(FOREIGN_ALL, '').replace(/^\s+/, '');
 
             const draw = () => {
                 const word = list[run.wi] || '';
@@ -346,6 +349,11 @@
                     + (over ? '<span class="rt-bad">⌫</span>' : '')
                     + `<span class="rt-rest">${esc(list.slice(run.wi + 1).join(''))}</span>`;
                 move(0, (run.doneLen + good) / text.length);
+                // a short window shows only two lines of the text: the one being typed first
+                if (box.scrollHeight > box.clientHeight + 1) {
+                    const lh = parseFloat(getComputedStyle(box).lineHeight) || 28;
+                    box.scrollTop = Math.floor((box.querySelector('.rt-word').offsetTop + 2) / lh) * lh;
+                }
             };
 
             // The light over the track asks for the ABC keyboard while letters come from another one.
@@ -415,7 +423,9 @@
                     if (tidy !== input.value) input.value = tidy;
                 }
                 let typed = read();
-                if (typed.length > run.prevLen) run.keys += typed.length - run.prevLen;
+                // a keyboard's space after the last word isn't a key the child pressed wrong
+                const counted = run.wi === list.length - 1 ? typed.replace(/\s+$/, '').length : typed.length;
+                if (counted > run.prevLen) run.keys += counted - run.prevLen;
                 // Whole words done; a keyboard suggestion can bring more than one at once.
                 let advanced = false;
                 while (run.wi < list.length) {
@@ -492,23 +502,41 @@
                     run.last = 0; // the animals go on from where they stopped
                 }
             });
-            // The window fits what the phone keyboard leaves free, so the track stays in sight.
+            // The window fits what the phone keyboard leaves free. On iPhones and Android
+            // Chrome the keyboard shrinks only the visual viewport, which CSS media queries
+            // never see, so the compact layouts are classes: is-short (a keyboard open, a
+            // phone on its side) and is-cramped (not even the compact track fits).
             const vv = root.visualViewport;
-            if (vv && modal) {
-                const fit = () => {
+            const fit = () => {
+                const h = vv ? vv.height : root.innerHeight;
+                if (vv && modal) {
                     modal.style.top = `${vv.offsetTop}px`;
-                    modal.style.height = `${vv.height}px`;
+                    modal.style.height = `${h}px`;
                     modal.style.bottom = 'auto';
-                };
-                on(vv, 'resize', fit);
-                on(vv, 'scroll', fit);
-                this.cleanup.push(() => {
-                    modal.style.top = '';
-                    modal.style.height = '';
-                    modal.style.bottom = '';
-                });
+                    modal.style.padding = h <= 600 ? '8px' : '';
+                }
+                if (run.done) return; // the result keeps its layout once the keyboard closes
+                card.classList.toggle('is-short', h <= 600);
+                card.classList.toggle('is-cramped', h < 300);
+            };
+            const refit = () => {
                 fit();
+                if (run.done) return;
+                draw();
+                card.scrollTop = card.scrollHeight; // the text and the box in sight above the keyboard
+            };
+            if (vv) {
+                on(vv, 'resize', refit);
+                on(vv, 'scroll', fit);
+            } else {
+                on(root, 'resize', refit);
             }
+            if (modal) {
+                this.cleanup.push(() => {
+                    ['top', 'height', 'bottom', 'padding'].forEach((k) => { modal.style[k] = ''; });
+                });
+            }
+            fit();
 
             // The animals run with a little sway, so no race looks the same.
             const tick = (now) => {
@@ -532,7 +560,11 @@
                     if (time !== run.shownTime) $('.race-time').textContent = run.shownTime = time;
                     const typed = run.doneLen + matched(list[run.wi] || '', read());
                     const speed = ms > 2000 && typed ? `⚡ ${Math.round(wpm(typed, ms))} so'z/daqiqa` : '';
-                    if (speed && speed !== run.shownSpeed) $('.race-speed').textContent = run.shownSpeed = speed;
+                    if (speed && speed !== run.shownSpeed) {
+                        $('.race-speed').textContent = run.shownSpeed = speed;
+                        // the lane shows it too: on a phone the stats line can be out of sight
+                        lanes[0].querySelector('.race-wpm').textContent = String(Math.round(wpm(typed, ms)));
+                    }
                 }
                 // after the child's finish, the animals still running get a few seconds more
                 const allIn = run.rivals.every((x) => x.at);
